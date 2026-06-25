@@ -65,14 +65,14 @@
     #status {
   position: fixed;
   left: 50%;
-  bottom: 14px;
+  top: 92px;
   transform: translateX(-50%);
-  z-index: 100;
-  width: 86%;
-  max-width: 360px;
-  padding: 7px 10px;
+  z-index: 120;
+  width: 84%;
+  max-width: 340px;
+  padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.78);
+  background: rgba(0, 0, 0, 0.72);
   border: 1px solid rgba(255, 210, 90, 0.55);
   text-align: center;
   font-size: 11px;
@@ -84,7 +84,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
     .overlay {
       display: none;
       position: fixed;
@@ -196,19 +195,22 @@
     }
 
     .gacha-effect {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 80;
-      background: radial-gradient(circle, rgba(255,218,90,.95), rgba(0,0,0,.95) 70%);
-      align-items: center;
-      justify-content: center;
-      color: #fff2b8;
-      font-size: 28px;
-      font-weight: bold;
-      text-shadow: 0 0 12px #000;
-      animation: flash .9s ease-in-out infinite alternate;
-    }
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: radial-gradient(circle, rgba(255,218,90,.72), rgba(0,0,0,.92) 72%);
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  color: #fff2b8;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 0 12px #000;
+  animation: flash .9s ease-in-out infinite alternate;
+}
 
     @keyframes flash {
       from { opacity: .75; }
