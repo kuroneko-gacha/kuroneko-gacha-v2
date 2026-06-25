@@ -1,11 +1,251 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>クロネコガチャ v2</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: linear-gradient(180deg, #111, #222);
+      color: white;
+      text-align: center;
+    }
+
+    .app {
+      padding: 20px;
+      max-width: 430px;
+      margin: auto;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-top: 24px;
+    }
+
+    .status {
+      margin: 16px 0;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    .btn {
+      width: 90%;
+      max-width: 340px;
+      padding: 18px;
+      margin: 12px auto;
+      border: none;
+      border-radius: 999px;
+      font-size: 20px;
+      font-weight: bold;
+      background: #ffd54a;
+      color: #111;
+      display: block;
+    }
+
+    .btn.sub {
+      background: #444;
+      color: white;
+    }
+
+    .card {
+      margin: 20px auto;
+      padding: 16px;
+      background: white;
+      color: #111;
+      border-radius: 20px;
+      max-width: 320px;
+      display: none;
+    }
+
+    .card img {
+      width: 100%;
+      border-radius: 16px;
+    }
+
+    .rarity {
+      font-size: 22px;
+      font-weight: bold;
+      color: #d4a017;
+    }
+
+    .collection {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .mini {
+      background: #333;
+      border-radius: 12px;
+      padding: 8px;
+      font-size: 12px;
+    }
+
+    .mini img {
+      width: 100%;
+      border-radius: 8px;
+      filter: brightness(0.25);
+    }
+
+    .mini.owned img {
+      filter: none;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>クロネコガチャ v2</h1>
-  <p>GitHub Pages 表示OK！</p>
+  <div class="app">
+    <h1>クロネコガチャ v2</h1>
+
+    <div id="status" class="status">LIFF準備中...</div>
+
+    <button class="btn" onclick="draw()">ガチャを引く</button>
+    <button class="btn sub" onclick="loadCollection()">図鑑を見る</button>
+
+    <div id="card" class="card">
+      <div id="rarity" class="rarity"></div>
+      <h2 id="cardName"></h2>
+      <p id="joinDate"></p>
+      <img id="cardImage">
+    </div>
+
+    <div id="collection" class="collection">
+      <h2>図鑑</h2>
+      <div id="grid" class="grid"></div>
+    </div>
+  </div>
+
+  <script>
+    const LIFF_ID = "2010515194-r0gV3TRC";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDYS8GkkBLTA_WIz-mgurf_O-hd3ugpYRbb0e-14Fs7Ctk5/exec";
+
+    let profile = null;
+
+    window.onload = async function () {
+      const status = document.getElementById("status");
+
+      try {
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        profile = await liff.getProfile();
+        status.innerText = profile.displayName + " さん、ようこそ！";
+
+      } catch (e) {
+        status.innerText = "LIFF認証エラー：" + e.message;
+      }
+    };
+
+    function callApi(params) {
+      return new Promise((resolve, reject) => {
+        const callbackName = "cb_" + Date.now();
+
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          resolve(data);
+        };
+
+        const query = new URLSearchParams({
+          ...params,
+          callback: callbackName
+        });
+
+        const script = document.createElement("script");
+        script.src = API_URL + "?" + query.toString();
+        script.onerror = reject;
+        document.body.appendChild(script);
+      });
+    }
+
+    async function draw() {
+      if (!profile) {
+        alert("LINE認証中です。少し待ってください。");
+        return;
+      }
+
+      document.getElementById("status").innerText = "ガチャ抽選中...";
+
+      const data = await callApi({
+        action: "draw",
+        userId: profile.userId,
+        displayName: profile.displayName
+      });
+
+      if (!data.ok) {
+        alert(data.error);
+        return;
+      }
+
+      if (data.already) {
+        document.getElementById("status").innerText =
+          "今日はすでに引いています。次は朝8時です。";
+        return;
+      }
+
+      showCard(data.card);
+      document.getElementById("status").innerText = "ガチャ結果！";
+    }
+
+    function showCard(card) {
+      document.getElementById("collection").style.display = "none";
+
+      document.getElementById("rarity").innerText = card.rarity;
+      document.getElementById("cardName").innerText = card.name;
+      document.getElementById("joinDate").innerText = "入団日：" + card.joinDate;
+      document.getElementById("cardImage").src = card.imageUrl;
+
+      document.getElementById("card").style.display = "block";
+    }
+
+    async function loadCollection() {
+      if (!profile) {
+        alert("LINE認証中です。少し待ってください。");
+        return;
+      }
+
+      const data = await callApi({
+        action: "collection",
+        userId: profile.userId
+      });
+
+      if (!data.ok) {
+        alert(data.error);
+        return;
+      }
+
+      document.getElementById("card").style.display = "none";
+      document.getElementById("collection").style.display = "block";
+
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+
+      data.collection.forEach(card => {
+        const div = document.createElement("div");
+        div.className = "mini" + (card.owned ? " owned" : "");
+
+        div.innerHTML = `
+          <img src="${card.imageUrl}">
+          <div>${card.owned ? card.name : "？？？"}</div>
+          <div>${card.rarity}</div>
+        `;
+
+        grid.appendChild(div);
+      });
+    }
+  </script>
 </body>
 </html>
