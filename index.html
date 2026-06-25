@@ -37,17 +37,17 @@
     }
 
     .draw-area {
-      position: absolute;
-      left: 50%;
-      top: 46.5%;
-      transform: translateX(-50%);
-      width: 78%;
-      height: 23%;
-      border: none;
-      background: transparent;
-      border-radius: 50%;
-      z-index: 10;
-    }
+  position: absolute;
+  left: 50%;
+  top: 47.8%;
+  transform: translateX(-50%);
+  width: 68%;
+  height: 18%;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  z-index: 10;
+}
 
     .book-area {
       position: absolute;
@@ -63,23 +63,27 @@
     }
 
     #status {
-      position: absolute;
-      left: 8%;
-      right: 8%;
-      bottom: 2.4%;
-      z-index: 12;
-      text-align: center;
-      font-size: 12px;
-      color: rgba(255, 242, 189, 0.9);
-      text-shadow:
-        0 0 6px #000,
-        0 0 10px #000;
-      line-height: 1.4;
-      pointer-events: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: 86%;
+  max-width: 360px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.78);
+  border: 1px solid rgba(255, 210, 90, 0.55);
+  text-align: center;
+  font-size: 11px;
+  color: #fff2bd;
+  text-shadow: 0 0 6px #000;
+  line-height: 1.2;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
     .overlay {
       display: none;
