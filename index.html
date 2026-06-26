@@ -18,7 +18,6 @@
       background:
         radial-gradient(circle at 20% 10%, #ffe08a 0 2px, transparent 3px),
         radial-gradient(circle at 80% 20%, #fff 0 2px, transparent 3px),
-        radial-gradient(circle at 50% 70%, #ffd1e8 0 2px, transparent 3px),
         linear-gradient(180deg, #07182f, #0d2345 55%, #08111f);
       overflow-x: hidden;
     }
@@ -57,7 +56,7 @@
       border-radius: 22px;
       padding: 12px;
       margin: 12px auto;
-      font-weight: 800;
+      font-weight: 900;
       box-shadow: 0 4px 0 #4b2a12;
     }
 
@@ -102,7 +101,6 @@
       font-weight: 900;
       color: white;
       cursor: pointer;
-      letter-spacing: 1px;
     }
 
     .draw-btn {
@@ -127,16 +125,6 @@
       box-shadow: 0 5px 0 #000;
     }
 
-    button:active {
-      transform: translateY(4px);
-      box-shadow: none;
-    }
-
-    button:disabled {
-      opacity: 0.65;
-      cursor: not-allowed;
-    }
-
     #message {
       margin: 14px auto;
       padding: 12px;
@@ -144,7 +132,7 @@
       background: rgba(0,0,0,0.35);
       color: #fff0c8;
       font-size: 17px;
-      font-weight: 800;
+      font-weight: 900;
       white-space: pre-wrap;
     }
 
@@ -172,7 +160,7 @@
       color: #4c2a14;
       border-radius: 18px;
       padding: 10px;
-      font-weight: 800;
+      font-weight: 900;
       border: 2px dashed #c78b4a;
     }
 
@@ -193,7 +181,7 @@
       color: #3d2418;
       border-radius: 16px;
       padding: 9px;
-      font-weight: 800;
+      font-weight: 900;
     }
 
     .mini-card img {
@@ -226,17 +214,6 @@
     @keyframes pop {
       from { transform: scale(0.9) rotate(-4deg); }
       to { transform: scale(1.15) rotate(4deg); }
-    }
-
-    .sparkle {
-      position: fixed;
-      font-size: 28px;
-      animation: fall 1.2s linear forwards;
-    }
-
-    @keyframes fall {
-      from { transform: translateY(-40px); opacity: 1; }
-      to { transform: translateY(100vh); opacity: 0; }
     }
   </style>
 </head>
@@ -307,7 +284,32 @@
       }
     };
 
-    async function drawGacha() {
+    function callGas(params, callback) {
+      const cbName = "gasCallback_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+
+      window[cbName] = function(data) {
+        callback(data);
+        delete window[cbName];
+        script.remove();
+      };
+
+      const query = new URLSearchParams({
+        ...params,
+        callback: cbName
+      });
+
+      const script = document.createElement("script");
+      script.src = GAS_URL + "?" + query.toString();
+      script.onerror = function() {
+        callback({ ok: false, message: "通信エラー：GAS URLを確認してください" });
+        delete window[cbName];
+        script.remove();
+      };
+
+      document.body.appendChild(script);
+    }
+
+    function drawGacha() {
       if (!userId) {
         document.getElementById("message").textContent = "LINE認証中です。少し待ってください。";
         return;
@@ -315,38 +317,27 @@
 
       playRandomEffect();
 
-      try {
-        const res = await fetch(GAS_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "draw",
-            userId: userId,
-            displayName: displayName
-          })
-        });
-
-        const data = await res.json();
-
-        setTimeout(() => {
+      callGas({
+        action: "draw",
+        userId: userId,
+        displayName: displayName
+      }, function(data) {
+        setTimeout(function() {
           hideEffect();
 
           if (!data.ok) {
             document.getElementById("message").textContent = data.message || "ガチャに失敗しました";
-            document.getElementById("drawBtn").className = "drawn-btn";
-            document.getElementById("drawBtn").textContent = "本日分は受け取り済みです";
-            document.getElementById("drawBtn").disabled = true;
+
+            if (data.alreadyDrawn) {
+              setDrawnButton();
+            }
+
             return;
           }
 
           showCard(data.card);
-
-        }, 1300);
-
-      } catch (err) {
-        hideEffect();
-        document.getElementById("message").textContent =
-          "通信エラー：" + err.message;
-      }
+        }, 1200);
+      });
     }
 
     function showCard(card) {
@@ -363,28 +354,21 @@
         document.getElementById("message").textContent = "シールをゲットしました🐾";
       }
 
-      document.getElementById("drawBtn").className = "drawn-btn";
-      document.getElementById("drawBtn").textContent = "本日分は受け取り済みです";
-      document.getElementById("drawBtn").disabled = true;
+      setDrawnButton();
     }
 
-    async function showCollection() {
+    function showCollection() {
       if (!userId) {
         document.getElementById("message").textContent = "LINE認証中です。少し待ってください。";
         return;
       }
 
-      try {
-        const res = await fetch(GAS_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "collection",
-            userId: userId
-          })
-        });
+      document.getElementById("message").textContent = "図鑑を読み込み中...";
 
-        const data = await res.json();
-
+      callGas({
+        action: "collection",
+        userId: userId
+      }, function(data) {
         if (!data.ok) {
           document.getElementById("message").textContent = data.message || "図鑑取得に失敗しました";
           return;
@@ -393,16 +377,15 @@
         const grid = document.getElementById("collectionGrid");
         grid.innerHTML = "";
 
-        if (data.collection.length === 0) {
+        if (!data.collection || data.collection.length === 0) {
           grid.innerHTML = "<p>まだシールがありません</p>";
         } else {
-          data.collection.forEach(card => {
+          data.collection.forEach(function(card) {
             const div = document.createElement("div");
             div.className = "mini-card";
-            div.innerHTML = `
-              <img src="${card.imageUrl}" alt="${card.name}">
-              <div>${card.name}</div>
-            `;
+            div.innerHTML =
+              '<img src="' + card.imageUrl + '" alt="' + card.name + '">' +
+              '<div>' + card.name + '</div>';
             grid.appendChild(div);
           });
         }
@@ -410,11 +393,14 @@
         document.getElementById("result").style.display = "none";
         document.getElementById("collection").style.display = "block";
         document.getElementById("message").textContent = "図鑑を表示しました🐾";
+      });
+    }
 
-      } catch (err) {
-        document.getElementById("message").textContent =
-          "通信エラー：" + err.message;
-      }
+    function setDrawnButton() {
+      const btn = document.getElementById("drawBtn");
+      btn.className = "drawn-btn";
+      btn.textContent = "本日分は受け取り済みです";
+      btn.disabled = true;
     }
 
     function playRandomEffect() {
@@ -428,7 +414,6 @@
 
       const e = effects[Math.floor(Math.random() * effects.length)];
       showEffect(e[0], e[1]);
-      makeSparkles();
     }
 
     function showEffect(icon, text) {
@@ -439,24 +424,10 @@
 
     function hideEffect() {
       document.getElementById("effect").style.display = "none";
-      document.querySelectorAll(".sparkle").forEach(el => el.remove());
-    }
-
-    function makeSparkles() {
-      for (let i = 0; i < 18; i++) {
-        const s = document.createElement("div");
-        s.className = "sparkle";
-        s.textContent = ["✨", "⭐", "🐾", "💖"][Math.floor(Math.random() * 4)];
-        s.style.left = Math.random() * 100 + "vw";
-        s.style.top = "-30px";
-        s.style.animationDelay = Math.random() * 0.6 + "s";
-        document.body.appendChild(s);
-      }
     }
 
     function secretEffect() {
       showEffect("🌈", "シークレット降臨！！");
-      makeSparkles();
       setTimeout(hideEffect, 1200);
     }
   </script>
