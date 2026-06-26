@@ -7,153 +7,243 @@
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style>
-body{
+html,body{
   margin:0;
-  background:linear-gradient(#0b1220,#050914);
-  color:white;
-  font-family:Arial,"Hiragino Sans","Meiryo",sans-serif;
-  text-align:center;
+  padding:0;
+  background:#020617;
+  font-family:"Hiragino Sans","Meiryo",sans-serif;
+  overflow-x:hidden;
 }
-.wrap{padding:28px 18px;max-width:520px;margin:auto}
-h1{
-  font-size:34px;
-  color:#facc15;
-  text-shadow:0 0 16px #facc15;
+
+#app{
+  position:relative;
+  width:100%;
+  max-width:430px;
+  margin:0 auto;
+  min-height:100vh;
+  background:#020617;
 }
-.sub{color:#cbd5e1;font-size:16px}
-.box{
-  margin-top:24px;
-  padding:24px 16px;
-  border-radius:24px;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.18);
+
+#topImg{
+  width:100%;
+  display:block;
+  user-select:none;
+  pointer-events:none;
 }
-#welcome{
-  font-size:22px;
-  color:#fde68a;
-  margin:8px 0 20px;
-}
-button{
+
+.tap{
+  position:absolute;
   border:none;
+  background:rgba(255,255,255,0);
+  cursor:pointer;
+  z-index:5;
+}
+
+#drawTap{
+  left:18%;
+  top:45.5%;
+  width:64%;
+  height:21%;
+  border-radius:50%;
+}
+
+#bookTap{
+  left:13%;
+  top:76.5%;
+  width:74%;
+  height:8%;
   border-radius:20px;
-  padding:18px 34px;
-  font-size:24px;
+}
+
+#welcome{
+  position:absolute;
+  left:19%;
+  top:31.2%;
+  width:62%;
+  text-align:center;
+  color:#5b351d;
   font-weight:bold;
-  margin:10px;
-  background:linear-gradient(#facc15,#f97316);
-  color:#111827;
-  box-shadow:0 8px 0 #9a3412;
+  font-size:15px;
+  z-index:6;
+  line-height:1.4;
+  pointer-events:none;
 }
-button:active{transform:translateY(5px);box-shadow:0 3px 0 #9a3412}
-.small{
-  font-size:18px;
-  padding:12px 20px;
-  background:linear-gradient(#38bdf8,#2563eb);
-  color:white;
-  box-shadow:0 6px 0 #1e3a8a;
-}
-#msg{
-  margin-top:18px;
-  font-size:20px;
-  color:#fde68a;
-}
-#cardArea{display:none;margin-top:22px}
-#cardImg{
-  width:92%;
-  max-width:360px;
-  border-radius:18px;
-  background:white;
-  box-shadow:0 0 30px #facc15;
-}
-#cardName{
-  margin-top:14px;
-  font-size:28px;
+
+#message{
+  position:absolute;
+  left:12%;
+  top:86.8%;
+  width:76%;
+  text-align:center;
+  color:#fff7d6;
   font-weight:bold;
-  color:#facc15;
+  font-size:16px;
+  z-index:6;
+  pointer-events:none;
 }
+
 #effect{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.9);
+  background:rgba(0,0,0,.88);
   display:none;
   align-items:center;
   justify-content:center;
   flex-direction:column;
-  z-index:999;
+  z-index:100;
 }
-#cat{
-  width:230px;
-  max-width:70vw;
+
+#effectCat{
+  width:210px;
+  max-width:65vw;
+  filter:drop-shadow(0 0 25px #facc15);
   animation:float 1s infinite alternate;
-  filter:drop-shadow(0 0 24px #facc15);
 }
+
 #effectText{
-  margin-top:24px;
-  font-size:36px;
+  margin-top:22px;
+  font-size:34px;
   font-weight:bold;
   color:#facc15;
   text-shadow:0 0 18px #facc15;
 }
+
 @keyframes float{
-  from{transform:translateY(0) scale(1)}
-  to{transform:translateY(-18px) scale(1.05)}
+  from{transform:translateY(0) scale(1);}
+  to{transform:translateY(-18px) scale(1.07);}
 }
-.pop{animation:pop .45s ease}
+
+#result{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.86);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:120;
+  padding:20px;
+  box-sizing:border-box;
+}
+
+#resultImg{
+  width:86%;
+  max-width:360px;
+  border-radius:18px;
+  background:white;
+  box-shadow:0 0 35px #facc15;
+  animation:pop .45s ease;
+}
+
+#resultName{
+  margin-top:16px;
+  color:#facc15;
+  font-size:28px;
+  font-weight:bold;
+  text-shadow:0 0 12px #facc15;
+}
+
+#resultMsg{
+  margin-top:8px;
+  color:#fff;
+  font-size:18px;
+  font-weight:bold;
+}
+
+#closeResult{
+  margin-top:18px;
+  padding:12px 28px;
+  border:none;
+  border-radius:999px;
+  font-size:18px;
+  font-weight:bold;
+  background:#facc15;
+  color:#3b2408;
+}
+
 @keyframes pop{
-  0%{transform:scale(.4);opacity:0}
-  80%{transform:scale(1.08);opacity:1}
-  100%{transform:scale(1)}
+  0%{transform:scale(.35);opacity:0;}
+  80%{transform:scale(1.08);opacity:1;}
+  100%{transform:scale(1);}
 }
+
+#collection{
+  position:fixed;
+  inset:0;
+  background:rgba(2,6,23,.96);
+  display:none;
+  z-index:130;
+  overflow-y:auto;
+  padding:20px;
+  box-sizing:border-box;
+  color:white;
+}
+
+#collection h2{
+  text-align:center;
+  color:#facc15;
+}
+
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:12px;
-  margin-top:18px;
 }
-.mini{
+
+.cardMini{
   background:rgba(255,255,255,.1);
-  border-radius:16px;
+  border-radius:14px;
   padding:8px;
+  text-align:center;
 }
-.mini img{
+
+.cardMini img{
   width:100%;
-  border-radius:12px;
+  border-radius:10px;
   background:white;
 }
-#collection{display:none}
+
+#closeCollection{
+  width:100%;
+  margin:18px 0;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  font-size:18px;
+  font-weight:bold;
+  background:#38bdf8;
+  color:white;
+}
 </style>
 </head>
 
 <body>
-<div class="wrap">
-  <h1>🐾 クロネコガチャ v2 🐾</h1>
-  <div class="sub">1日1回だけ引けるサークル用シールガチャ</div>
+<div id="app">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/33e5c8ed-3a7d-4f64-ad75-060ed57ebefb%20(1).png?raw=true">
 
-  <div class="box">
-    <div id="welcome">LINE名を確認中...</div>
+  <div id="welcome">LINE名を確認中...</div>
+  <div id="message">読み込み中...</div>
 
-    <button id="drawBtn" onclick="drawGacha()" disabled>ガチャを引く！</button>
-    <br>
-    <button class="small" onclick="loadCollection()">図鑑を見る</button>
-    <button class="small" onclick="closeCollection()">図鑑を閉じる</button>
-
-    <div id="msg"></div>
-
-    <div id="cardArea">
-      <img id="cardImg">
-      <div id="cardName"></div>
-    </div>
-  </div>
-
-  <div id="collection" class="box">
-    <h2>📚 シール図鑑</h2>
-    <div id="collectionList" class="grid"></div>
-  </div>
+  <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
+  <button id="bookTap" class="tap" onclick="loadCollection()" aria-label="図鑑を見る"></button>
 </div>
 
 <div id="effect">
-  <img id="cat" src="https://i.ibb.co/xqQLHrDz/a7c2f872-3116-4bca-b94d-e9a4c80e6650.png">
+  <img id="effectCat" src="https://i.ibb.co/xqQLHrDz/a7c2f872-3116-4bca-b94d-e9a4c80e6650.png">
   <div id="effectText">クロネコが運んでくる...</div>
+</div>
+
+<div id="result">
+  <img id="resultImg">
+  <div id="resultName"></div>
+  <div id="resultMsg"></div>
+  <button id="closeResult" onclick="closeResult()">閉じる</button>
+</div>
+
+<div id="collection">
+  <h2>📚 シール図鑑</h2>
+  <div id="collectionList" class="grid"></div>
+  <button id="closeCollection" onclick="closeCollection()">図鑑を閉じる</button>
 </div>
 
 <script>
@@ -164,6 +254,8 @@ let profile = {
   userId:"",
   displayName:""
 };
+
+let drawing = false;
 
 window.onload = async function(){
   try{
@@ -178,21 +270,20 @@ window.onload = async function(){
     profile.userId = p.userId;
     profile.displayName = p.displayName;
 
-    document.getElementById("welcome").textContent =
-      profile.displayName + "さん、ようこそ！";
+    document.getElementById("welcome").innerHTML =
+      escapeHtml(profile.displayName) + "さん、ようこそ！<br>今日も素敵な出会いがあるよ♪";
 
-    document.getElementById("drawBtn").disabled = false;
-    setMsg("");
+    setMessage("ガチャは1日1回限定（朝8時リセット）");
 
   }catch(e){
     console.error(e);
-    setMsg("LINE名の取得に失敗しました。LINE内から開いてください。");
-    document.getElementById("welcome").textContent = "読み込みエラー";
+    document.getElementById("welcome").textContent = "LINE名の取得に失敗しました";
+    setMessage("LINE内から開いてください");
   }
 };
 
-function setMsg(t){
-  document.getElementById("msg").textContent = t;
+function setMessage(text){
+  document.getElementById("message").textContent = text;
 }
 
 function jsonp(params){
@@ -221,15 +312,14 @@ function jsonp(params){
 }
 
 async function drawGacha(){
+  if(drawing) return;
+
   if(!profile.userId){
-    setMsg("LINE名を取得中です。少し待ってね。");
+    setMessage("LINE名を確認中です");
     return;
   }
 
-  document.getElementById("drawBtn").disabled = true;
-  document.getElementById("cardArea").style.display = "none";
-  setMsg("");
-
+  drawing = true;
   showEffect();
 
   try{
@@ -239,22 +329,23 @@ async function drawGacha(){
       displayName:profile.displayName
     });
 
-    setTimeout(()=>{
+    setTimeout(function(){
       hideEffect();
-      document.getElementById("drawBtn").disabled = false;
+      drawing = false;
 
       if(!res || res.ok === false){
-        setMsg(res && res.message ? res.message : "ガチャに失敗しました。");
+        setMessage(res && res.message ? res.message : "今日はもう引いています");
         return;
       }
 
-      showCard(res);
+      showResult(res);
+      setMessage("本日分は受け取り済みです");
     },1800);
 
   }catch(e){
     hideEffect();
-    document.getElementById("drawBtn").disabled = false;
-    setMsg("通信エラー。Code.gs側を確認してね。");
+    drawing = false;
+    setMessage("通信エラー");
   }
 }
 
@@ -262,8 +353,8 @@ function showEffect(){
   const texts = [
     "クロネコが走ってきた...",
     "肉球が光っている...",
-    "小ネコたちが集まった...",
     "シールの気配がする...",
+    "小ネコたちが集まった...",
     "開封準備中..."
   ];
 
@@ -272,7 +363,7 @@ function showEffect(){
 
   document.getElementById("effect").style.display = "flex";
 
-  setTimeout(()=>{
+  setTimeout(function(){
     document.getElementById("effectText").textContent = "開封！！";
   },1000);
 }
@@ -281,24 +372,25 @@ function hideEffect(){
   document.getElementById("effect").style.display = "none";
 }
 
-function showCard(res){
-  document.getElementById("cardImg").src = res.imageUrl;
-  document.getElementById("cardName").textContent = res.name;
-  document.getElementById("cardArea").classList.remove("pop");
-  void document.getElementById("cardArea").offsetWidth;
-  document.getElementById("cardArea").classList.add("pop");
-  document.getElementById("cardArea").style.display = "block";
+function showResult(res){
+  document.getElementById("resultImg").src = res.imageUrl;
+  document.getElementById("resultName").textContent = res.name;
+  document.getElementById("resultMsg").textContent =
+    res.isNew ? "🎉 NEW SEAL GET！！" : "また会えたね！";
+  document.getElementById("result").style.display = "flex";
+}
 
-  setMsg(res.isNew ? "🎉 NEW SEAL GET！！" : "また会えたね！");
+function closeResult(){
+  document.getElementById("result").style.display = "none";
 }
 
 async function loadCollection(){
   if(!profile.userId){
-    setMsg("LINE名を取得中です。少し待ってね。");
+    setMessage("LINE名を確認中です");
     return;
   }
 
-  setMsg("図鑑を読み込み中...");
+  setMessage("図鑑を読み込み中...");
 
   try{
     const res = await jsonp({
@@ -307,39 +399,37 @@ async function loadCollection(){
     });
 
     if(!res || res.ok === false){
-      setMsg(res && res.message ? res.message : "図鑑を読み込めませんでした。");
+      setMessage(res && res.message ? res.message : "図鑑を読み込めませんでした");
       return;
     }
 
     renderCollection(res.cards || []);
-    setMsg("");
+    setMessage("ガチャは1日1回限定（朝8時リセット）");
 
   }catch(e){
-    setMsg("図鑑の通信エラー。");
+    setMessage("図鑑の通信エラー");
   }
 }
 
 function renderCollection(cards){
-  const box = document.getElementById("collection");
   const list = document.getElementById("collectionList");
-
-  box.style.display = "block";
   list.innerHTML = "";
 
   if(cards.length === 0){
     list.innerHTML = "<div>まだシールがありません</div>";
-    return;
+  }else{
+    cards.forEach(function(card){
+      const div = document.createElement("div");
+      div.className = "cardMini";
+      div.innerHTML =
+        '<img src="' + escapeHtml(card.imageUrl) + '">' +
+        '<div>' + escapeHtml(card.name) + '</div>' +
+        '<div>' + escapeHtml(card.joinDate || "") + '</div>';
+      list.appendChild(div);
+    });
   }
 
-  cards.forEach(card=>{
-    const div = document.createElement("div");
-    div.className = "mini";
-    div.innerHTML =
-      `<img src="${escapeHtml(card.imageUrl)}">
-       <div>${escapeHtml(card.name)}</div>
-       <div>${escapeHtml(card.joinDate || "")}</div>`;
-    list.appendChild(div);
-  });
+  document.getElementById("collection").style.display = "block";
 }
 
 function closeCollection(){
