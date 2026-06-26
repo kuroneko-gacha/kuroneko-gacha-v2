@@ -599,6 +599,64 @@ html,body{
   background:#38bdf8;
   color:white;
 }
+
+/* 図鑑シール拡大表示 */
+.cardMini{
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease;
+}
+
+.cardMini:active{
+  transform:scale(.96);
+}
+
+#sealZoom{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:rgba(0,0,0,.92);
+  z-index:180;
+  padding:18px;
+  box-sizing:border-box;
+}
+
+#zoomImg{
+  width:94%;
+  max-width:430px;
+  border-radius:18px;
+  background:white;
+  box-shadow:0 0 38px #facc15,0 0 70px rgba(250,204,21,.45);
+  animation:zoomSealPop .28s ease;
+}
+
+#zoomName{
+  margin-top:14px;
+  color:#facc15;
+  font-size:26px;
+  font-weight:bold;
+  text-shadow:0 0 12px #facc15;
+}
+
+#zoomClose{
+  margin-top:16px;
+  padding:12px 30px;
+  border:none;
+  border-radius:999px;
+  font-size:18px;
+  font-weight:bold;
+  background:#facc15;
+  color:#3b2408;
+}
+
+@keyframes zoomSealPop{
+  0%{transform:scale(.72);opacity:0;}
+  80%{transform:scale(1.04);opacity:1;}
+  100%{transform:scale(1);}
+}
+
 </style>
 </head>
 
@@ -630,6 +688,13 @@ html,body{
   <h2>📚 シール図鑑</h2>
   <div id="collectionList" class="grid"></div>
   <button id="closeCollection" onclick="closeCollection()">図鑑を閉じる</button>
+</div>
+
+
+<div id="sealZoom" onclick="closeSealZoom()">
+  <img id="zoomImg" onclick="event.stopPropagation()">
+  <div id="zoomName"></div>
+  <button id="zoomClose" onclick="closeSealZoom()">閉じる</button>
 </div>
 
 <script>
@@ -957,15 +1022,34 @@ function renderCollection(cards){
     cards.forEach(function(card){
       const div = document.createElement("div");
       div.className = card.secret ? "cardMini secretMini" : "cardMini";
+
+      const img = escapeHtml(card.imageUrl);
+      const name = escapeHtml(card.name);
+
+      // 日付表示は消して、名前と画像だけにする
       div.innerHTML =
-        '<img src="' + escapeHtml(card.imageUrl) + '">' +
-        '<div>' + escapeHtml(card.name) + '</div>' +
-        '<div>' + escapeHtml(card.joinDate || "") + '</div>';
+        '<img src="' + img + '">' +
+        '<div>' + name + '</div>';
+
+      div.onclick = function(){
+        openSealZoom(card.imageUrl, card.name);
+      };
+
       list.appendChild(div);
     });
   }
 
   document.getElementById("collection").style.display = "block";
+}
+
+function openSealZoom(imageUrl, name){
+  document.getElementById("zoomImg").src = imageUrl;
+  document.getElementById("zoomName").textContent = name || "";
+  document.getElementById("sealZoom").style.display = "flex";
+}
+
+function closeSealZoom(){
+  document.getElementById("sealZoom").style.display = "none";
 }
 
 function closeCollection(){
