@@ -1,288 +1,323 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>クロネコガチャ v2</title>
+
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      min-height: 100%;
-      background: #06172b;
-      font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
-      overflow-x: hidden;
-      color: #4a2b16;
-    }
-
     body {
-      background:
-        radial-gradient(circle at top left, rgba(255,240,180,.55), transparent 28%),
-        radial-gradient(circle at top right, rgba(138,218,255,.35), transparent 35%),
-        linear-gradient(180deg, #071c3b 0%, #102d55 48%, #ffe8be 100%);
-    }
-
-    .app {
-      position: relative;
-      width: 100%;
-      max-width: 430px;
-      min-height: 100vh;
-      margin: 0 auto;
-      padding: 18px 16px 24px;
-      overflow: hidden;
-    }
-
-    .stars {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        radial-gradient(circle, rgba(255,255,210,.95) 0 1px, transparent 2px),
-        radial-gradient(circle, rgba(255,210,235,.85) 0 1px, transparent 2px),
-        radial-gradient(circle, rgba(160,235,255,.75) 0 1px, transparent 2px);
-      background-size: 54px 54px, 83px 83px, 117px 117px;
-      animation: twinkle 5s linear infinite;
-      opacity: .72;
-      z-index: 0;
-    }
-
-    @keyframes twinkle {
-      0% { transform: translateY(0); opacity: .45; }
-      50% { opacity: .85; }
-      100% { transform: translateY(22px); opacity: .45; }
-    }
-
-    .moon {
-      position: absolute;
-      top: 24px;
-      left: 18px;
-      width: 82px;
-      height: 82px;
-      border-radius: 50%;
-      background: #ffe89c;
-      box-shadow: 0 0 28px rgba(255, 232, 156, .85);
-      z-index: 1;
-    }
-
-    .moon::after {
-      content: "";
-      position: absolute;
-      top: -4px;
-      right: -14px;
-      width: 82px;
-      height: 82px;
-      border-radius: 50%;
-      background: #071c3b;
-    }
-
-    .main-card {
-      position: relative;
-      z-index: 2;
-      margin-top: 16px;
-      padding: 20px 14px 18px;
-      border-radius: 30px;
-      background: rgba(255, 248, 228, .92);
-      border: 4px solid #ffffff;
-      box-shadow:
-        0 12px 0 rgba(80, 47, 22, .28),
-        0 0 24px rgba(255, 230, 170, .8);
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(180deg, #fff1f7, #fffaf0);
+      color: #333;
       text-align: center;
     }
 
-    .ribbon {
-      display: inline-block;
-      margin-bottom: 10px;
-      padding: 8px 16px;
-      border-radius: 999px;
-      background: #fff0bd;
-      border: 3px solid #73441f;
-      color: #4a2b16;
-      font-weight: 900;
-      font-size: 14px;
-      box-shadow: 0 5px 0 rgba(90,50,20,.25);
+    .wrap {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 24px 16px;
     }
 
-    .title {
-      margin: 8px 0 6px;
-      font-size: 42px;
-      line-height: 1.05;
-      letter-spacing: 2px;
-      color: #2b1b12;
-      text-shadow:
-        3px 3px 0 #fff7dd,
-        -2px -2px 0 #fff7dd,
-        0 5px 0 rgba(120,70,30,.25);
-      font-weight: 900;
+    h1 {
+      font-size: 28px;
+      margin: 20px 0 8px;
     }
 
-    .title span {
-      display: block;
-      font-size: 36px;
-      color: #f08bb0;
-      text-shadow:
-        3px 3px 0 #fff,
-        -2px -2px 0 #fff,
-        0 5px 0 rgba(120,70,30,.25);
+    .sub {
+      color: #777;
+      margin-bottom: 24px;
     }
 
-    .welcome {
-      margin: 14px auto 14px;
-      padding: 10px 12px;
-      width: 92%;
-      border-radius: 22px;
-      background: #fff8e8;
-      border: 3px solid #8b5a2b;
-      color: #5b351e;
-      font-size: 15px;
-      font-weight: 700;
-      line-height: 1.45;
-      min-height: 46px;
-    }
-
-    .cat-box {
-      position: relative;
-      width: 112px;
-      height: 112px;
-      margin: 0 auto -8px;
-      z-index: 3;
+    .box {
+      background: white;
+      border-radius: 24px;
+      padding: 24px 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     }
 
     .cat {
-      position: absolute;
+      font-size: 64px;
+      margin: 10px 0;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 16px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      margin: 10px;
+      cursor: pointer;
+      background: #ff8fbd;
+      color: white;
+      box-shadow: 0 5px 0 #d95c91;
+    }
+
+    button:active {
+      transform: translateY(3px);
+      box-shadow: 0 2px 0 #d95c91;
+    }
+
+    .btn-sub {
+      background: #7cc7c2;
+      box-shadow: 0 5px 0 #4aa09b;
+    }
+
+    #message {
+      margin-top: 18px;
+      font-weight: bold;
+      color: #555;
+      white-space: pre-wrap;
+    }
+
+    #result {
+      margin-top: 20px;
+      display: none;
+    }
+
+    #cardImage {
+      width: 86%;
+      max-width: 300px;
+      border-radius: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      background: white;
+    }
+
+    #cardName {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 14px;
+    }
+
+    #collection {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .mini-card {
+      background: white;
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+    }
+
+    .mini-card img {
+      width: 100%;
+      border-radius: 12px;
+    }
+
+    .mini-card div {
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+
+    #effect {
+      display: none;
+      position: fixed;
       inset: 0;
-      border-radius: 48% 48% 44% 44%;
-      background: radial-gradient(circle at 35% 35%, #333, #050505 72%);
-      border: 4px solid #fff7dd;
-      box-shadow: 0 0 18px rgba(255,255,255,.55);
+      z-index: 9999;
+      background: rgba(255, 241, 247, 0.96);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      font-size: 42px;
+      font-weight: bold;
     }
 
-    .cat::before,
-    .cat::after {
-      content: "";
-      position: absolute;
-      top: -18px;
-      width: 44px;
-      height: 44px;
-      background: #060606;
-      border-top: 4px solid #fff7dd;
-      border-left: 4px solid #fff7dd;
-      transform: rotate(45deg);
-      border-radius: 8px;
+    .effectText {
+      animation: pop 0.8s infinite alternate;
     }
 
-    .cat::before { left: 14px; }
-    .cat::after { right: 14px; }
+    @keyframes pop {
+      from { transform: scale(1); opacity: 0.7; }
+      to { transform: scale(1.18); opacity: 1; }
+    }
+  </style>
+</head>
 
-    .cat-eye {
-      position: absolute;
-      top: 40px;
-      width: 26px;
-      height: 32px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #fff, #ffd75a 45%, #5a3200 90%);
-      box-shadow: 0 0 12px rgba(255,220,90,.85);
+<body>
+  <div class="wrap">
+    <h1>クロネコガチャ v2</h1>
+    <div class="sub">1日1回・朝8時リセット</div>
+
+    <div class="box">
+      <div class="cat">🐈‍⬛</div>
+      <button onclick="drawGacha()">ガチャを引く</button>
+      <button class="btn-sub" onclick="showCollection()">図鑑を見る</button>
+
+      <div id="message">読み込み中...</div>
+
+      <div id="result">
+        <img id="cardImage" src="" alt="シール画像">
+        <div id="cardName"></div>
+      </div>
+
+      <div id="collection">
+        <h2>図鑑</h2>
+        <div id="collectionGrid" class="grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="effect">
+    <div class="effectText" id="effectText">🐾 ガチャ中...</div>
+  </div>
+
+  <script>
+    const LIFF_ID = "2010515194-r0gV3TRC";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDYS8GkkBLTA_WIz-mgurf_O-hd3ugpYRbb0e-14Fs7Ctk5/exec";
+
+    let userId = "";
+    let displayName = "";
+
+    window.onload = async function () {
+      try {
+        document.getElementById("message").textContent = "LINE認証中...";
+
+        await liff.init({ liffId: LIFF_ID });
+
+        if (!liff.isLoggedIn()) {
+          liff.login();
+          return;
+        }
+
+        const profile = await liff.getProfile();
+        userId = profile.userId;
+        displayName = profile.displayName || "";
+
+        document.getElementById("message").textContent =
+          displayName + "さん、今日のガチャを引けます🐾";
+
+      } catch (err) {
+        document.getElementById("message").textContent =
+          "エラー：LIFF設定を確認してください\n" + err.message;
+      }
+    };
+
+    async function drawGacha() {
+      if (!userId) {
+        document.getElementById("message").textContent = "LINE認証がまだです。少し待ってください。";
+        return;
+      }
+
+      showEffect("🐾 にゃんにゃん抽選中...");
+
+      try {
+        const res = await fetch(GAS_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "draw",
+            userId: userId,
+            displayName: displayName
+          })
+        });
+
+        const data = await res.json();
+
+        setTimeout(() => {
+          hideEffect();
+
+          if (!data.ok) {
+            document.getElementById("message").textContent = data.message || "ガチャに失敗しました";
+            return;
+          }
+
+          showCard(data.card);
+        }, 900);
+
+      } catch (err) {
+        hideEffect();
+        document.getElementById("message").textContent =
+          "通信エラー：Apps Script URLを確認してください\n" + err.message;
+      }
     }
 
-    .cat-eye.left { left: 26px; }
-    .cat-eye.right { right: 26px; }
+    function showCard(card) {
+      document.getElementById("collection").style.display = "none";
+      document.getElementById("result").style.display = "block";
 
-    .cat-nose {
-      position: absolute;
-      top: 72px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 12px;
-      height: 8px;
-      background: #f7a4b8;
-      border-radius: 50%;
+      document.getElementById("cardImage").src = card.imageUrl;
+      document.getElementById("cardName").textContent = card.name;
+
+      if (card.type === "secret") {
+        document.getElementById("message").textContent = "✨シークレットシール出現✨";
+      } else {
+        document.getElementById("message").textContent = "シールをゲットしました🐾";
+      }
     }
 
-    .gacha-button {
-      position: relative;
-      display: block;
-      width: 92%;
-      height: 122px;
-      margin: 22px auto 14px;
-      border: 5px solid #ffffff;
-      border-radius: 999px;
-      background:
-        radial-gradient(circle at 35% 25%, #fff7ce, transparent 30%),
-        linear-gradient(180deg, #fff0a7 0%, #ffd36c 48%, #ff9fc2 100%);
-      color: #4a2b16;
-      font-size: 35px;
-      font-weight: 900;
-      font-family: inherit;
-      box-shadow:
-        0 10px 0 #8a5b30,
-        0 0 24px rgba(255, 210, 130, .9);
-      text-shadow: 2px 2px 0 #fff7de;
-      cursor: pointer;
+    async function showCollection() {
+      if (!userId) {
+        document.getElementById("message").textContent = "LINE認証がまだです。少し待ってください。";
+        return;
+      }
+
+      document.getElementById("message").textContent = "図鑑を読み込み中...";
+
+      try {
+        const res = await fetch(GAS_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "collection",
+            userId: userId
+          })
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) {
+          document.getElementById("message").textContent = data.message || "図鑑取得に失敗しました";
+          return;
+        }
+
+        const grid = document.getElementById("collectionGrid");
+        grid.innerHTML = "";
+
+        if (data.collection.length === 0) {
+          grid.innerHTML = "<p>まだシールがありません</p>";
+        } else {
+          data.collection.forEach(card => {
+            const div = document.createElement("div");
+            div.className = "mini-card";
+            div.innerHTML = `
+              <img src="${card.imageUrl}" alt="${card.name}">
+              <div>${card.name}</div>
+            `;
+            grid.appendChild(div);
+          });
+        }
+
+        document.getElementById("result").style.display = "none";
+        document.getElementById("collection").style.display = "block";
+        document.getElementById("message").textContent = "図鑑を表示しました🐾";
+
+      } catch (err) {
+        document.getElementById("message").textContent =
+          "通信エラー：Apps Script URLを確認してください\n" + err.message;
+      }
     }
 
-    .gacha-button:active {
-      transform: translateY(6px);
-      box-shadow:
-        0 4px 0 #8a5b30,
-        0 0 18px rgba(255, 210, 130, .85);
+    function showEffect(text) {
+      const effect = document.getElementById("effect");
+      document.getElementById("effectText").textContent = text;
+      effect.style.display = "flex";
     }
 
-    .book-button {
-      display: block;
-      width: 88%;
-      height: 82px;
-      margin: 14px auto;
-      border: 4px solid #ffffff;
-      border-radius: 26px;
-      background: linear-gradient(180deg, #8ed7d2, #43aeb5);
-      color: #fffef3;
-      font-size: 30px;
-      font-weight: 900;
-      font-family: inherit;
-      box-shadow:
-        0 8px 0 #2d6f78,
-        0 0 18px rgba(130, 230, 230, .55);
-      text-shadow: 2px 2px 0 #22636c;
-      cursor: pointer;
+    function hideEffect() {
+      document.getElementById("effect").style.display = "none";
     }
-
-    .book-button:active {
-      transform: translateY(5px);
-      box-shadow: 0 3px 0 #2d6f78;
-    }
-
-    .notice {
-      width: 90%;
-      margin: 18px auto 0;
-      padding: 10px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.86);
-      border: 3px dashed #f0a7bd;
-      color: #5b351e;
-      font-weight: 800;
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    .paw {
-      position: absolute;
-      color: rgba(255,255,255,.65);
-      font-size: 26px;
-      z-index: 1;
-      animation: float 3s ease-in-out infinite alternate;
-    }
-
-    .paw.p1 { top: 92px; right: 24px; }
-    .paw.p2 { top: 310px; left: 14px; animation-delay: .5s; }
-    .paw.p3 { bottom: 110px; right: 18px; animation-delay: .8s; }
-
-    @keyframes float {
-      from { transform: translateY(0) rotate(-6deg); }
-      to { transform: translateY(-8px) rotate(6deg); }
-    }
+  </script>
+</body>
+</html>
