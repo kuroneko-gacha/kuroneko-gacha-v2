@@ -3,392 +3,286 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>クロネコガチャ v2 Premium</title>
+  <title>クロネコガチャ v2</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
       min-height: 100%;
-      background: #000;
+      background: #06172b;
+      font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
       overflow-x: hidden;
-      font-family: "Hiragino Mincho ProN", "Yu Mincho", serif;
+      color: #4a2b16;
     }
 
     body {
-      color: #fff;
+      background:
+        radial-gradient(circle at top left, rgba(255,240,180,.55), transparent 28%),
+        radial-gradient(circle at top right, rgba(138,218,255,.35), transparent 35%),
+        linear-gradient(180deg, #071c3b 0%, #102d55 48%, #ffe8be 100%);
     }
 
     .app {
       position: relative;
       width: 100%;
       max-width: 430px;
-      min-height: calc(100vh - 0px);
+      min-height: 100vh;
       margin: 0 auto;
-      background-image: url("https://raw.githubusercontent.com/kuroneko-gacha/kuroneko-gacha-v2/main/c0c8cb22-8394-4770-bbd7-93e67f7821af.png");
-      background-size: cover;
-      background-position: 54% top;
-      background-repeat: no-repeat;
-      aspect-ratio: 9 / 16;
+      padding: 18px 16px 24px;
+      overflow: hidden;
     }
 
-    .draw-area {
-  position: absolute;
-  left: 50%;
-  top: 47.8%;
-  transform: translateX(-50%);
-  width: 68%;
-  height: 18%;
-  border: none;
-  background: transparent;
-  border-radius: 50%;
-  z-index: 10;
-}
-
-    .book-area {
-      position: absolute;
-      left: 50%;
-      top: 74.2%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 12%;
-      border: none;
-      background: transparent;
-      border-radius: 20px;
-      z-index: 10;
-    }
-
-    #status {
-  position: fixed;
-  left: 50%;
-  top: 92px;
-  transform: translateX(-50%);
-  z-index: 120;
-  width: 84%;
-  max-width: 340px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.72);
-  border: 1px solid rgba(255, 210, 90, 0.55);
-  text-align: center;
-  font-size: 11px;
-  color: #fff2bd;
-  text-shadow: 0 0 6px #000;
-  line-height: 1.2;
-  pointer-events: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-    .overlay {
-      display: none;
+    .stars {
       position: fixed;
       inset: 0;
-      z-index: 50;
-      background: rgba(0,0,0,.86);
-      padding: 70px 16px 28px;
-      overflow-y: auto;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,210,.95) 0 1px, transparent 2px),
+        radial-gradient(circle, rgba(255,210,235,.85) 0 1px, transparent 2px),
+        radial-gradient(circle, rgba(160,235,255,.75) 0 1px, transparent 2px);
+      background-size: 54px 54px, 83px 83px, 117px 117px;
+      animation: twinkle 5s linear infinite;
+      opacity: .72;
+      z-index: 0;
     }
 
-    .result-card {
-      display: none;
-      max-width: 360px;
-      margin: 0 auto;
-      padding: 18px;
+    @keyframes twinkle {
+      0% { transform: translateY(0); opacity: .45; }
+      50% { opacity: .85; }
+      100% { transform: translateY(22px); opacity: .45; }
+    }
+
+    .moon {
+      position: absolute;
+      top: 24px;
+      left: 18px;
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: #ffe89c;
+      box-shadow: 0 0 28px rgba(255, 232, 156, .85);
+      z-index: 1;
+    }
+
+    .moon::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      right: -14px;
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: #071c3b;
+    }
+
+    .main-card {
+      position: relative;
+      z-index: 2;
+      margin-top: 16px;
+      padding: 20px 14px 18px;
+      border-radius: 30px;
+      background: rgba(255, 248, 228, .92);
+      border: 4px solid #ffffff;
+      box-shadow:
+        0 12px 0 rgba(80, 47, 22, .28),
+        0 0 24px rgba(255, 230, 170, .8);
       text-align: center;
-      color: #1b1200;
-      background: linear-gradient(180deg, #fff6cc, #ffffff);
-      border: 4px solid #d6a333;
-      border-radius: 24px;
-      box-shadow: 0 0 34px rgba(255, 205, 70, .85);
-      animation: pop .35s ease-out;
     }
 
-    @keyframes pop {
-      from { transform: scale(.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    .rarity {
-      font-size: 36px;
-      font-weight: 900;
-      color: #d69a16;
-      text-shadow: 0 1px 0 #fff;
-    }
-
-    .result-card h2 {
-      margin: 12px 0;
-      font-size: 34px;
-    }
-
-    .result-card p {
-      margin: 8px 0 14px;
-      font-size: 18px;
-    }
-
-    .result-card img {
-      width: 100%;
-      border-radius: 18px;
-      background: #ddd;
-    }
-
-    .close-btn {
-      width: 100%;
-      max-width: 360px;
-      height: 58px;
-      margin: 18px auto 0;
-      display: block;
-      border: 2px solid #e5bd56;
+    .ribbon {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 8px 16px;
       border-radius: 999px;
-      background: #111;
-      color: #ffe6a3;
-      font-size: 22px;
-      font-weight: bold;
-      font-family: inherit;
+      background: #fff0bd;
+      border: 3px solid #73441f;
+      color: #4a2b16;
+      font-weight: 900;
+      font-size: 14px;
+      box-shadow: 0 5px 0 rgba(90,50,20,.25);
     }
 
-    .collection-box {
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 16px;
+    .title {
+      margin: 8px 0 6px;
+      font-size: 42px;
+      line-height: 1.05;
+      letter-spacing: 2px;
+      color: #2b1b12;
+      text-shadow:
+        3px 3px 0 #fff7dd,
+        -2px -2px 0 #fff7dd,
+        0 5px 0 rgba(120,70,30,.25);
+      font-weight: 900;
+    }
+
+    .title span {
+      display: block;
+      font-size: 36px;
+      color: #f08bb0;
+      text-shadow:
+        3px 3px 0 #fff,
+        -2px -2px 0 #fff,
+        0 5px 0 rgba(120,70,30,.25);
+    }
+
+    .welcome {
+      margin: 14px auto 14px;
+      padding: 10px 12px;
+      width: 92%;
       border-radius: 22px;
-      background: rgba(20,14,5,.96);
-      border: 2px solid rgba(255, 210, 90, .7);
-      box-shadow: 0 0 24px rgba(255, 190, 60, .35);
+      background: #fff8e8;
+      border: 3px solid #8b5a2b;
+      color: #5b351e;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.45;
+      min-height: 46px;
     }
 
-    .collection-box h2 {
-      margin: 0 0 16px;
-      color: #ffd66b;
-      text-align: center;
-      font-size: 32px;
+    .cat-box {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      margin: 0 auto -8px;
+      z-index: 3;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+    .cat {
+      position: absolute;
+      inset: 0;
+      border-radius: 48% 48% 44% 44%;
+      background: radial-gradient(circle at 35% 35%, #333, #050505 72%);
+      border: 4px solid #fff7dd;
+      box-shadow: 0 0 18px rgba(255,255,255,.55);
     }
 
-    .mini {
-      padding: 8px;
-      border-radius: 14px;
-      background: #151515;
-      border: 1px solid rgba(255, 215, 100, .35);
-      font-size: 12px;
-      color: #fff0b0;
-      text-align: center;
+    .cat::before,
+    .cat::after {
+      content: "";
+      position: absolute;
+      top: -18px;
+      width: 44px;
+      height: 44px;
+      background: #060606;
+      border-top: 4px solid #fff7dd;
+      border-left: 4px solid #fff7dd;
+      transform: rotate(45deg);
+      border-radius: 8px;
     }
 
-    .mini img {
-      width: 100%;
-      border-radius: 10px;
-      filter: brightness(.18);
+    .cat::before { left: 14px; }
+    .cat::after { right: 14px; }
+
+    .cat-eye {
+      position: absolute;
+      top: 40px;
+      width: 26px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fff, #ffd75a 45%, #5a3200 90%);
+      box-shadow: 0 0 12px rgba(255,220,90,.85);
     }
 
-    .mini.owned img {
-      filter: none;
+    .cat-eye.left { left: 26px; }
+    .cat-eye.right { right: 26px; }
+
+    .cat-nose {
+      position: absolute;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 12px;
+      height: 8px;
+      background: #f7a4b8;
+      border-radius: 50%;
     }
 
-   .gacha-effect {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  background: rgba(0, 0, 0, 0.35);
-  align-items: center;
-  justify-content: center;
-  padding: 0 18px;
-  color: #fff2b8;
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  white-space: nowrap;
-  text-shadow: 0 0 12px #000;
-}
-    @keyframes flash {
-      from { opacity: .75; }
-      to { opacity: 1; }
+    .gacha-button {
+      position: relative;
+      display: block;
+      width: 92%;
+      height: 122px;
+      margin: 22px auto 14px;
+      border: 5px solid #ffffff;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 35% 25%, #fff7ce, transparent 30%),
+        linear-gradient(180deg, #fff0a7 0%, #ffd36c 48%, #ff9fc2 100%);
+      color: #4a2b16;
+      font-size: 35px;
+      font-weight: 900;
+      font-family: inherit;
+      box-shadow:
+        0 10px 0 #8a5b30,
+        0 0 24px rgba(255, 210, 130, .9);
+      text-shadow: 2px 2px 0 #fff7de;
+      cursor: pointer;
     }
 
-    @media (max-height: 720px) {
-      #status {
-        bottom: 1.5%;
-        font-size: 11px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <div class="app">
-    <button class="draw-area" onclick="draw()" aria-label="ガチャを引く"></button>
-    <button class="book-area" onclick="loadCollection()" aria-label="図鑑を見る"></button>
-    <div id="status">LIFF準備中...</div>
-  </div>
-
-  <div id="effect" class="gacha-effect">黒猫がシールを運んでいます…</div>
-
-  <div id="cardOverlay" class="overlay">
-    <div id="card" class="result-card">
-      <div id="rarity" class="rarity"></div>
-      <h2 id="cardName"></h2>
-      <p id="joinDate"></p>
-      <img id="cardImage">
-    </div>
-    <button class="close-btn" onclick="closeCard()">閉じる</button>
-  </div>
-
-  <div id="collectionOverlay" class="overlay">
-    <div class="collection-box">
-      <h2>図鑑</h2>
-      <div id="grid" class="grid"></div>
-      <button class="close-btn" onclick="closeCollection()">閉じる</button>
-    </div>
-  </div>
-
-  <script>
-    const LIFF_ID = "2010515194-r0gV3TRC";
-    const API_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDYS8GkkBLTA_WIz-mgurf_O-hd3ugpYRbb0e-14Fs7Ctk5/exec";
-
-    let profile = null;
-
-    window.onload = async function () {
-      const status = document.getElementById("status");
-
-      try {
-        await liff.init({ liffId: LIFF_ID });
-
-        if (!liff.isLoggedIn()) {
-          liff.login();
-          return;
-        }
-
-        profile = await liff.getProfile();
-        status.innerText = profile.displayName + " さん、ようこそ";
-
-      } catch (e) {
-        status.innerText = "LIFF認証エラー：" + e.message;
-      }
-    };
-
-    function callApi(params) {
-      return new Promise((resolve, reject) => {
-        const callbackName = "cb_" + Date.now();
-
-        window[callbackName] = function(data) {
-          delete window[callbackName];
-          document.body.removeChild(script);
-          resolve(data);
-        };
-
-        const query = new URLSearchParams({
-          ...params,
-          callback: callbackName
-        });
-
-        const script = document.createElement("script");
-        script.src = API_URL + "?" + query.toString();
-        script.onerror = reject;
-        document.body.appendChild(script);
-      });
+    .gacha-button:active {
+      transform: translateY(6px);
+      box-shadow:
+        0 4px 0 #8a5b30,
+        0 0 18px rgba(255, 210, 130, .85);
     }
 
-    async function draw() {
-      if (!profile) {
-        alert("LINE認証中です。少し待ってください。");
-        return;
-      }
-
-      const status = document.getElementById("status");
-      const effect = document.getElementById("effect");
-
-      status.innerText = "抽選中…";
-      effect.style.display = "flex";
-
-      const data = await callApi({
-        action: "draw",
-        userId: profile.userId,
-        displayName: profile.displayName
-      });
-
-      setTimeout(() => {
-        effect.style.display = "none";
-
-        if (!data.ok) {
-          alert(data.error);
-          return;
-        }
-
-        if (data.already) {
-          status.innerText = "本日分は受け取り済みです";
-          return;
-        }
-
-        showCard(data.card);
-        status.innerText = "ガチャ結果";
-      }, 900);
+    .book-button {
+      display: block;
+      width: 88%;
+      height: 82px;
+      margin: 14px auto;
+      border: 4px solid #ffffff;
+      border-radius: 26px;
+      background: linear-gradient(180deg, #8ed7d2, #43aeb5);
+      color: #fffef3;
+      font-size: 30px;
+      font-weight: 900;
+      font-family: inherit;
+      box-shadow:
+        0 8px 0 #2d6f78,
+        0 0 18px rgba(130, 230, 230, .55);
+      text-shadow: 2px 2px 0 #22636c;
+      cursor: pointer;
     }
 
-    function showCard(card) {
-      document.getElementById("rarity").innerText = card.rarity;
-      document.getElementById("cardName").innerText = card.name;
-      document.getElementById("joinDate").innerText = "入団日：" + card.joinDate;
-      document.getElementById("cardImage").src = card.imageUrl;
-
-      document.getElementById("cardOverlay").style.display = "block";
-      document.getElementById("card").style.display = "block";
+    .book-button:active {
+      transform: translateY(5px);
+      box-shadow: 0 3px 0 #2d6f78;
     }
 
-    function closeCard() {
-      document.getElementById("cardOverlay").style.display = "none";
+    .notice {
+      width: 90%;
+      margin: 18px auto 0;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.86);
+      border: 3px dashed #f0a7bd;
+      color: #5b351e;
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1.35;
     }
 
-    async function loadCollection() {
-      if (!profile) {
-        alert("LINE認証中です。少し待ってください。");
-        return;
-      }
-
-      document.getElementById("status").innerText = "図鑑を読み込み中";
-
-      const data = await callApi({
-        action: "collection",
-        userId: profile.userId
-      });
-
-      if (!data.ok) {
-        alert(data.error);
-        return;
-      }
-
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
-
-      data.collection.forEach(card => {
-        const div = document.createElement("div");
-        div.className = "mini" + (card.owned ? " owned" : "");
-
-        div.innerHTML = `
-          <img src="${card.imageUrl}">
-          <div>${card.owned ? card.name : "？？？"}</div>
-          <div>${card.rarity}</div>
-        `;
-
-        grid.appendChild(div);
-      });
-
-      document.getElementById("collectionOverlay").style.display = "block";
-      document.getElementById("status").innerText = "図鑑表示中";
+    .paw {
+      position: absolute;
+      color: rgba(255,255,255,.65);
+      font-size: 26px;
+      z-index: 1;
+      animation: float 3s ease-in-out infinite alternate;
     }
 
-    function closeCollection() {
-      document.getElementById("collectionOverlay").style.display = "none";
+    .paw.p1 { top: 92px; right: 24px; }
+    .paw.p2 { top: 310px; left: 14px; animation-delay: .5s; }
+    .paw.p3 { bottom: 110px; right: 18px; animation-delay: .8s; }
+
+    @keyframes float {
+      from { transform: translateY(0) rotate(-6deg); }
+      to { transform: translateY(-8px) rotate(6deg); }
     }
-  </script>
-</body>
-</html>
