@@ -4,123 +4,202 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>クロネコガチャ v2</title>
-
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
   <style>
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: system-ui, sans-serif;
-      background: linear-gradient(180deg, #fff1f7, #fffaf0);
-      color: #333;
+      color: #fff8e8;
       text-align: center;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 10%, #ffe08a 0 2px, transparent 3px),
+        radial-gradient(circle at 80% 20%, #fff 0 2px, transparent 3px),
+        radial-gradient(circle at 50% 70%, #ffd1e8 0 2px, transparent 3px),
+        linear-gradient(180deg, #07182f, #0d2345 55%, #08111f);
+      overflow-x: hidden;
     }
 
     .wrap {
-      max-width: 420px;
+      max-width: 430px;
       margin: 0 auto;
-      padding: 24px 16px;
+      padding: 18px 16px 28px;
+    }
+
+    .top-banner {
+      margin: 10px auto 8px;
+      background: #ffe0a8;
+      color: #3a2415;
+      border: 3px solid #7a4a1f;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 900;
+      box-shadow: 0 4px 0 #4b2a12;
+      display: inline-block;
     }
 
     h1 {
-      font-size: 28px;
-      margin: 20px 0 8px;
+      font-size: 44px;
+      line-height: 1.05;
+      margin: 12px 0 8px;
+      color: #fff7da;
+      text-shadow: 4px 4px 0 #3d2418, 0 0 18px #ffd76d;
+      letter-spacing: 2px;
     }
 
-    .sub {
-      color: #777;
-      margin-bottom: 24px;
+    .welcome {
+      background: #fff2d5;
+      color: #4c2a14;
+      border: 3px solid #7d4c22;
+      border-radius: 22px;
+      padding: 12px;
+      margin: 12px auto;
+      font-weight: 800;
+      box-shadow: 0 4px 0 #4b2a12;
     }
 
-    .box {
-      background: white;
-      border-radius: 24px;
-      padding: 24px 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    .stage {
+      position: relative;
+      margin-top: 14px;
+      padding: 24px 16px 18px;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.18);
+      box-shadow: 0 14px 30px rgba(0,0,0,0.4);
+      overflow: hidden;
     }
 
-    .cat {
-      font-size: 64px;
-      margin: 10px 0;
+    .moon {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      font-size: 52px;
+      filter: drop-shadow(0 0 12px #ffe59a);
+    }
+
+    .cat-main {
+      font-size: 72px;
+      margin-top: 12px;
+      animation: floatCat 2.4s ease-in-out infinite;
+    }
+
+    @keyframes floatCat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
     }
 
     button {
+      width: 88%;
       border: none;
       border-radius: 999px;
-      padding: 16px 28px;
-      font-size: 18px;
-      font-weight: bold;
-      margin: 10px;
-      cursor: pointer;
-      background: #ff8fbd;
+      padding: 18px 12px;
+      margin: 12px auto;
+      display: block;
+      font-size: 24px;
+      font-weight: 900;
       color: white;
-      box-shadow: 0 5px 0 #d95c91;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+
+    .draw-btn {
+      background: linear-gradient(180deg, #ffe9aa, #ffb84c);
+      color: #4b250e;
+      border: 4px solid #fff4cf;
+      box-shadow: 0 8px 0 #8a4a12, 0 0 18px #ffd36d;
+      font-size: 30px;
+    }
+
+    .book-btn {
+      background: linear-gradient(180deg, #67d7d1, #188c96);
+      border: 4px solid #d8fffb;
+      box-shadow: 0 8px 0 #07535a;
+    }
+
+    .drawn-btn {
+      background: linear-gradient(180deg, #3b2f29, #15100d);
+      color: #ffe8bd;
+      border: 3px solid #a77a43;
+      font-size: 19px;
+      box-shadow: 0 5px 0 #000;
     }
 
     button:active {
-      transform: translateY(3px);
-      box-shadow: 0 2px 0 #d95c91;
+      transform: translateY(4px);
+      box-shadow: none;
     }
 
-    .btn-sub {
-      background: #7cc7c2;
-      box-shadow: 0 5px 0 #4aa09b;
+    button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
     }
 
     #message {
-      margin-top: 18px;
-      font-weight: bold;
-      color: #555;
+      margin: 14px auto;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.35);
+      color: #fff0c8;
+      font-size: 17px;
+      font-weight: 800;
       white-space: pre-wrap;
     }
 
-    #result {
-      margin-top: 20px;
-      display: none;
-    }
+    #result { display: none; margin-top: 14px; }
 
     #cardImage {
-      width: 86%;
-      max-width: 300px;
-      border-radius: 18px;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
-      background: white;
+      width: 88%;
+      max-width: 310px;
+      border-radius: 22px;
+      background: #ddd;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.5);
     }
 
     #cardName {
-      font-size: 24px;
-      font-weight: bold;
-      margin-top: 14px;
+      font-size: 30px;
+      font-weight: 900;
+      margin-top: 12px;
+      color: #fff4d3;
+      text-shadow: 3px 3px 0 #3d2418;
+    }
+
+    .note {
+      margin-top: 16px;
+      background: #fff2d5;
+      color: #4c2a14;
+      border-radius: 18px;
+      padding: 10px;
+      font-weight: 800;
+      border: 2px dashed #c78b4a;
     }
 
     #collection {
       display: none;
-      margin-top: 20px;
+      margin-top: 16px;
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
-      margin-top: 14px;
+      margin-top: 12px;
     }
 
     .mini-card {
-      background: white;
+      background: #fff4dd;
+      color: #3d2418;
       border-radius: 16px;
-      padding: 10px;
-      box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+      padding: 9px;
+      font-weight: 800;
     }
 
     .mini-card img {
       width: 100%;
       border-radius: 12px;
-    }
-
-    .mini-card div {
-      font-size: 14px;
-      font-weight: bold;
-      margin-top: 6px;
+      background: #ddd;
     }
 
     #effect {
@@ -128,34 +207,53 @@
       position: fixed;
       inset: 0;
       z-index: 9999;
-      background: rgba(255, 241, 247, 0.96);
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      font-size: 42px;
-      font-weight: bold;
+      background: rgba(5, 12, 30, 0.95);
+      color: #fff4cd;
+      font-size: 34px;
+      font-weight: 900;
+      text-shadow: 0 0 14px #ffd66d;
     }
 
-    .effectText {
-      animation: pop 0.8s infinite alternate;
+    .effect-big {
+      font-size: 76px;
+      margin-bottom: 20px;
+      animation: pop 0.6s infinite alternate;
     }
 
     @keyframes pop {
-      from { transform: scale(1); opacity: 0.7; }
-      to { transform: scale(1.18); opacity: 1; }
+      from { transform: scale(0.9) rotate(-4deg); }
+      to { transform: scale(1.15) rotate(4deg); }
+    }
+
+    .sparkle {
+      position: fixed;
+      font-size: 28px;
+      animation: fall 1.2s linear forwards;
+    }
+
+    @keyframes fall {
+      from { transform: translateY(-40px); opacity: 1; }
+      to { transform: translateY(100vh); opacity: 0; }
     }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <h1>クロネコガチャ v2</h1>
-    <div class="sub">1日1回・朝8時リセット</div>
+    <div class="top-banner">🐾 黒猫が運ぶ、特別な出会い 🐾</div>
+    <h1>クロネコ<br>ガチャ</h1>
 
-    <div class="box">
-      <div class="cat">🐈‍⬛</div>
-      <button onclick="drawGacha()">ガチャを引く</button>
-      <button class="btn-sub" onclick="showCollection()">図鑑を見る</button>
+    <div class="welcome" id="welcome">LINE認証中...</div>
+
+    <div class="stage">
+      <div class="moon">🌙</div>
+      <div class="cat-main">🐈‍⬛</div>
+
+      <button class="draw-btn" id="drawBtn" onclick="drawGacha()">ガチャを引く</button>
+      <button class="book-btn" onclick="showCollection()">📖 図鑑を見る</button>
 
       <div id="message">読み込み中...</div>
 
@@ -165,27 +263,28 @@
       </div>
 
       <div id="collection">
-        <h2>図鑑</h2>
+        <h2>📖 図鑑</h2>
         <div id="collectionGrid" class="grid"></div>
       </div>
+
+      <div class="note">※ガチャは1日1回限定（朝8時リセット）</div>
     </div>
   </div>
 
   <div id="effect">
-    <div class="effectText" id="effectText">🐾 ガチャ中...</div>
+    <div class="effect-big" id="effectIcon">🐾</div>
+    <div id="effectText">ガチャ中...</div>
   </div>
 
   <script>
-    const LIFF_ID = "2010515194-r0gV3TRC";
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDYS8GkkBLTA_WIz-mgurf_O-hd3ugpYRbb0e-14Fs7Ctk5/exec";
+    const LIFF_ID = "200515194-r0gV3TRC";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNfOTG1DBK_MYDYS8GkkBLTA_WIz-mgurf_O-hd3ugpYRbb0e-14Fs7Ctk5/exec";
 
     let userId = "";
     let displayName = "";
 
     window.onload = async function () {
       try {
-        document.getElementById("message").textContent = "LINE認証中...";
-
         await liff.init({ liffId: LIFF_ID });
 
         if (!liff.isLoggedIn()) {
@@ -197,22 +296,24 @@
         userId = profile.userId;
         displayName = profile.displayName || "";
 
+        document.getElementById("welcome").textContent =
+          "🐾 " + displayName + "さん、ようこそ！";
         document.getElementById("message").textContent =
-          displayName + "さん、今日のガチャを引けます🐾";
+          "今日も素敵な出会いがあるよ♪";
 
       } catch (err) {
         document.getElementById("message").textContent =
-          "エラー：LIFF設定を確認してください\n" + err.message;
+          "LIFFエラー：" + err.message;
       }
     };
 
     async function drawGacha() {
       if (!userId) {
-        document.getElementById("message").textContent = "LINE認証がまだです。少し待ってください。";
+        document.getElementById("message").textContent = "LINE認証中です。少し待ってください。";
         return;
       }
 
-      showEffect("🐾 にゃんにゃん抽選中...");
+      playRandomEffect();
 
       try {
         const res = await fetch(GAS_URL, {
@@ -231,16 +332,20 @@
 
           if (!data.ok) {
             document.getElementById("message").textContent = data.message || "ガチャに失敗しました";
+            document.getElementById("drawBtn").className = "drawn-btn";
+            document.getElementById("drawBtn").textContent = "本日分は受け取り済みです";
+            document.getElementById("drawBtn").disabled = true;
             return;
           }
 
           showCard(data.card);
-        }, 900);
+
+        }, 1300);
 
       } catch (err) {
         hideEffect();
         document.getElementById("message").textContent =
-          "通信エラー：Apps Script URLを確認してください\n" + err.message;
+          "通信エラー：" + err.message;
       }
     }
 
@@ -252,19 +357,22 @@
       document.getElementById("cardName").textContent = card.name;
 
       if (card.type === "secret") {
-        document.getElementById("message").textContent = "✨シークレットシール出現✨";
+        secretEffect();
+        document.getElementById("message").textContent = "✨ シークレットシール出現 ✨";
       } else {
         document.getElementById("message").textContent = "シールをゲットしました🐾";
       }
+
+      document.getElementById("drawBtn").className = "drawn-btn";
+      document.getElementById("drawBtn").textContent = "本日分は受け取り済みです";
+      document.getElementById("drawBtn").disabled = true;
     }
 
     async function showCollection() {
       if (!userId) {
-        document.getElementById("message").textContent = "LINE認証がまだです。少し待ってください。";
+        document.getElementById("message").textContent = "LINE認証中です。少し待ってください。";
         return;
       }
-
-      document.getElementById("message").textContent = "図鑑を読み込み中...";
 
       try {
         const res = await fetch(GAS_URL, {
@@ -305,18 +413,51 @@
 
       } catch (err) {
         document.getElementById("message").textContent =
-          "通信エラー：Apps Script URLを確認してください\n" + err.message;
+          "通信エラー：" + err.message;
       }
     }
 
-    function showEffect(text) {
-      const effect = document.getElementById("effect");
+    function playRandomEffect() {
+      const effects = [
+        ["🐾", "肉球が近づいてくる…"],
+        ["🐈‍⬛", "黒猫がカードを運んでいます…"],
+        ["✨", "キラキラが集まっています…"],
+        ["💣", "ドキドキ爆発準備中…"],
+        ["🌙", "月明かりがシールを照らす…"]
+      ];
+
+      const e = effects[Math.floor(Math.random() * effects.length)];
+      showEffect(e[0], e[1]);
+      makeSparkles();
+    }
+
+    function showEffect(icon, text) {
+      document.getElementById("effectIcon").textContent = icon;
       document.getElementById("effectText").textContent = text;
-      effect.style.display = "flex";
+      document.getElementById("effect").style.display = "flex";
     }
 
     function hideEffect() {
       document.getElementById("effect").style.display = "none";
+      document.querySelectorAll(".sparkle").forEach(el => el.remove());
+    }
+
+    function makeSparkles() {
+      for (let i = 0; i < 18; i++) {
+        const s = document.createElement("div");
+        s.className = "sparkle";
+        s.textContent = ["✨", "⭐", "🐾", "💖"][Math.floor(Math.random() * 4)];
+        s.style.left = Math.random() * 100 + "vw";
+        s.style.top = "-30px";
+        s.style.animationDelay = Math.random() * 0.6 + "s";
+        document.body.appendChild(s);
+      }
+    }
+
+    function secretEffect() {
+      showEffect("🌈", "シークレット降臨！！");
+      makeSparkles();
+      setTimeout(hideEffect, 1200);
     }
   </script>
 </body>
