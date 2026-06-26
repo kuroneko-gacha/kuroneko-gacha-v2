@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>クロネコガチャ v2</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
@@ -13,6 +13,7 @@ html,body{
   background:#020617;
   font-family:"Hiragino Sans","Meiryo",sans-serif;
   overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
 }
 
 #app{
@@ -58,34 +59,374 @@ html,body{
 #effect{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.88);
+  background:rgba(0,0,0,.90);
   display:none;
   align-items:center;
   justify-content:center;
   flex-direction:column;
   z-index:100;
+  overflow:hidden;
 }
 
-#effectCat{
-  width:210px;
-  max-width:65vw;
-  filter:drop-shadow(0 0 25px #facc15);
-  animation:float 1s infinite alternate;
+#effectStage{
+  position:relative;
+  width:100vw;
+  height:58vh;
+  max-width:430px;
 }
 
 #effectText{
-  margin-top:22px;
-  font-size:34px;
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:18px;
+  text-align:center;
+  font-size:32px;
   font-weight:bold;
   color:#facc15;
-  text-shadow:0 0 18px #facc15;
+  text-shadow:0 0 18px #facc15,0 0 30px #f97316;
+  z-index:30;
 }
 
-@keyframes float{
-  from{transform:translateY(0) scale(1);}
-  to{transform:translateY(-18px) scale(1.07);}
+.scene{
+  position:absolute;
+  inset:0;
+  display:none;
 }
 
+.scene.active{
+  display:block;
+}
+
+/* CSS黒猫 */
+.cssCat{
+  position:absolute;
+  width:150px;
+  height:95px;
+  left:50%;
+  top:45%;
+  transform:translate(-50%,-50%);
+  z-index:20;
+}
+
+.catBody{
+  position:absolute;
+  width:100px;
+  height:55px;
+  background:#020617;
+  border-radius:55% 50% 45% 45%;
+  left:34px;
+  top:28px;
+  box-shadow:0 0 18px rgba(250,204,21,.35);
+}
+
+.catHead{
+  position:absolute;
+  width:52px;
+  height:48px;
+  background:#020617;
+  border-radius:50%;
+  left:10px;
+  top:18px;
+  box-shadow:0 0 12px rgba(250,204,21,.25);
+}
+
+.catEar{
+  position:absolute;
+  width:0;
+  height:0;
+  border-left:12px solid transparent;
+  border-right:12px solid transparent;
+  border-bottom:24px solid #020617;
+  top:4px;
+}
+
+.ear1{left:16px; transform:rotate(-22deg);}
+.ear2{left:39px; transform:rotate(22deg);}
+
+.catEye{
+  position:absolute;
+  width:7px;
+  height:7px;
+  background:#facc15;
+  border-radius:50%;
+  top:35px;
+  left:24px;
+  box-shadow:18px 0 0 #facc15;
+}
+
+.catTail{
+  position:absolute;
+  width:60px;
+  height:16px;
+  border-radius:20px;
+  border-top:12px solid #020617;
+  right:-6px;
+  top:28px;
+  transform-origin:left center;
+  animation:tailSwing .28s infinite alternate;
+}
+
+.catLeg{
+  position:absolute;
+  width:13px;
+  height:35px;
+  background:#020617;
+  border-radius:10px;
+  top:70px;
+  transform-origin:top center;
+  animation:legRun .18s infinite alternate;
+}
+
+.leg1{left:55px;}
+.leg2{left:78px; animation-delay:.09s;}
+.leg3{left:101px;}
+.leg4{left:124px; animation-delay:.09s;}
+
+@keyframes tailSwing{
+  from{transform:rotate(-14deg);}
+  to{transform:rotate(18deg);}
+}
+
+@keyframes legRun{
+  from{transform:rotate(28deg);}
+  to{transform:rotate(-28deg);}
+}
+
+/* 通常1: 黒猫ダッシュ */
+.dashCat{
+  animation:dashCat 2.2s ease-in-out forwards;
+}
+@keyframes dashCat{
+  0%{transform:translate(-180vw,-50%) scale(.8);}
+  45%{transform:translate(-50%,-50%) scale(1);}
+  65%{transform:translate(-50%,-90%) scale(1.12) rotate(-6deg);}
+  82%{transform:translate(-50%,-48%) scale(1.04);}
+  100%{transform:translate(-50%,-50%) scale(1);}
+}
+
+/* 通常2: 肉球スタンプ */
+.paw{
+  position:absolute;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:#facc15;
+  opacity:0;
+  filter:drop-shadow(0 0 14px #facc15);
+  animation:pawPop 1.8s ease-in-out forwards;
+}
+.paw::before{
+  content:"";
+  position:absolute;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#facc15;
+  left:5px;
+  top:-10px;
+  box-shadow:16px -8px 0 #facc15,32px 0 0 #facc15;
+}
+.paw::after{
+  content:"";
+  position:absolute;
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:#facc15;
+  left:16px;
+  top:26px;
+}
+@keyframes pawPop{
+  0%{transform:scale(.1) rotate(-30deg); opacity:0;}
+  25%{opacity:1;}
+  65%{transform:scale(1.15) rotate(10deg); opacity:1;}
+  100%{transform:scale(.8) rotate(20deg); opacity:0;}
+}
+
+/* 通常3: 宝箱 */
+.chest{
+  position:absolute;
+  left:50%;
+  top:48%;
+  width:160px;
+  height:120px;
+  transform:translate(-50%,-50%);
+  animation:chestShake 1.4s ease-in-out forwards;
+}
+.chestLid{
+  position:absolute;
+  left:10px;
+  top:5px;
+  width:140px;
+  height:50px;
+  background:linear-gradient(#a16207,#facc15);
+  border-radius:18px 18px 4px 4px;
+  transform-origin:bottom center;
+  animation:chestOpen 2.2s ease-in-out forwards;
+}
+.chestBody{
+  position:absolute;
+  left:0;
+  top:52px;
+  width:160px;
+  height:70px;
+  background:linear-gradient(#78350f,#f59e0b);
+  border-radius:8px 8px 20px 20px;
+}
+.chestLight{
+  position:absolute;
+  left:50%;
+  top:40%;
+  width:30px;
+  height:30px;
+  background:#fff7ad;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 80px 45px #facc15;
+  opacity:0;
+  animation:lightBurst 2.2s ease-in-out forwards;
+}
+@keyframes chestShake{
+  0%,35%,55%{transform:translate(-50%,-50%) rotate(0);}
+  42%{transform:translate(-50%,-50%) rotate(-8deg);}
+  48%{transform:translate(-50%,-50%) rotate(8deg);}
+  65%{transform:translate(-50%,-50%) scale(1.05);}
+  100%{transform:translate(-50%,-50%) scale(1);}
+}
+@keyframes chestOpen{
+  0%,55%{transform:rotateX(0);}
+  78%,100%{transform:rotateX(65deg) translateY(-20px);}
+}
+@keyframes lightBurst{
+  0%,55%{opacity:0; transform:translate(-50%,-50%) scale(.2);}
+  80%{opacity:1; transform:translate(-50%,-50%) scale(1.2);}
+  100%{opacity:.3; transform:translate(-50%,-50%) scale(1);}
+}
+
+/* 通常4: 月明かり */
+.moon{
+  position:absolute;
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  background:#fde68a;
+  left:50%;
+  top:38%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 40px #fde68a,0 0 90px #facc15;
+  animation:moonGlow 2.2s ease-in-out forwards;
+}
+.moon::after{
+  content:"";
+  position:absolute;
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:#020617;
+  right:-18px;
+  top:-8px;
+}
+@keyframes moonGlow{
+  0%{opacity:.1; transform:translate(-50%,-50%) scale(.4);}
+  50%{opacity:1; transform:translate(-50%,-50%) scale(1);}
+  100%{opacity:.8; transform:translate(-50%,-50%) scale(1.15);}
+}
+
+/* 通常5: 星降り */
+.star{
+  position:absolute;
+  width:8px;
+  height:8px;
+  background:#facc15;
+  border-radius:50%;
+  box-shadow:0 0 14px #facc15;
+  animation:starFall 1.8s linear forwards;
+}
+@keyframes starFall{
+  0%{transform:translateY(-20vh) scale(.6); opacity:0;}
+  20%{opacity:1;}
+  100%{transform:translateY(70vh) scale(1.3); opacity:0;}
+}
+
+/* シークレット演出 */
+.secretMode{
+  animation:secretBg 2.8s ease-in-out forwards;
+}
+@keyframes secretBg{
+  0%{background:rgba(0,0,0,.94);}
+  25%{background:rgba(24,0,40,.95);}
+  50%{background:rgba(70,0,80,.95);}
+  75%{background:rgba(80,50,0,.95);}
+  100%{background:rgba(0,0,0,.92);}
+}
+
+.secretRing{
+  position:absolute;
+  left:50%;
+  top:45%;
+  width:80px;
+  height:80px;
+  border:8px solid #facc15;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 30px #facc15, inset 0 0 30px #facc15;
+  animation:secretRing 2.8s ease-in-out forwards;
+}
+@keyframes secretRing{
+  0%{transform:translate(-50%,-50%) scale(.2) rotate(0deg); opacity:0;}
+  30%{opacity:1;}
+  80%{transform:translate(-50%,-50%) scale(3.2) rotate(260deg); opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(4.5) rotate(360deg); opacity:0;}
+}
+
+.lightning{
+  position:absolute;
+  left:50%;
+  top:8%;
+  width:26px;
+  height:260px;
+  background:#fef08a;
+  clip-path:polygon(45% 0,80% 0,58% 38%,88% 38%,35% 100%,48% 53%,18% 53%);
+  transform:translateX(-50%);
+  filter:drop-shadow(0 0 18px #facc15);
+  opacity:0;
+  animation:bolt 2.8s ease-in-out forwards;
+}
+@keyframes bolt{
+  0%,25%,55%,100%{opacity:0;}
+  32%,38%,65%{opacity:1;}
+}
+
+.secretText{
+  position:absolute;
+  left:0;
+  right:0;
+  top:16%;
+  text-align:center;
+  color:#fff7ad;
+  font-weight:bold;
+  font-size:28px;
+  text-shadow:0 0 20px #facc15;
+  opacity:0;
+  animation:secretText 2.8s ease-in-out forwards;
+}
+@keyframes secretText{
+  0%,25%{opacity:0; transform:scale(.8);}
+  45%,85%{opacity:1; transform:scale(1.08);}
+  100%{opacity:0; transform:scale(1.2);}
+}
+
+.openFlash{
+  animation:openFlash .16s linear 5;
+}
+@keyframes openFlash{
+  0%{background:rgba(0,0,0,.9);}
+  50%{background:rgba(255,245,170,.82);}
+  100%{background:rgba(0,0,0,.9);}
+}
+
+/* 結果 */
 #result{
   position:fixed;
   inset:0;
@@ -99,13 +440,22 @@ html,body{
   box-sizing:border-box;
 }
 
+#result.secretResult{
+  background:radial-gradient(circle,rgba(250,204,21,.35),rgba(0,0,0,.92) 65%);
+}
+
 #resultImg{
   width:86%;
   max-width:360px;
   border-radius:18px;
   background:white;
   box-shadow:0 0 35px #facc15;
-  animation:pop .45s ease;
+  animation:cardPop .55s ease;
+}
+
+#result.secretResult #resultImg{
+  box-shadow:0 0 35px #facc15,0 0 70px #f472b6,0 0 100px #60a5fa;
+  animation:secretCardPop .75s ease;
 }
 
 #resultName{
@@ -134,12 +484,18 @@ html,body{
   color:#3b2408;
 }
 
-@keyframes pop{
-  0%{transform:scale(.35);opacity:0;}
-  80%{transform:scale(1.08);opacity:1;}
+@keyframes cardPop{
+  0%{transform:scale(.25) rotateY(90deg);opacity:0;}
+  75%{transform:scale(1.08) rotateY(0deg);opacity:1;}
   100%{transform:scale(1);}
 }
+@keyframes secretCardPop{
+  0%{transform:scale(.15) rotate(20deg);opacity:0;}
+  55%{transform:scale(1.18) rotate(-4deg);opacity:1;}
+  100%{transform:scale(1) rotate(0);}
+}
 
+/* 図鑑 */
 #collection{
   position:fixed;
   inset:0;
@@ -170,6 +526,11 @@ html,body{
   text-align:center;
 }
 
+.cardMini.secretMini{
+  background:linear-gradient(135deg,rgba(250,204,21,.25),rgba(147,51,234,.25));
+  box-shadow:0 0 18px rgba(250,204,21,.25);
+}
+
 .cardMini img{
   width:100%;
   border-radius:10px;
@@ -193,14 +554,13 @@ html,body{
 <body>
 <div id="app">
   <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/33e5c8ed-3a7d-4f64-ad75-060ed57ebefb%20(1).png?raw=true">
-
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
   <button id="bookTap" class="tap" onclick="loadCollection()" aria-label="図鑑を見る"></button>
 </div>
 
 <div id="effect">
-  <img id="effectCat" src="https://i.ibb.co/xqQLHrDz/a7c2f872-3116-4bca-b94d-e9a4c80e6650.png">
-  <div id="effectText">クロネコが運んでくる...</div>
+  <div id="effectStage"></div>
+  <div id="effectText">開封準備中...</div>
 </div>
 
 <div id="result">
@@ -220,11 +580,7 @@ html,body{
 const LIFF_ID = "2010515194-r0gV3TRC";
 const API_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDYS8GkkBLTA_WIz-mgurf_O-hd3ugpYRbb0e-14Fs7Ctk5/exec";
 
-let profile = {
-  userId:"",
-  displayName:""
-};
-
+let profile = { userId:"", displayName:"" };
 let drawing = false;
 
 window.onload = async function(){
@@ -239,7 +595,6 @@ window.onload = async function(){
     const p = await liff.getProfile();
     profile.userId = p.userId;
     profile.displayName = p.displayName;
-
     console.log("LINE名取得成功:", profile.displayName);
 
   }catch(e){
@@ -282,7 +637,6 @@ async function drawGacha(){
   }
 
   drawing = true;
-  showEffect();
 
   try{
     const res = await jsonp({
@@ -291,54 +645,172 @@ async function drawGacha(){
       displayName:profile.displayName
     });
 
-    setTimeout(function(){
-      hideEffect();
+    if(!res || res.ok === false){
       drawing = false;
+      alert(res && res.message ? res.message : "今日はもう引いています。また明日ね！");
+      return;
+    }
 
-      if(!res || res.ok === false){
-        alert(res && res.message ? res.message : "今日はもう引いています。また明日ね！");
-        return;
-      }
-
-      showResult(res);
-    },1800);
+    await playGachaEffect(res);
+    drawing = false;
+    showResult(res);
 
   }catch(e){
-    hideEffect();
     drawing = false;
+    hideEffect();
     alert("通信エラーが出ました。少し待ってからもう一度試してください。");
   }
 }
 
-function showEffect(){
-  const texts = [
-    "クロネコが走ってきた...",
-    "肉球が光っている...",
-    "シールの気配がする...",
-    "小ネコたちが集まった...",
-    "開封準備中..."
-  ];
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+    const text = document.getElementById("effectText");
 
-  document.getElementById("effectText").textContent =
-    texts[Math.floor(Math.random()*texts.length)];
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "flex";
 
-  document.getElementById("effect").style.display = "flex";
+    if(isSecret){
+      playSecretEffect(stage,text,resolve);
+    }else{
+      const n = Math.floor(Math.random()*5);
+      if(n === 0) playDashEffect(stage,text,resolve);
+      if(n === 1) playPawEffect(stage,text,resolve);
+      if(n === 2) playChestEffect(stage,text,resolve);
+      if(n === 3) playMoonEffect(stage,text,resolve);
+      if(n === 4) playStarEffect(stage,text,resolve);
+    }
+  });
+}
 
-  setTimeout(function(){
-    document.getElementById("effectText").textContent = "開封！！";
-  },1000);
+function playDashEffect(stage,text,done){
+  text.textContent = "クロネコが走ってきた...";
+  stage.appendChild(makeCat("dashCat"));
+  setTimeout(()=>text.textContent="ジャンプ！！",1100);
+  setTimeout(()=>openFinish(text,done),2000);
+}
+
+function playPawEffect(stage,text,done){
+  text.textContent = "肉球が近づいてくる...";
+  for(let i=0;i<12;i++){
+    const paw = document.createElement("div");
+    paw.className = "paw";
+    paw.style.left = (8 + Math.random()*78) + "%";
+    paw.style.top = (8 + Math.random()*58) + "%";
+    paw.style.animationDelay = (Math.random()*.7) + "s";
+    stage.appendChild(paw);
+  }
+  setTimeout(()=>text.textContent="肉球スタンプ！！",1200);
+  setTimeout(()=>openFinish(text,done),2100);
+}
+
+function playChestEffect(stage,text,done){
+  text.textContent = "宝箱が震えている...";
+  const chest = document.createElement("div");
+  chest.className = "chest";
+  chest.innerHTML = '<div class="chestLight"></div><div class="chestLid"></div><div class="chestBody"></div>';
+  stage.appendChild(chest);
+  setTimeout(()=>text.textContent="パカッ！！",1500);
+  setTimeout(()=>openFinish(text,done),2300);
+}
+
+function playMoonEffect(stage,text,done){
+  text.textContent = "月明かりが強くなる...";
+  const moon = document.createElement("div");
+  moon.className = "moon";
+  stage.appendChild(moon);
+  for(let i=0;i<16;i++) addStar(stage,i*.06);
+  setTimeout(()=>text.textContent="光が集まった！！",1450);
+  setTimeout(()=>openFinish(text,done),2250);
+}
+
+function playStarEffect(stage,text,done){
+  text.textContent = "星が降ってくる...";
+  for(let i=0;i<28;i++) addStar(stage,Math.random()*1.1);
+  setTimeout(()=>text.textContent="キラキラ開封！！",1450);
+  setTimeout(()=>openFinish(text,done),2250);
+}
+
+function playSecretEffect(stage,text,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+  text.textContent = "いつもと空気が違う...";
+
+  const ring = document.createElement("div");
+  ring.className = "secretRing";
+  stage.appendChild(ring);
+
+  const bolt = document.createElement("div");
+  bolt.className = "lightning";
+  stage.appendChild(bolt);
+
+  const secretText = document.createElement("div");
+  secretText.className = "secretText";
+  secretText.textContent = "シークレットの気配";
+  stage.appendChild(secretText);
+
+  for(let i=0;i<30;i++) addStar(stage,Math.random()*1.5);
+
+  setTimeout(()=>text.textContent="まさか...！？",1000);
+  setTimeout(()=>text.textContent="SECRET 開封！！",2100);
+  setTimeout(()=>openFinish(text,done),2900);
+}
+
+function makeCat(extraClass){
+  const cat = document.createElement("div");
+  cat.className = "cssCat " + extraClass;
+  cat.innerHTML =
+    '<div class="catTail"></div>' +
+    '<div class="catBody"></div>' +
+    '<div class="catHead"></div>' +
+    '<div class="catEar ear1"></div>' +
+    '<div class="catEar ear2"></div>' +
+    '<div class="catEye"></div>' +
+    '<div class="catLeg leg1"></div>' +
+    '<div class="catLeg leg2"></div>' +
+    '<div class="catLeg leg3"></div>' +
+    '<div class="catLeg leg4"></div>';
+  return cat;
+}
+
+function addStar(stage,delay){
+  const star = document.createElement("div");
+  star.className = "star";
+  star.style.left = (Math.random()*100) + "%";
+  star.style.top = (-10 - Math.random()*20) + "%";
+  star.style.animationDelay = delay + "s";
+  stage.appendChild(star);
+}
+
+function openFinish(text,done){
+  const effect = document.getElementById("effect");
+  text.textContent = "開封！！";
+  effect.classList.add("openFlash");
+  setTimeout(()=>{
+    hideEffect();
+    done();
+  },700);
 }
 
 function hideEffect(){
-  document.getElementById("effect").style.display = "none";
+  const effect = document.getElementById("effect");
+  effect.style.display = "none";
+  effect.className = "";
+  document.getElementById("effectStage").innerHTML = "";
 }
 
 function showResult(res){
+  const result = document.getElementById("result");
+  result.className = res.secret ? "secretResult" : "";
   document.getElementById("resultImg").src = res.imageUrl;
   document.getElementById("resultName").textContent = res.name;
   document.getElementById("resultMsg").textContent =
+    res.secret ? "🌟 SECRET SEAL GET！！" :
     res.isNew ? "🎉 NEW SEAL GET！！" : "また会えたね！";
-  document.getElementById("result").style.display = "flex";
+  result.style.display = "flex";
 }
 
 function closeResult(){
@@ -378,7 +850,7 @@ function renderCollection(cards){
   }else{
     cards.forEach(function(card){
       const div = document.createElement("div");
-      div.className = "cardMini";
+      div.className = card.secret ? "cardMini secretMini" : "cardMini";
       div.innerHTML =
         '<img src="' + escapeHtml(card.imageUrl) + '">' +
         '<div>' + escapeHtml(card.name) + '</div>' +
