@@ -37,7 +37,7 @@ html,body{
   border:none;
   background:rgba(255,255,255,0);
   cursor:pointer;
-  z-index:5;
+  z-index:20;
 }
 
 #drawTap{
@@ -56,46 +56,87 @@ html,body{
   border-radius:20px;
 }
 
+/* 下の焼き込み文字を隠して状態表示 */
+#statusMask{
+  position:absolute;
+  left:12.3%;
+  top:84.0%;
+  width:75.4%;
+  height:5.0%;
+  border-radius:999px;
+  background:linear-gradient(180deg,#19130c,#050505);
+  border:2px solid rgba(255,211,125,.85);
+  box-shadow:0 0 10px rgba(0,0,0,.75), inset 0 0 10px rgba(255,255,255,.06);
+  z-index:8;
+  pointer-events:none;
+}
+
+#statusText{
+  position:absolute;
+  left:12.3%;
+  top:84.0%;
+  width:75.4%;
+  height:5.0%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#fff5d0;
+  font-weight:bold;
+  font-size:15px;
+  text-shadow:0 2px 4px #000;
+  z-index:9;
+  pointer-events:none;
+}
+
+/* 押した瞬間の反応 */
+#pressFx{
+  position:absolute;
+  left:18%;
+  top:45.5%;
+  width:64%;
+  height:21%;
+  border-radius:50%;
+  display:none;
+  background:
+    radial-gradient(circle,rgba(255,255,255,.75),rgba(250,204,21,.35),rgba(255,255,255,0) 68%);
+  z-index:10;
+  pointer-events:none;
+  animation:pressGlow .45s infinite alternate;
+}
+
+@keyframes pressGlow{
+  from{transform:scale(.94);opacity:.55;}
+  to{transform:scale(1.07);opacity:1;}
+}
+
+/* 演出本体 */
 #effect{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.90);
+  background:rgba(0,0,0,.94);
   display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
   z-index:100;
   overflow:hidden;
 }
 
 #effectStage{
-  position:relative;
-  width:100vw;
-  height:58vh;
-  max-width:430px;
-}
-
-#effectText{
-  position:absolute;
-  left:0;
-  right:0;
-  bottom:18px;
-  text-align:center;
-  font-size:32px;
-  font-weight:bold;
-  color:#facc15;
-  text-shadow:0 0 18px #facc15,0 0 30px #f97316;
-  z-index:30;
-}
-
-.scene{
   position:absolute;
   inset:0;
-  display:none;
+  overflow:hidden;
 }
 
-.scene.active{
-  display:block;
+/* 文字演出は使わない */
+#effectText{ display:none; }
+
+.openFlash{
+  animation:openFlash .13s linear 7;
+}
+
+@keyframes openFlash{
+  0%{background:rgba(0,0,0,.94);}
+  50%{background:rgba(255,244,180,.86);}
+  100%{background:rgba(0,0,0,.94);}
 }
 
 /* CSS黒猫 */
@@ -103,9 +144,6 @@ html,body{
   position:absolute;
   width:150px;
   height:95px;
-  left:50%;
-  top:45%;
-  transform:translate(-50%,-50%);
   z-index:20;
 }
 
@@ -117,7 +155,7 @@ html,body{
   border-radius:55% 50% 45% 45%;
   left:34px;
   top:28px;
-  box-shadow:0 0 18px rgba(250,204,21,.35);
+  box-shadow:0 0 18px rgba(250,204,21,.45);
 }
 
 .catHead{
@@ -128,7 +166,7 @@ html,body{
   border-radius:50%;
   left:10px;
   top:18px;
-  box-shadow:0 0 12px rgba(250,204,21,.25);
+  box-shadow:0 0 12px rgba(250,204,21,.3);
 }
 
 .catEar{
@@ -140,7 +178,6 @@ html,body{
   border-bottom:24px solid #020617;
   top:4px;
 }
-
 .ear1{left:16px; transform:rotate(-22deg);}
 .ear2{left:39px; transform:rotate(22deg);}
 
@@ -164,7 +201,7 @@ html,body{
   right:-6px;
   top:28px;
   transform-origin:left center;
-  animation:tailSwing .28s infinite alternate;
+  animation:tailSwing .25s infinite alternate;
 }
 
 .catLeg{
@@ -175,46 +212,50 @@ html,body{
   border-radius:10px;
   top:70px;
   transform-origin:top center;
-  animation:legRun .18s infinite alternate;
+  animation:legRun .16s infinite alternate;
 }
-
 .leg1{left:55px;}
-.leg2{left:78px; animation-delay:.09s;}
+.leg2{left:78px; animation-delay:.08s;}
 .leg3{left:101px;}
-.leg4{left:124px; animation-delay:.09s;}
+.leg4{left:124px; animation-delay:.08s;}
 
 @keyframes tailSwing{
-  from{transform:rotate(-14deg);}
-  to{transform:rotate(18deg);}
+  from{transform:rotate(-16deg);}
+  to{transform:rotate(20deg);}
 }
-
 @keyframes legRun{
-  from{transform:rotate(28deg);}
-  to{transform:rotate(-28deg);}
+  from{transform:rotate(30deg);}
+  to{transform:rotate(-30deg);}
 }
 
-/* 通常1: 黒猫ダッシュ */
-.dashCat{
-  animation:dashCat 2.2s ease-in-out forwards;
-}
-@keyframes dashCat{
-  0%{transform:translate(-180vw,-50%) scale(.8);}
-  45%{transform:translate(-50%,-50%) scale(1);}
-  65%{transform:translate(-50%,-90%) scale(1.12) rotate(-6deg);}
-  82%{transform:translate(-50%,-48%) scale(1.04);}
-  100%{transform:translate(-50%,-50%) scale(1);}
+.catDash1{animation:catDash1 2.8s ease-in-out forwards;}
+@keyframes catDash1{
+  0%{left:-45%; top:58%; transform:scale(.8) rotate(-5deg);}
+  38%{left:38%; top:52%; transform:scale(1.05) rotate(3deg);}
+  55%{left:48%; top:40%; transform:scale(1.18) rotate(-8deg);}
+  72%{left:52%; top:52%; transform:scale(1.05) rotate(4deg);}
+  100%{left:115%; top:50%; transform:scale(.9) rotate(6deg);}
 }
 
-/* 通常2: 肉球スタンプ */
+.catDash2{animation:catDash2 3.1s ease-in-out forwards;}
+@keyframes catDash2{
+  0%{right:-45%; top:43%; transform:scaleX(-1) scale(.8);}
+  40%{right:34%; top:53%; transform:scaleX(-1) scale(1.05);}
+  60%{right:48%; top:33%; transform:scaleX(-1) scale(1.2) rotate(8deg);}
+  82%{right:42%; top:54%; transform:scaleX(-1) scale(1.05);}
+  100%{right:110%; top:46%; transform:scaleX(-1) scale(.9);}
+}
+
+/* 肉球 */
 .paw{
   position:absolute;
-  width:48px;
-  height:48px;
+  width:50px;
+  height:50px;
   border-radius:50%;
   background:#facc15;
   opacity:0;
   filter:drop-shadow(0 0 14px #facc15);
-  animation:pawPop 1.8s ease-in-out forwards;
+  animation:pawPop 2.4s ease-in-out forwards;
 }
 .paw::before{
   content:"";
@@ -234,106 +275,17 @@ html,body{
   height:16px;
   border-radius:50%;
   background:#facc15;
-  left:16px;
-  top:26px;
+  left:17px;
+  top:27px;
 }
 @keyframes pawPop{
-  0%{transform:scale(.1) rotate(-30deg); opacity:0;}
-  25%{opacity:1;}
-  65%{transform:scale(1.15) rotate(10deg); opacity:1;}
-  100%{transform:scale(.8) rotate(20deg); opacity:0;}
+  0%{transform:scale(.05) rotate(-30deg); opacity:0;}
+  18%{opacity:1;}
+  55%{transform:scale(1.2) rotate(10deg); opacity:1;}
+  100%{transform:scale(.85) rotate(22deg); opacity:0;}
 }
 
-/* 通常3: 宝箱 */
-.chest{
-  position:absolute;
-  left:50%;
-  top:48%;
-  width:160px;
-  height:120px;
-  transform:translate(-50%,-50%);
-  animation:chestShake 1.4s ease-in-out forwards;
-}
-.chestLid{
-  position:absolute;
-  left:10px;
-  top:5px;
-  width:140px;
-  height:50px;
-  background:linear-gradient(#a16207,#facc15);
-  border-radius:18px 18px 4px 4px;
-  transform-origin:bottom center;
-  animation:chestOpen 2.2s ease-in-out forwards;
-}
-.chestBody{
-  position:absolute;
-  left:0;
-  top:52px;
-  width:160px;
-  height:70px;
-  background:linear-gradient(#78350f,#f59e0b);
-  border-radius:8px 8px 20px 20px;
-}
-.chestLight{
-  position:absolute;
-  left:50%;
-  top:40%;
-  width:30px;
-  height:30px;
-  background:#fff7ad;
-  border-radius:50%;
-  transform:translate(-50%,-50%);
-  box-shadow:0 0 80px 45px #facc15;
-  opacity:0;
-  animation:lightBurst 2.2s ease-in-out forwards;
-}
-@keyframes chestShake{
-  0%,35%,55%{transform:translate(-50%,-50%) rotate(0);}
-  42%{transform:translate(-50%,-50%) rotate(-8deg);}
-  48%{transform:translate(-50%,-50%) rotate(8deg);}
-  65%{transform:translate(-50%,-50%) scale(1.05);}
-  100%{transform:translate(-50%,-50%) scale(1);}
-}
-@keyframes chestOpen{
-  0%,55%{transform:rotateX(0);}
-  78%,100%{transform:rotateX(65deg) translateY(-20px);}
-}
-@keyframes lightBurst{
-  0%,55%{opacity:0; transform:translate(-50%,-50%) scale(.2);}
-  80%{opacity:1; transform:translate(-50%,-50%) scale(1.2);}
-  100%{opacity:.3; transform:translate(-50%,-50%) scale(1);}
-}
-
-/* 通常4: 月明かり */
-.moon{
-  position:absolute;
-  width:110px;
-  height:110px;
-  border-radius:50%;
-  background:#fde68a;
-  left:50%;
-  top:38%;
-  transform:translate(-50%,-50%);
-  box-shadow:0 0 40px #fde68a,0 0 90px #facc15;
-  animation:moonGlow 2.2s ease-in-out forwards;
-}
-.moon::after{
-  content:"";
-  position:absolute;
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  background:#020617;
-  right:-18px;
-  top:-8px;
-}
-@keyframes moonGlow{
-  0%{opacity:.1; transform:translate(-50%,-50%) scale(.4);}
-  50%{opacity:1; transform:translate(-50%,-50%) scale(1);}
-  100%{opacity:.8; transform:translate(-50%,-50%) scale(1.15);}
-}
-
-/* 通常5: 星降り */
+/* 星 */
 .star{
   position:absolute;
   width:8px;
@@ -341,96 +293,207 @@ html,body{
   background:#facc15;
   border-radius:50%;
   box-shadow:0 0 14px #facc15;
-  animation:starFall 1.8s linear forwards;
+  animation:starFall 2.7s linear forwards;
 }
 @keyframes starFall{
-  0%{transform:translateY(-20vh) scale(.6); opacity:0;}
-  20%{opacity:1;}
-  100%{transform:translateY(70vh) scale(1.3); opacity:0;}
+  0%{transform:translateY(-25vh) scale(.4); opacity:0;}
+  18%{opacity:1;}
+  100%{transform:translateY(115vh) scale(1.4); opacity:0;}
 }
 
-/* シークレット演出 */
-.secretMode{
-  animation:secretBg 2.8s ease-in-out forwards;
+/* 月・光 */
+.moon{
+  position:absolute;
+  width:120px;
+  height:120px;
+  border-radius:50%;
+  background:#fde68a;
+  left:50%;
+  top:38%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 50px #fde68a,0 0 110px #facc15;
+  animation:moonGlow 3.2s ease-in-out forwards;
 }
-@keyframes secretBg{
-  0%{background:rgba(0,0,0,.94);}
-  25%{background:rgba(24,0,40,.95);}
-  50%{background:rgba(70,0,80,.95);}
-  75%{background:rgba(80,50,0,.95);}
-  100%{background:rgba(0,0,0,.92);}
+.moon::after{
+  content:"";
+  position:absolute;
+  width:96px;
+  height:96px;
+  border-radius:50%;
+  background:#020617;
+  right:-18px;
+  top:-8px;
+}
+@keyframes moonGlow{
+  0%{opacity:.05; transform:translate(-50%,-50%) scale(.35);}
+  45%{opacity:1; transform:translate(-50%,-50%) scale(1);}
+  75%{opacity:1; transform:translate(-50%,-50%) scale(1.22);}
+  100%{opacity:.25; transform:translate(-50%,-50%) scale(1.8);}
 }
 
-.secretRing{
+/* 宝箱 */
+.chest{
   position:absolute;
   left:50%;
-  top:45%;
-  width:80px;
-  height:80px;
-  border:8px solid #facc15;
+  top:50%;
+  width:170px;
+  height:126px;
+  transform:translate(-50%,-50%);
+  animation:chestShake 2.5s ease-in-out forwards;
+}
+.chestLid{
+  position:absolute;
+  left:10px;
+  top:5px;
+  width:150px;
+  height:52px;
+  background:linear-gradient(#a16207,#facc15);
+  border-radius:18px 18px 4px 4px;
+  transform-origin:bottom center;
+  animation:chestOpen 3.0s ease-in-out forwards;
+}
+.chestBody{
+  position:absolute;
+  left:0;
+  top:55px;
+  width:170px;
+  height:72px;
+  background:linear-gradient(#78350f,#f59e0b);
+  border-radius:8px 8px 20px 20px;
+}
+.chestLight{
+  position:absolute;
+  left:50%;
+  top:40%;
+  width:34px;
+  height:34px;
+  background:#fff7ad;
   border-radius:50%;
   transform:translate(-50%,-50%);
-  box-shadow:0 0 30px #facc15, inset 0 0 30px #facc15;
-  animation:secretRing 2.8s ease-in-out forwards;
+  box-shadow:0 0 95px 60px #facc15;
+  opacity:0;
+  animation:lightBurst 3.0s ease-in-out forwards;
 }
-@keyframes secretRing{
-  0%{transform:translate(-50%,-50%) scale(.2) rotate(0deg); opacity:0;}
-  30%{opacity:1;}
-  80%{transform:translate(-50%,-50%) scale(3.2) rotate(260deg); opacity:1;}
-  100%{transform:translate(-50%,-50%) scale(4.5) rotate(360deg); opacity:0;}
+@keyframes chestShake{
+  0%,30%,48%{transform:translate(-50%,-50%) rotate(0);}
+  35%{transform:translate(-50%,-50%) rotate(-9deg);}
+  40%{transform:translate(-50%,-50%) rotate(9deg);}
+  55%{transform:translate(-50%,-50%) scale(1.08);}
+  100%{transform:translate(-50%,-50%) scale(1);}
+}
+@keyframes chestOpen{
+  0%,58%{transform:rotateX(0);}
+  80%,100%{transform:rotateX(68deg) translateY(-22px);}
+}
+@keyframes lightBurst{
+  0%,58%{opacity:0; transform:translate(-50%,-50%) scale(.2);}
+  78%{opacity:1; transform:translate(-50%,-50%) scale(1.25);}
+  100%{opacity:.2; transform:translate(-50%,-50%) scale(1.6);}
 }
 
+/* 魔法陣 */
+.magicRing{
+  position:absolute;
+  left:50%;
+  top:52%;
+  width:90px;
+  height:90px;
+  border:6px solid #facc15;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  box-shadow:0 0 28px #facc15, inset 0 0 24px #facc15;
+  animation:ringSpin 3.2s ease-in-out forwards;
+}
+.magicRing::before,.magicRing::after{
+  content:"";
+  position:absolute;
+  inset:-28px;
+  border:3px dashed rgba(250,204,21,.85);
+  border-radius:50%;
+}
+.magicRing::after{
+  inset:-55px;
+  border-style:solid;
+  opacity:.45;
+}
+@keyframes ringSpin{
+  0%{transform:translate(-50%,-50%) scale(.15) rotate(0); opacity:0;}
+  25%{opacity:1;}
+  80%{transform:translate(-50%,-50%) scale(2.5) rotate(330deg); opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(3.4) rotate(480deg); opacity:0;}
+}
+
+/* カード予告シルエット */
+.cardSilhouette{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:170px;
+  height:230px;
+  border-radius:18px;
+  background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(250,204,21,.7));
+  transform:translate(-50%,-50%) scale(.2) rotateY(90deg);
+  box-shadow:0 0 50px #facc15;
+  animation:cardSil 1.2s ease-in-out forwards;
+}
+@keyframes cardSil{
+  0%{transform:translate(-50%,-50%) scale(.2) rotateY(90deg); opacity:0;}
+  70%{transform:translate(-50%,-50%) scale(1.08) rotateY(0deg); opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(1) rotateY(0deg); opacity:.95;}
+}
+
+/* シークレット */
+.secretMode{
+  animation:secretBg 3.8s ease-in-out forwards;
+}
+@keyframes secretBg{
+  0%{background:rgba(0,0,0,.96);}
+  20%{background:rgba(24,0,40,.96);}
+  45%{background:rgba(70,0,80,.96);}
+  70%{background:rgba(90,60,0,.96);}
+  100%{background:rgba(0,0,0,.94);}
+}
 .lightning{
   position:absolute;
   left:50%;
-  top:8%;
-  width:26px;
-  height:260px;
+  top:4%;
+  width:30px;
+  height:320px;
   background:#fef08a;
-  clip-path:polygon(45% 0,80% 0,58% 38%,88% 38%,35% 100%,48% 53%,18% 53%);
+  clip-path:polygon(45% 0,82% 0,58% 38%,90% 38%,34% 100%,48% 53%,18% 53%);
   transform:translateX(-50%);
-  filter:drop-shadow(0 0 18px #facc15);
+  filter:drop-shadow(0 0 20px #facc15);
   opacity:0;
-  animation:bolt 2.8s ease-in-out forwards;
+  animation:bolt 3.8s ease-in-out forwards;
 }
 @keyframes bolt{
-  0%,25%,55%,100%{opacity:0;}
-  32%,38%,65%{opacity:1;}
+  0%,22%,40%,54%,100%{opacity:0;}
+  28%,34%,62%,70%{opacity:1;}
 }
-
-.secretText{
+.secretAura{
   position:absolute;
-  left:0;
-  right:0;
-  top:16%;
-  text-align:center;
-  color:#fff7ad;
-  font-weight:bold;
-  font-size:28px;
-  text-shadow:0 0 20px #facc15;
-  opacity:0;
-  animation:secretText 2.8s ease-in-out forwards;
+  left:50%;
+  top:50%;
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle,#fff7ad,rgba(250,204,21,.5),rgba(147,51,234,0));
+  box-shadow:0 0 80px 60px rgba(250,204,21,.7),0 0 120px 80px rgba(147,51,234,.55);
+  animation:secretAura 3.8s ease-in-out forwards;
 }
-@keyframes secretText{
-  0%,25%{opacity:0; transform:scale(.8);}
-  45%,85%{opacity:1; transform:scale(1.08);}
-  100%{opacity:0; transform:scale(1.2);}
-}
-
-.openFlash{
-  animation:openFlash .16s linear 5;
-}
-@keyframes openFlash{
-  0%{background:rgba(0,0,0,.9);}
-  50%{background:rgba(255,245,170,.82);}
-  100%{background:rgba(0,0,0,.9);}
+@keyframes secretAura{
+  0%{transform:translate(-50%,-50%) scale(.1); opacity:0;}
+  35%{opacity:1;}
+  80%{transform:translate(-50%,-50%) scale(3); opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(5); opacity:0;}
 }
 
 /* 結果 */
 #result{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,.86);
+  background:rgba(0,0,0,.88);
   display:none;
   align-items:center;
   justify-content:center;
@@ -439,25 +502,21 @@ html,body{
   padding:20px;
   box-sizing:border-box;
 }
-
 #result.secretResult{
-  background:radial-gradient(circle,rgba(250,204,21,.35),rgba(0,0,0,.92) 65%);
+  background:radial-gradient(circle,rgba(250,204,21,.35),rgba(0,0,0,.93) 65%);
 }
-
 #resultImg{
   width:86%;
   max-width:360px;
   border-radius:18px;
   background:white;
   box-shadow:0 0 35px #facc15;
-  animation:cardPop .55s ease;
+  animation:cardPop .7s ease;
 }
-
 #result.secretResult #resultImg{
   box-shadow:0 0 35px #facc15,0 0 70px #f472b6,0 0 100px #60a5fa;
-  animation:secretCardPop .75s ease;
+  animation:secretCardPop .9s ease;
 }
-
 #resultName{
   margin-top:16px;
   color:#facc15;
@@ -465,14 +524,12 @@ html,body{
   font-weight:bold;
   text-shadow:0 0 12px #facc15;
 }
-
 #resultMsg{
   margin-top:8px;
   color:#fff;
   font-size:18px;
   font-weight:bold;
 }
-
 #closeResult{
   margin-top:18px;
   padding:12px 28px;
@@ -483,15 +540,14 @@ html,body{
   background:#facc15;
   color:#3b2408;
 }
-
 @keyframes cardPop{
-  0%{transform:scale(.25) rotateY(90deg);opacity:0;}
-  75%{transform:scale(1.08) rotateY(0deg);opacity:1;}
+  0%{transform:scale(.2) rotateY(100deg);opacity:0;}
+  70%{transform:scale(1.08) rotateY(0deg);opacity:1;}
   100%{transform:scale(1);}
 }
 @keyframes secretCardPop{
-  0%{transform:scale(.15) rotate(20deg);opacity:0;}
-  55%{transform:scale(1.18) rotate(-4deg);opacity:1;}
+  0%{transform:scale(.1) rotate(30deg);opacity:0;}
+  50%{transform:scale(1.22) rotate(-6deg);opacity:1;}
   100%{transform:scale(1) rotate(0);}
 }
 
@@ -507,36 +563,30 @@ html,body{
   box-sizing:border-box;
   color:white;
 }
-
 #collection h2{
   text-align:center;
   color:#facc15;
 }
-
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:12px;
 }
-
 .cardMini{
   background:rgba(255,255,255,.1);
   border-radius:14px;
   padding:8px;
   text-align:center;
 }
-
 .cardMini.secretMini{
   background:linear-gradient(135deg,rgba(250,204,21,.25),rgba(147,51,234,.25));
   box-shadow:0 0 18px rgba(250,204,21,.25);
 }
-
 .cardMini img{
   width:100%;
   border-radius:10px;
   background:white;
 }
-
 #closeCollection{
   width:100%;
   margin:18px 0;
@@ -548,75 +598,16 @@ html,body{
   background:#38bdf8;
   color:white;
 }
-
-/* 画像に焼き込まれている「本日分は受け取り済みです」を隠して、状態を上書き表示 */
-#statusMask{
-  position:absolute;
-  left:12.5%;
-  top:85.2%;
-  width:75%;
-  height:5.3%;
-  border-radius:999px;
-  background:linear-gradient(180deg,#171717,#050505);
-  border:2px solid rgba(255,214,120,.75);
-  box-shadow:0 0 12px rgba(0,0,0,.6);
-  z-index:6;
-  pointer-events:none;
-}
-
-#statusText{
-  position:absolute;
-  left:12.5%;
-  top:85.2%;
-  width:75%;
-  height:5.3%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  color:#fff7d6;
-  font-weight:bold;
-  font-size:16px;
-  text-shadow:0 2px 3px #000;
-  z-index:7;
-  pointer-events:none;
-}
-
-/* ガチャボタンを押した瞬間に出す反応 */
-#pressFx{
-  position:absolute;
-  left:18%;
-  top:45.5%;
-  width:64%;
-  height:21%;
-  border-radius:50%;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:radial-gradient(circle,rgba(255,255,255,.45),rgba(250,204,21,.2),rgba(255,255,255,0) 70%);
-  color:#5b351d;
-  font-size:22px;
-  font-weight:bold;
-  text-shadow:0 1px 2px #fff;
-  z-index:8;
-  pointer-events:none;
-  animation:pressPulse .55s infinite alternate;
-}
-
-@keyframes pressPulse{
-  from{transform:scale(.96);opacity:.75;}
-  to{transform:scale(1.05);opacity:1;}
-}
-
 </style>
 </head>
 
 <body>
 <div id="app">
   <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/33e5c8ed-3a7d-4f64-ad75-060ed57ebefb%20(1).png?raw=true">
+
   <div id="statusMask"></div>
-  <div id="statusText">✨ ガチャを引けます</div>
-  <div id="pressFx">抽選中...</div>
+  <div id="statusText">✨ 今日のガチャを引けます</div>
+  <div id="pressFx"></div>
 
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
   <button id="bookTap" class="tap" onclick="loadCollection()" aria-label="図鑑を見る"></button>
@@ -624,7 +615,7 @@ html,body{
 
 <div id="effect">
   <div id="effectStage"></div>
-  <div id="effectText">開封準備中...</div>
+  <div id="effectText"></div>
 </div>
 
 <div id="result">
@@ -667,6 +658,21 @@ window.onload = async function(){
   }
 };
 
+function setStatus(text){
+  const el = document.getElementById("statusText");
+  if(el) el.textContent = text;
+}
+
+function showPressFx(){
+  const el = document.getElementById("pressFx");
+  if(el) el.style.display = "block";
+}
+
+function hidePressFx(){
+  const el = document.getElementById("pressFx");
+  if(el) el.style.display = "none";
+}
+
 function jsonp(params){
   return new Promise((resolve,reject)=>{
     const cb = "cb_" + Date.now() + "_" + Math.floor(Math.random()*9999);
@@ -701,8 +707,8 @@ async function drawGacha(){
   }
 
   drawing = true;
-  setStatus("抽選中...そのまま待ってね");
-  showPressFx("抽選中...");
+  setStatus("⏳ 抽選中...");
+  showPressFx();
 
   try{
     const res = await jsonp({
@@ -711,46 +717,27 @@ async function drawGacha(){
       displayName:profile.displayName
     });
 
+    hidePressFx();
+
     if(!res || res.ok === false){
       drawing = false;
-      hidePressFx();
-      setStatus("本日分は受け取り済みです");
+      setStatus("✅ 本日分は受け取り済みです");
       alert(res && res.message ? res.message : "今日はもう引いています。また明日ね！");
       return;
     }
 
-    hidePressFx();
     await playGachaEffect(res);
     drawing = false;
-    setStatus("本日分は受け取り済みです");
+    setStatus("✅ 本日分は受け取り済みです");
     showResult(res);
 
   }catch(e){
     drawing = false;
     hidePressFx();
     hideEffect();
-    setStatus("通信エラー。もう一度試してね");
+    setStatus("⚠ 通信エラー");
     alert("通信エラーが出ました。少し待ってからもう一度試してください。");
   }
-}
-
-
-function setStatus(text){
-  const el = document.getElementById("statusText");
-  if(el) el.textContent = text;
-}
-
-function showPressFx(text){
-  const el = document.getElementById("pressFx");
-  if(!el) return;
-  el.textContent = text || "抽選中...";
-  el.style.display = "flex";
-}
-
-function hidePressFx(){
-  const el = document.getElementById("pressFx");
-  if(!el) return;
-  el.style.display = "none";
 }
 
 function playGachaEffect(res){
@@ -758,96 +745,120 @@ function playGachaEffect(res){
     const isSecret = !!res.secret;
     const effect = document.getElementById("effect");
     const stage = document.getElementById("effectStage");
-    const text = document.getElementById("effectText");
 
     effect.className = "";
     stage.innerHTML = "";
-    effect.style.display = "flex";
+    effect.style.display = "block";
 
     if(isSecret){
-      playSecretEffect(stage,text,resolve);
+      playSecretEffect(stage,resolve);
     }else{
-      const n = Math.floor(Math.random()*5);
-      if(n === 0) playDashEffect(stage,text,resolve);
-      if(n === 1) playPawEffect(stage,text,resolve);
-      if(n === 2) playChestEffect(stage,text,resolve);
-      if(n === 3) playMoonEffect(stage,text,resolve);
-      if(n === 4) playStarEffect(stage,text,resolve);
+      const n = Math.floor(Math.random()*6);
+      if(n === 0) playDashPaw(stage,resolve);
+      if(n === 1) playChestStars(stage,resolve);
+      if(n === 2) playMoonCat(stage,resolve);
+      if(n === 3) playPawRing(stage,resolve);
+      if(n === 4) playStarRainCard(stage,resolve);
+      if(n === 5) playDoubleCat(stage,resolve);
     }
   });
 }
 
-function playDashEffect(stage,text,done){
-  text.textContent = "クロネコが走ってきた...";
-  stage.appendChild(makeCat("dashCat"));
-  setTimeout(()=>text.textContent="ジャンプ！！",1100);
-  setTimeout(()=>openFinish(text,done),2000);
+function playDashPaw(stage,done){
+  stage.appendChild(makeCat("catDash1"));
+  addManyPaws(stage,10,.8);
+  addManyStars(stage,16,.9);
+  setTimeout(()=>addCardSilhouette(stage),2300);
+  setTimeout(()=>finishEffect(done),3500);
 }
 
-function playPawEffect(stage,text,done){
-  text.textContent = "肉球が近づいてくる...";
-  for(let i=0;i<12;i++){
-    const paw = document.createElement("div");
-    paw.className = "paw";
-    paw.style.left = (8 + Math.random()*78) + "%";
-    paw.style.top = (8 + Math.random()*58) + "%";
-    paw.style.animationDelay = (Math.random()*.7) + "s";
-    stage.appendChild(paw);
-  }
-  setTimeout(()=>text.textContent="肉球スタンプ！！",1200);
-  setTimeout(()=>openFinish(text,done),2100);
-}
-
-function playChestEffect(stage,text,done){
-  text.textContent = "宝箱が震えている...";
+function playChestStars(stage,done){
   const chest = document.createElement("div");
   chest.className = "chest";
   chest.innerHTML = '<div class="chestLight"></div><div class="chestLid"></div><div class="chestBody"></div>';
   stage.appendChild(chest);
-  setTimeout(()=>text.textContent="パカッ！！",1500);
-  setTimeout(()=>openFinish(text,done),2300);
+  addManyStars(stage,22,1.2);
+  setTimeout(()=>addCardSilhouette(stage),2500);
+  setTimeout(()=>finishEffect(done),3900);
 }
 
-function playMoonEffect(stage,text,done){
-  text.textContent = "月明かりが強くなる...";
+function playMoonCat(stage,done){
   const moon = document.createElement("div");
   moon.className = "moon";
   stage.appendChild(moon);
-  for(let i=0;i<16;i++) addStar(stage,i*.06);
-  setTimeout(()=>text.textContent="光が集まった！！",1450);
-  setTimeout(()=>openFinish(text,done),2250);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),450);
+  addManyStars(stage,26,1.5);
+  setTimeout(()=>addCardSilhouette(stage),2600);
+  setTimeout(()=>finishEffect(done),4000);
 }
 
-function playStarEffect(stage,text,done){
-  text.textContent = "星が降ってくる...";
-  for(let i=0;i<28;i++) addStar(stage,Math.random()*1.1);
-  setTimeout(()=>text.textContent="キラキラ開封！！",1450);
-  setTimeout(()=>openFinish(text,done),2250);
+function playPawRing(stage,done){
+  addManyPaws(stage,18,1.2);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  stage.appendChild(ring);
+  setTimeout(()=>addCardSilhouette(stage),2450);
+  setTimeout(()=>finishEffect(done),3800);
 }
 
-function playSecretEffect(stage,text,done){
+function playStarRainCard(stage,done){
+  addManyStars(stage,42,1.8);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  stage.appendChild(ring);
+  setTimeout(()=>addCardSilhouette(stage),2350);
+  setTimeout(()=>finishEffect(done),3800);
+}
+
+function playDoubleCat(stage,done){
+  stage.appendChild(makeCat("catDash1"));
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),500);
+  addManyPaws(stage,12,1.0);
+  addManyStars(stage,24,1.4);
+  setTimeout(()=>addCardSilhouette(stage),2600);
+  setTimeout(()=>finishEffect(done),4100);
+}
+
+function playSecretEffect(stage,done){
   const effect = document.getElementById("effect");
   effect.classList.add("secretMode");
-  text.textContent = "いつもと空気が違う...";
 
-  const ring = document.createElement("div");
-  ring.className = "secretRing";
-  stage.appendChild(ring);
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  stage.appendChild(aura);
 
   const bolt = document.createElement("div");
   bolt.className = "lightning";
   stage.appendChild(bolt);
 
-  const secretText = document.createElement("div");
-  secretText.className = "secretText";
-  secretText.textContent = "シークレットの気配";
-  stage.appendChild(secretText);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  stage.appendChild(ring);
 
-  for(let i=0;i<30;i++) addStar(stage,Math.random()*1.5);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),350);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),850);
 
-  setTimeout(()=>text.textContent="まさか...！？",1000);
-  setTimeout(()=>text.textContent="SECRET 開封！！",2100);
-  setTimeout(()=>openFinish(text,done),2900);
+  addManyStars(stage,60,2.3);
+  addManyPaws(stage,24,1.8);
+
+  setTimeout(()=>addCardSilhouette(stage),3300);
+  setTimeout(()=>finishEffect(done),5000);
+}
+
+function finishEffect(done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("openFlash");
+  setTimeout(()=>{
+    hideEffect();
+    done();
+  },850);
+}
+
+function hideEffect(){
+  const effect = document.getElementById("effect");
+  effect.style.display = "none";
+  effect.className = "";
+  document.getElementById("effectStage").innerHTML = "";
 }
 
 function makeCat(extraClass){
@@ -867,30 +878,33 @@ function makeCat(extraClass){
   return cat;
 }
 
-function addStar(stage,delay){
-  const star = document.createElement("div");
-  star.className = "star";
-  star.style.left = (Math.random()*100) + "%";
-  star.style.top = (-10 - Math.random()*20) + "%";
-  star.style.animationDelay = delay + "s";
-  stage.appendChild(star);
+function addManyPaws(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const paw = document.createElement("div");
+    paw.className = "paw";
+    paw.style.left = (5 + Math.random()*85) + "%";
+    paw.style.top = (8 + Math.random()*72) + "%";
+    paw.style.animationDelay = (Math.random()*maxDelay) + "s";
+    paw.style.transform = "rotate(" + (Math.random()*80-40) + "deg)";
+    stage.appendChild(paw);
+  }
 }
 
-function openFinish(text,done){
-  const effect = document.getElementById("effect");
-  text.textContent = "開封！！";
-  effect.classList.add("openFlash");
-  setTimeout(()=>{
-    hideEffect();
-    done();
-  },700);
+function addManyStars(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const star = document.createElement("div");
+    star.className = "star";
+    star.style.left = (Math.random()*100) + "%";
+    star.style.top = (-12 - Math.random()*30) + "%";
+    star.style.animationDelay = (Math.random()*maxDelay) + "s";
+    stage.appendChild(star);
+  }
 }
 
-function hideEffect(){
-  const effect = document.getElementById("effect");
-  effect.style.display = "none";
-  effect.className = "";
-  document.getElementById("effectStage").innerHTML = "";
+function addCardSilhouette(stage){
+  const c = document.createElement("div");
+  c.className = "cardSilhouette";
+  stage.appendChild(c);
 }
 
 function showResult(res){
