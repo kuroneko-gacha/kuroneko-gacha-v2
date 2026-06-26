@@ -548,12 +548,76 @@ html,body{
   background:#38bdf8;
   color:white;
 }
+
+/* 画像に焼き込まれている「本日分は受け取り済みです」を隠して、状態を上書き表示 */
+#statusMask{
+  position:absolute;
+  left:12.5%;
+  top:85.2%;
+  width:75%;
+  height:5.3%;
+  border-radius:999px;
+  background:linear-gradient(180deg,#171717,#050505);
+  border:2px solid rgba(255,214,120,.75);
+  box-shadow:0 0 12px rgba(0,0,0,.6);
+  z-index:6;
+  pointer-events:none;
+}
+
+#statusText{
+  position:absolute;
+  left:12.5%;
+  top:85.2%;
+  width:75%;
+  height:5.3%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#fff7d6;
+  font-weight:bold;
+  font-size:16px;
+  text-shadow:0 2px 3px #000;
+  z-index:7;
+  pointer-events:none;
+}
+
+/* ガチャボタンを押した瞬間に出す反応 */
+#pressFx{
+  position:absolute;
+  left:18%;
+  top:45.5%;
+  width:64%;
+  height:21%;
+  border-radius:50%;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:radial-gradient(circle,rgba(255,255,255,.45),rgba(250,204,21,.2),rgba(255,255,255,0) 70%);
+  color:#5b351d;
+  font-size:22px;
+  font-weight:bold;
+  text-shadow:0 1px 2px #fff;
+  z-index:8;
+  pointer-events:none;
+  animation:pressPulse .55s infinite alternate;
+}
+
+@keyframes pressPulse{
+  from{transform:scale(.96);opacity:.75;}
+  to{transform:scale(1.05);opacity:1;}
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
   <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/33e5c8ed-3a7d-4f64-ad75-060ed57ebefb%20(1).png?raw=true">
+  <div id="statusMask"></div>
+  <div id="statusText">✨ ガチャを引けます</div>
+  <div id="pressFx">抽選中...</div>
+
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
   <button id="bookTap" class="tap" onclick="loadCollection()" aria-label="図鑑を見る"></button>
 </div>
@@ -637,6 +701,8 @@ async function drawGacha(){
   }
 
   drawing = true;
+  setStatus("抽選中...そのまま待ってね");
+  showPressFx("抽選中...");
 
   try{
     const res = await jsonp({
@@ -647,19 +713,44 @@ async function drawGacha(){
 
     if(!res || res.ok === false){
       drawing = false;
+      hidePressFx();
+      setStatus("本日分は受け取り済みです");
       alert(res && res.message ? res.message : "今日はもう引いています。また明日ね！");
       return;
     }
 
+    hidePressFx();
     await playGachaEffect(res);
     drawing = false;
+    setStatus("本日分は受け取り済みです");
     showResult(res);
 
   }catch(e){
     drawing = false;
+    hidePressFx();
     hideEffect();
+    setStatus("通信エラー。もう一度試してね");
     alert("通信エラーが出ました。少し待ってからもう一度試してください。");
   }
+}
+
+
+function setStatus(text){
+  const el = document.getElementById("statusText");
+  if(el) el.textContent = text;
+}
+
+function showPressFx(text){
+  const el = document.getElementById("pressFx");
+  if(!el) return;
+  el.textContent = text || "抽選中...";
+  el.style.display = "flex";
+}
+
+function hidePressFx(){
+  const el = document.getElementById("pressFx");
+  if(!el) return;
+  el.style.display = "none";
 }
 
 function playGachaEffect(res){
