@@ -55,33 +55,6 @@ html,body{
   border-radius:20px;
 }
 
-#welcome{
-  position:absolute;
-  left:19%;
-  top:31.2%;
-  width:62%;
-  text-align:center;
-  color:#5b351d;
-  font-weight:bold;
-  font-size:15px;
-  z-index:6;
-  line-height:1.4;
-  pointer-events:none;
-}
-
-#message{
-  position:absolute;
-  left:12%;
-  top:86.8%;
-  width:76%;
-  text-align:center;
-  color:#fff7d6;
-  font-weight:bold;
-  font-size:16px;
-  z-index:6;
-  pointer-events:none;
-}
-
 #effect{
   position:fixed;
   inset:0;
@@ -221,9 +194,6 @@ html,body{
 <div id="app">
   <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/33e5c8ed-3a7d-4f64-ad75-060ed57ebefb%20(1).png?raw=true">
 
-  <div id="welcome">LINE名を確認中...</div>
-  <div id="message">読み込み中...</div>
-
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
   <button id="bookTap" class="tap" onclick="loadCollection()" aria-label="図鑑を見る"></button>
 </div>
@@ -270,21 +240,13 @@ window.onload = async function(){
     profile.userId = p.userId;
     profile.displayName = p.displayName;
 
-    document.getElementById("welcome").innerHTML =
-      escapeHtml(profile.displayName) + "さん、ようこそ！<br>今日も素敵な出会いがあるよ♪";
-
-    setMessage("ガチャは1日1回限定（朝8時リセット）");
+    console.log("LINE名取得成功:", profile.displayName);
 
   }catch(e){
     console.error(e);
-    document.getElementById("welcome").textContent = "LINE名の取得に失敗しました";
-    setMessage("LINE内から開いてください");
+    alert("LINE名の取得に失敗しました。LINE内から開いてください。");
   }
 };
-
-function setMessage(text){
-  document.getElementById("message").textContent = text;
-}
 
 function jsonp(params){
   return new Promise((resolve,reject)=>{
@@ -315,7 +277,7 @@ async function drawGacha(){
   if(drawing) return;
 
   if(!profile.userId){
-    setMessage("LINE名を確認中です");
+    alert("LINE名を確認中です。少し待ってから押してください。");
     return;
   }
 
@@ -334,18 +296,17 @@ async function drawGacha(){
       drawing = false;
 
       if(!res || res.ok === false){
-        setMessage(res && res.message ? res.message : "今日はもう引いています");
+        alert(res && res.message ? res.message : "今日はもう引いています。また明日ね！");
         return;
       }
 
       showResult(res);
-      setMessage("本日分は受け取り済みです");
     },1800);
 
   }catch(e){
     hideEffect();
     drawing = false;
-    setMessage("通信エラー");
+    alert("通信エラーが出ました。少し待ってからもう一度試してください。");
   }
 }
 
@@ -386,11 +347,9 @@ function closeResult(){
 
 async function loadCollection(){
   if(!profile.userId){
-    setMessage("LINE名を確認中です");
+    alert("LINE名を確認中です。少し待ってから押してください。");
     return;
   }
-
-  setMessage("図鑑を読み込み中...");
 
   try{
     const res = await jsonp({
@@ -399,15 +358,14 @@ async function loadCollection(){
     });
 
     if(!res || res.ok === false){
-      setMessage(res && res.message ? res.message : "図鑑を読み込めませんでした");
+      alert(res && res.message ? res.message : "図鑑を読み込めませんでした。");
       return;
     }
 
     renderCollection(res.cards || []);
-    setMessage("ガチャは1日1回限定（朝8時リセット）");
 
   }catch(e){
-    setMessage("図鑑の通信エラー");
+    alert("図鑑の通信エラーが出ました。");
   }
 }
 
