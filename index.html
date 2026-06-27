@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ v2</title>
+<meta name="viAewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>クロネコガチャ Ver.3</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style>
@@ -697,12 +697,137 @@ html,body{
   text-overflow:ellipsis;
 }
 
+
+/* Ver.3追加：効果音ボタン */
+#soundToggle{
+  position:absolute;
+  right:10px;
+  top:10px;
+  z-index:30;
+  border:none;
+  border-radius:999px;
+  padding:8px 10px;
+  background:rgba(0,0,0,.55);
+  color:#fff7ad;
+  font-weight:bold;
+  font-size:12px;
+  box-shadow:0 0 10px rgba(250,204,21,.35);
+}
+
+/* Ver.3追加：図鑑を開く演出 */
+#bookOpenFx{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:radial-gradient(circle,rgba(250,204,21,.22),rgba(2,6,23,.98) 65%);
+  color:#fff7ad;
+  z-index:170;
+  text-align:center;
+  overflow:hidden;
+}
+
+#bookOpenFx.show{
+  display:flex;
+  animation:bookFade .85s ease both;
+}
+
+.bookIcon{
+  font-size:74px;
+  filter:drop-shadow(0 0 22px #facc15);
+  animation:bookPop .85s ease both;
+}
+
+.bookText{
+  margin-top:12px;
+  font-size:20px;
+  font-weight:bold;
+  letter-spacing:2px;
+  text-shadow:0 0 12px #facc15;
+  animation:bookTextPop .85s ease both;
+}
+
+.bookSpark{
+  position:absolute;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#facc15;
+  box-shadow:0 0 18px #facc15;
+  animation:bookSpark 1s ease-out forwards;
+}
+
+@keyframes bookFade{
+  0%{opacity:0;}
+  18%{opacity:1;}
+  100%{opacity:1;}
+}
+
+@keyframes bookPop{
+  0%{transform:scale(.35) rotate(-14deg);opacity:0;}
+  65%{transform:scale(1.16) rotate(4deg);opacity:1;}
+  100%{transform:scale(1) rotate(0);opacity:1;}
+}
+
+@keyframes bookTextPop{
+  0%{transform:translateY(16px);opacity:0;}
+  100%{transform:translateY(0);opacity:1;}
+}
+
+@keyframes bookSpark{
+  0%{transform:translate(0,0) scale(.2);opacity:0;}
+  20%{opacity:1;}
+  100%{transform:translate(var(--x),var(--y)) scale(1.3);opacity:0;}
+}
+
+#collection.collectionShow{
+  animation:collectionEnter .45s ease both;
+}
+
+@keyframes collectionEnter{
+  0%{opacity:0;transform:scale(.94);filter:blur(6px);}
+  100%{opacity:1;transform:scale(1);filter:blur(0);}
+}
+
+/* Ver.3追加：図鑑見た目改善 */
+#collection{
+  background:
+    radial-gradient(circle at top,rgba(250,204,21,.18),transparent 34%),
+    linear-gradient(160deg,#020617,#111827 45%,#3b2408);
+}
+
+#collection h2{
+  margin:4px 0 18px;
+  font-size:26px;
+  letter-spacing:2px;
+  text-shadow:0 0 15px rgba(250,204,21,.75);
+}
+
+.cardMini{
+  border:1px solid rgba(250,204,21,.45);
+  box-shadow:0 8px 18px rgba(0,0,0,.35), inset 0 0 16px rgba(255,255,255,.04);
+}
+
+.cardMini img{
+  box-shadow:0 0 12px rgba(255,255,255,.25);
+}
+
+.cardMini div{
+  margin-top:6px;
+  color:#fff7ad;
+  font-weight:bold;
+  text-shadow:0 1px 4px #000;
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
   <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true">
+  <button id="soundToggle" onclick="toggleSound()" aria-label="効果音ON/OFF">🔊 ON</button>
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">クロネコガチャへようこそ！</div>
@@ -720,6 +845,11 @@ html,body{
 <div id="effect">
   <div id="effectStage"></div>
   <div id="effectText"></div>
+</div>
+
+<div id="bookOpenFx">
+  <div class="bookIcon">📖</div>
+  <div class="bookText">図鑑を開いています…</div>
 </div>
 
 <div id="result">
@@ -748,9 +878,12 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDY
 
 let profile = { userId:"", displayName:"" };
 let drawing = false;
+let soundEnabled = localStorage.getItem("kuronekoSound") !== "off";
+let audioCtx = null;
 
 window.onload = async function(){
   setTopSpeech();
+  updateSoundButton();
   try{
     await liff.init({ liffId: LIFF_ID });
 
@@ -773,10 +906,47 @@ window.onload = async function(){
 
 
 
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  localStorage.setItem("kuronekoSound", soundEnabled ? "on" : "off");
+  updateSoundButton();
+  if(soundEnabled) playSound("tap");
+}
 
+function updateSoundButton(){
+  const btn = document.getElementById("soundToggle");
+  if(btn) btn.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF";
+}
 
+function playSound(type){
+  if(!soundEnabled) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g);
+    g.connect(audioCtx.destination);
 
+    let freq = 660;
+    let duration = .12;
+    let gain = .045;
 
+    if(type === "draw"){ freq = 520; duration = .18; gain = .05; }
+    if(type === "book"){ freq = 740; duration = .16; gain = .045; }
+    if(type === "secret"){ freq = 980; duration = .34; gain = .06; }
+    if(type === "result"){ freq = 880; duration = .22; gain = .055; }
+
+    o.type = "sine";
+    o.frequency.setValueAtTime(freq, now);
+    o.frequency.exponentialRampToValueAtTime(freq * 1.45, now + duration);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(gain, now + .025);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    o.start(now);
+    o.stop(now + duration + .03);
+  }catch(e){}
+}
 
 
 function setTopSpeech(){
@@ -861,6 +1031,7 @@ async function drawGacha(){
   }
 
   drawing = true;
+  playSound("draw");
   setStatus("⏳ 抽選中...");
   showPressFx();
 
@@ -905,6 +1076,7 @@ function playGachaEffect(res){
     effect.style.display = "block";
 
     if(isSecret){
+      playSound("secret");
       playSecretEffect(stage,resolve);
     }else{
       const n = Math.floor(Math.random()*6);
@@ -1062,6 +1234,7 @@ function addCardSilhouette(stage){
 }
 
 function showResult(res){
+  playSound("result");
   const result = document.getElementById("result");
   result.className = res.secret ? "secretResult" : "";
   document.getElementById("resultImg").src = res.imageUrl;
@@ -1076,6 +1249,34 @@ function closeResult(){
   document.getElementById("result").style.display = "none";
 }
 
+
+function showBookOpenFx(){
+  const fx = document.getElementById("bookOpenFx");
+  if(!fx) return;
+  fx.querySelectorAll(".bookSpark").forEach(e=>e.remove());
+  for(let i=0;i<24;i++){
+    const s = document.createElement("div");
+    s.className = "bookSpark";
+    s.style.left = "50%";
+    s.style.top = "50%";
+    s.style.setProperty("--x", (Math.random()*280-140) + "px");
+    s.style.setProperty("--y", (Math.random()*280-140) + "px");
+    s.style.animationDelay = (Math.random()*.25) + "s";
+    fx.appendChild(s);
+  }
+  fx.classList.remove("show");
+  void fx.offsetWidth;
+  fx.classList.add("show");
+}
+
+function hideBookOpenFx(){
+  const fx = document.getElementById("bookOpenFx");
+  if(!fx) return;
+  fx.classList.remove("show");
+  fx.style.display = "none";
+  setTimeout(()=>{ fx.style.display = ""; },30);
+}
+
 async function loadCollection(){
   if(!profile.userId){
     alert("LINE名を確認中です。少し待ってから押してください。");
@@ -1083,12 +1284,16 @@ async function loadCollection(){
   }
 
   try{
+    playSound("book");
+    showBookOpenFx();
+
     const res = await jsonp({
       action:"collection",
       userId:profile.userId
     });
 
     if(!res || res.ok === false){
+      hideBookOpenFx();
       alert(res && res.message ? res.message : "図鑑を読み込めませんでした。");
       return;
     }
@@ -1096,6 +1301,7 @@ async function loadCollection(){
     renderCollection(res.cards || []);
 
   }catch(e){
+    hideBookOpenFx();
     alert("図鑑の通信エラーが出ました。");
   }
 }
@@ -1127,7 +1333,13 @@ function renderCollection(cards){
     });
   }
 
-  document.getElementById("collection").style.display = "block";
+  document.getElementById("app").style.display = "none";
+  const collection = document.getElementById("collection");
+  collection.classList.remove("collectionShow");
+  collection.style.display = "block";
+  void collection.offsetWidth;
+  collection.classList.add("collectionShow");
+  hideBookOpenFx();
 }
 
 function openSealZoom(imageUrl, name){
@@ -1142,6 +1354,8 @@ function closeSealZoom(){
 
 function closeCollection(){
   document.getElementById("collection").style.display = "none";
+  document.getElementById("collection").classList.remove("collectionShow");
+  document.getElementById("app").style.display = "block";
 }
 
 function escapeHtml(str){
