@@ -721,7 +721,7 @@ html,body{
 
 #zukanOpenFx.show{
   display:flex;
-  animation:zukanFxFade .45s ease both;
+  animation:zukanFxIn .18s ease both;
 }
 
 .zukanBookIcon{
@@ -737,11 +737,9 @@ html,body{
   text-shadow:0 0 12px #facc15;
 }
 
-@keyframes zukanFxFade{
+@keyframes zukanFxIn{
   0%{opacity:0;}
-  25%{opacity:1;}
-  75%{opacity:1;}
-  100%{opacity:0;}
+  100%{opacity:1;}
 }
 
 @keyframes zukanBookPop{
@@ -1150,19 +1148,22 @@ function showZukanOpenFx(){
   fx.classList.remove("show");
   void fx.offsetWidth;
   fx.classList.add("show");
-  setTimeout(function(){
-    fx.classList.remove("show");
-  }, 460);
+}
+
+function hideZukanOpenFx(){
+  const fx = document.getElementById("zukanOpenFx");
+  if(!fx) return;
+  fx.classList.remove("show");
 }
 
 
 async function loadCollection(){
-  showZukanOpenFx();
-
   if(!profile.userId){
     alert("LINE名を確認中です。少し待ってから押してください。");
     return;
   }
+
+  showZukanOpenFx();
 
   try{
     const res = await jsonp({
@@ -1171,13 +1172,19 @@ async function loadCollection(){
     });
 
     if(!res || res.ok === false){
+      hideZukanOpenFx();
       alert(res && res.message ? res.message : "図鑑を読み込めませんでした。");
       return;
     }
 
     renderCollection(res.cards || []);
 
+    setTimeout(function(){
+      hideZukanOpenFx();
+    }, 180);
+
   }catch(e){
+    hideZukanOpenFx();
     alert("図鑑の通信エラーが出ました。");
   }
 }
