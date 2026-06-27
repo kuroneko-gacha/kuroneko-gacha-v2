@@ -657,12 +657,65 @@ html,body{
   100%{transform:scale(1);}
 }
 
+
+/* LINE名つき吹き出し上書き */
+#welcomeMask{
+  position:absolute;
+  left:14.5%;
+  top:29.3%;
+  width:59.5%;
+  height:6.9%;
+  background:#fff4df;
+  border-radius:22px;
+  z-index:11;
+  pointer-events:none;
+  box-shadow:0 0 0 2px rgba(120,70,30,.18) inset;
+}
+
+#welcomeDynamic{
+  position:absolute;
+  left:16.5%;
+  top:29.65%;
+  width:56%;
+  height:6.2%;
+  z-index:12;
+  pointer-events:none;
+  color:#5a351f;
+  font-weight:bold;
+  text-align:center;
+  line-height:1.35;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-shadow:0 1px 0 rgba(255,255,255,.75);
+}
+
+#welcomeLine1{
+  font-size:14px;
+  white-space:nowrap;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#welcomeLine2{
+  font-size:12px;
+  white-space:nowrap;
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
   <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/33e5c8ed-3a7d-4f64-ad75-060ed57ebefb%20(1).png?raw=true">
+
+  <div id="welcomeMask"></div>
+  <div id="welcomeDynamic">
+    <div id="welcomeLine1">LINE名を確認中...</div>
+    <div id="welcomeLine2">今日も素敵な出会いがあるよ♪</div>
+  </div>
 
   <div id="statusMask"></div>
   <div id="statusText">✨ 今日のガチャを引けます</div>
@@ -717,12 +770,34 @@ window.onload = async function(){
     profile.userId = p.userId;
     profile.displayName = p.displayName;
     console.log("LINE名取得成功:", profile.displayName);
+    setWelcomeMessage(profile.displayName);
 
   }catch(e){
     console.error(e);
+    setWelcomeMessage("ゲスト");
     alert("LINE名の取得に失敗しました。LINE内から開いてください。");
   }
 };
+
+
+function setWelcomeMessage(displayName){
+  const line1 = document.getElementById("welcomeLine1");
+  const line2 = document.getElementById("welcomeLine2");
+  if(!line1 || !line2) return;
+
+  const name = displayName || "ゲスト";
+  const messages = [
+    "今日も素敵な出会いがあるよ♪",
+    "運試しするにゃ♪",
+    "クロネコがシールを運ぶよ♪",
+    "いい出会いがありますように♪",
+    "今日の1枚を見つけよう♪"
+  ];
+
+  line1.textContent = name + "さん、ようこそ！";
+  line2.textContent = messages[Math.floor(Math.random() * messages.length)];
+}
+
 
 function setStatus(text){
   const el = document.getElementById("statusText");
