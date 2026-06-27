@@ -757,12 +757,177 @@ html,body{
   100%{opacity:1; transform:scale(1);}
 }
 
+/* ===== Ver.3.2 位置修正版：画像は作らずHTML/CSSだけ調整 ===== */
+
+/* 余計な外側ステータス化を防ぐ */
+#app{
+  position:relative;
+  width:100%;
+  max-width:430px;
+  margin:0 auto;
+  min-height:auto;
+  background:#020617;
+  line-height:1;
+}
+
+#topImg{
+  width:100%;
+  display:block;
+  user-select:none;
+  pointer-events:none;
+}
+
+/* 透明ボタン：ガチャと図鑑をしっかり離す */
+#drawTap{
+  left:23% !important;
+  top:49.0% !important;
+  width:54% !important;
+  height:13.5% !important;
+  border-radius:50% !important;
+  z-index:20 !important;
+}
+
+#bookTap{
+  left:22% !important;
+  top:73.0% !important;
+  width:56% !important;
+  height:5.5% !important;
+  border-radius:18px !important;
+  z-index:35 !important;
+}
+
+/* 押した時の光もガチャボタンに合わせる */
+#pressFx{
+  left:23% !important;
+  top:49.0% !important;
+  width:54% !important;
+  height:13.5% !important;
+}
+
+/* 画像内の吹き出しにだけ文字を重ねる */
+#topSpeechText{
+  position:absolute !important;
+  left:20.5% !important;
+  top:37.4% !important;
+  width:45.5% !important;
+  height:5.1% !important;
+  z-index:12 !important;
+  pointer-events:none !important;
+  color:#3b2408 !important;
+  font-weight:bold !important;
+  text-align:center !important;
+  line-height:1.18 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
+}
+
+#topSpeechLine1{
+  font-size:12px !important;
+  white-space:nowrap !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+#topSpeechLine2{
+  font-size:10px !important;
+  white-space:nowrap !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 黒い帯は画像側を使う。上から黒マスクをかけない */
+#statusMask{
+  display:none !important;
+}
+
+/* 画像内の下の黒帯に文字を入れる。外側には出さない */
+#statusText{
+  position:absolute !important;
+  left:16.5% !important;
+  top:83.45% !important;
+  width:67% !important;
+  height:4.5% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  color:#fff7d6 !important;
+  font-weight:bold !important;
+  font-size:11.5px !important;
+  line-height:1.2 !important;
+  text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55) !important;
+  z-index:16 !important;
+  pointer-events:none !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+/* 図鑑を開く演出 */
+#zukanOpenFx{
+  position:fixed;
+  inset:0;
+  z-index:160;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:rgba(0,0,0,.82);
+  color:#facc15;
+  font-weight:bold;
+  text-align:center;
+  pointer-events:none;
+}
+
+#zukanOpenFx.show{
+  display:flex;
+  animation:zukanFxIn .18s ease both;
+}
+
+@keyframes zukanFxIn{
+  0%{opacity:0;}
+  100%{opacity:1;}
+}
+
+.zukanBookIcon{
+  font-size:56px;
+  line-height:1;
+  filter:drop-shadow(0 0 16px #facc15);
+  animation:zukanBookPop .45s ease both;
+}
+
+.zukanFxText{
+  margin-top:12px;
+  font-size:18px;
+  text-shadow:0 0 12px #facc15;
+}
+
+@keyframes zukanBookPop{
+  0%{transform:scale(.55) rotate(-8deg); opacity:0;}
+  60%{transform:scale(1.12) rotate(3deg); opacity:1;}
+  100%{transform:scale(1) rotate(0); opacity:1;}
+}
+
+#collection.collectionOpening{
+  animation:collectionOpenPop .35s ease both;
+}
+
+@keyframes collectionOpenPop{
+  0%{opacity:0; transform:scale(.97);}
+  100%{opacity:1; transform:scale(1);}
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=4">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=5">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">クロネコガチャへようこそ！</div>
@@ -850,14 +1015,12 @@ function setTopSpeech(){
   if(!line1 || !line2) return;
 
   const messages = [
-    ["クロネコガチャへようこそ！", "今日も素敵な出会いがあるよ♪"],
-    ["今日の運試し、してみる？", "クロネコがシールを運ぶよ♪"],
-    ["本日のガチャ開催中！", "図鑑コンプリートを目指そう♪"],
-    ["どのシールに出会えるかな？", "ワクワクしながら引いてみよう♪"],
-    ["クロネコからのお届け物！", "今日の1枚を受け取ろう♪"],
-    ["シークレットの気配…？", "出たらかなりラッキー♪"],
-    ["今日もまったり楽しもう♪", "乙っても笑顔でいこう♪"],
-    ["小さな運試しの時間！", "素敵な仲間に会えるかも♪"]
+    ["今日の運試し！", "何が出るかな♪"],
+    ["黒猫がお届け♪", "ワクワクの1枚"],
+    ["シークレットの予感…", "出たらラッキー♪"],
+    ["図鑑コンプへ！", "少しずつ集めよう"],
+    ["今日もまったり♪", "楽しんでいこう"],
+    ["素敵な出会いを", "黒猫が運ぶよ♪"]
   ];
 
   const m = messages[Math.floor(Math.random() * messages.length)];
@@ -1145,6 +1308,7 @@ function showResult(res){
 function closeResult(){
   document.getElementById("result").style.display = "none";
 }
+
 
 
 function showZukanOpenFx(){
