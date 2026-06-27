@@ -42,7 +42,7 @@ html,body{
 
 #drawTap{
   left:22%;
-  top:47.8%;
+  top:46.5%;
   width:56%;
   height:15.2%;
   border-radius:50%;
@@ -50,53 +50,44 @@ html,body{
 }
 
 #bookTap{
-  left:20%;
-  top:75.0%;
-  width:60%;
-  height:6.2%;
+  left:18%;
+  top:65.0%;
+  width:64%;
+  height:7.3%;
   border-radius:20px;
-  z-index:35;
+  z-index:80;
 }
 
 /* 下の焼き込み文字を隠して状態表示 */
 #statusMask{
-  position:absolute;
-  left:14%;
-  top:83.7%;
-  width:72%;
-  height:5.0%;
-  border-radius:999px;
-  background:linear-gradient(180deg,#19130c,#050505);
-  border:2px solid rgba(255,211,125,.9);
-  box-shadow:0 0 10px rgba(0,0,0,.75), inset 0 0 10px rgba(255,255,255,.06);
-  box-sizing:border-box;
-  z-index:8;
-  pointer-events:none;
+  display:none;
 }
 
 #statusText{
   position:absolute;
-  left:14%;
-  top:83.7%;
-  width:72%;
-  height:5.0%;
+  left:17%;
+  top:76.4%;
+  width:66%;
+  height:4.2%;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  color:#fff5d0;
+  color:#fff7d6;
   font-weight:bold;
-  font-size:13px;
-  text-shadow:0 2px 4px #000;
-  z-index:9;
+  font-size:11px;
+  line-height:1.15;
+  text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55);
+  z-index:18;
   pointer-events:none;
+  background:transparent;
 }
 
 /* 押した瞬間の反応 */
 #pressFx{
   position:absolute;
   left:22%;
-  top:47.8%;
+  top:46.5%;
   width:56%;
   height:15.2%;
   border-radius:50%;
@@ -666,25 +657,25 @@ html,body{
 /* 上の吹き出し：ランダムメッセージ表示（画像は作らずHTML文字だけ） */
 #topSpeechText{
   position:absolute;
-  left:20%;
-  top:36.9%;
-  width:47%;
-  height:5.7%;
+  left:19.2%;
+  top:32.6%;
+  width:48.8%;
+  height:6.3%;
   z-index:12;
   pointer-events:none;
-  color:#5a351f;
+  color:#3b2408;
   font-weight:bold;
   text-align:center;
-  line-height:1.25;
+  line-height:1.16;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  text-shadow:0 1px 0 rgba(255,255,255,.75);
+  text-shadow:0 1px 0 rgba(255,255,255,.85);
 }
 
 #topSpeechLine1{
-  font-size:13px;
+  font-size:12px;
   white-space:nowrap;
   max-width:100%;
   overflow:hidden;
@@ -692,234 +683,56 @@ html,body{
 }
 
 #topSpeechLine2{
-  font-size:11px;
+  font-size:10px;
   white-space:nowrap;
   max-width:100%;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-/* Ver.3安定版：図鑑の当たり判定修正・図鑑オープン演出のみ */
+/* Ver.3.3 追加：図鑑を開く演出 */
+#zukanOpenFx{
+  position:fixed;
+  inset:0;
+  z-index:160;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:rgba(0,0,0,.82);
+  color:#facc15;
+  font-weight:bold;
+  text-align:center;
+  pointer-events:none;
+}
+#zukanOpenFx.show{
+  display:flex;
+}
+.zukanBookIcon{
+  font-size:56px;
+  line-height:1;
+  filter:drop-shadow(0 0 16px #facc15);
+  animation:zukanBookPop .45s ease both;
+}
+.zukanFxText{
+  margin-top:12px;
+  font-size:18px;
+  text-shadow:0 0 12px #facc15;
+}
+@keyframes zukanBookPop{
+  0%{transform:scale(.55) rotate(-8deg); opacity:0;}
+  60%{transform:scale(1.12) rotate(3deg); opacity:1;}
+  100%{transform:scale(1) rotate(0); opacity:1;}
+}
+#collection.collectionOpening{
+  animation:collectionOpenPop .28s ease both;
+}
+@keyframes collectionOpenPop{
+  0%{opacity:0; transform:scale(.98);}
+  100%{opacity:1; transform:scale(1);}
+}
 .tap{
   touch-action:manipulation;
-}
-
-#zukanOpenFx{
-  position:fixed;
-  inset:0;
-  z-index:160;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  background:rgba(0,0,0,.82);
-  color:#facc15;
-  font-weight:bold;
-  text-align:center;
-  pointer-events:none;
-}
-
-#zukanOpenFx.show{
-  display:flex;
-  animation:zukanFxIn .18s ease both;
-}
-
-.zukanBookIcon{
-  font-size:56px;
-  line-height:1;
-  filter:drop-shadow(0 0 16px #facc15);
-  animation:zukanBookPop .45s ease both;
-}
-
-.zukanFxText{
-  margin-top:12px;
-  font-size:18px;
-  text-shadow:0 0 12px #facc15;
-}
-
-@keyframes zukanFxIn{
-  0%{opacity:0;}
-  100%{opacity:1;}
-}
-
-@keyframes zukanBookPop{
-  0%{transform:scale(.55) rotate(-8deg); opacity:0;}
-  60%{transform:scale(1.12) rotate(3deg); opacity:1;}
-  100%{transform:scale(1) rotate(0); opacity:1;}
-}
-
-#collection.collectionOpening{
-  animation:collectionOpenPop .35s ease both;
-}
-
-@keyframes collectionOpenPop{
-  0%{opacity:0; transform:scale(.97);}
-  100%{opacity:1; transform:scale(1);}
-}
-
-/* ===== Ver.3.2 位置修正版：画像は作らずHTML/CSSだけ調整 ===== */
-
-/* 余計な外側ステータス化を防ぐ */
-#app{
-  position:relative;
-  width:100%;
-  max-width:430px;
-  margin:0 auto;
-  min-height:auto;
-  background:#020617;
-  line-height:1;
-}
-
-#topImg{
-  width:100%;
-  display:block;
-  user-select:none;
-  pointer-events:none;
-}
-
-/* 透明ボタン：ガチャと図鑑をしっかり離す */
-#drawTap{
-  left:23% !important;
-  top:49.0% !important;
-  width:54% !important;
-  height:13.5% !important;
-  border-radius:50% !important;
-  z-index:20 !important;
-}
-
-#bookTap{
-  left:22% !important;
-  top:73.0% !important;
-  width:56% !important;
-  height:5.5% !important;
-  border-radius:18px !important;
-  z-index:35 !important;
-}
-
-/* 押した時の光もガチャボタンに合わせる */
-#pressFx{
-  left:23% !important;
-  top:49.0% !important;
-  width:54% !important;
-  height:13.5% !important;
-}
-
-/* 画像内の吹き出しにだけ文字を重ねる */
-#topSpeechText{
-  position:absolute !important;
-  left:20.5% !important;
-  top:37.4% !important;
-  width:45.5% !important;
-  height:5.1% !important;
-  z-index:12 !important;
-  pointer-events:none !important;
-  color:#3b2408 !important;
-  font-weight:bold !important;
-  text-align:center !important;
-  line-height:1.18 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
-}
-
-#topSpeechLine1{
-  font-size:12px !important;
-  white-space:nowrap !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-#topSpeechLine2{
-  font-size:10px !important;
-  white-space:nowrap !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-/* 黒い帯は画像側を使う。上から黒マスクをかけない */
-#statusMask{
-  display:none !important;
-}
-
-/* 画像内の下の黒帯に文字を入れる。外側には出さない */
-#statusText{
-  position:absolute !important;
-  left:16.5% !important;
-  top:83.45% !important;
-  width:67% !important;
-  height:4.5% !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-align:center !important;
-  color:#fff7d6 !important;
-  font-weight:bold !important;
-  font-size:11.5px !important;
-  line-height:1.2 !important;
-  text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55) !important;
-  z-index:16 !important;
-  pointer-events:none !important;
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
-}
-
-/* 図鑑を開く演出 */
-#zukanOpenFx{
-  position:fixed;
-  inset:0;
-  z-index:160;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  background:rgba(0,0,0,.82);
-  color:#facc15;
-  font-weight:bold;
-  text-align:center;
-  pointer-events:none;
-}
-
-#zukanOpenFx.show{
-  display:flex;
-  animation:zukanFxIn .18s ease both;
-}
-
-@keyframes zukanFxIn{
-  0%{opacity:0;}
-  100%{opacity:1;}
-}
-
-.zukanBookIcon{
-  font-size:56px;
-  line-height:1;
-  filter:drop-shadow(0 0 16px #facc15);
-  animation:zukanBookPop .45s ease both;
-}
-
-.zukanFxText{
-  margin-top:12px;
-  font-size:18px;
-  text-shadow:0 0 12px #facc15;
-}
-
-@keyframes zukanBookPop{
-  0%{transform:scale(.55) rotate(-8deg); opacity:0;}
-  60%{transform:scale(1.12) rotate(3deg); opacity:1;}
-  100%{transform:scale(1) rotate(0); opacity:1;}
-}
-
-#collection.collectionOpening{
-  animation:collectionOpenPop .35s ease both;
-}
-
-@keyframes collectionOpenPop{
-  0%{opacity:0; transform:scale(.97);}
-  100%{opacity:1; transform:scale(1);}
 }
 
 </style>
@@ -927,7 +740,7 @@ html,body{
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=5">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=6">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">クロネコガチャへようこそ！</div>
@@ -1041,7 +854,7 @@ function setReadyStatus(){
 }
 
 function setDoneStatus(){
-  setStatus("✅ 本日は受け取り済みです。また明日ね♪");
+  setStatus("✅ 本日は受け取り済みです");
 }
 
 
@@ -1310,12 +1123,9 @@ function closeResult(){
 }
 
 
-
 function showZukanOpenFx(){
   const fx = document.getElementById("zukanOpenFx");
   if(!fx) return;
-  fx.classList.remove("show");
-  void fx.offsetWidth;
   fx.classList.add("show");
 }
 
@@ -1350,7 +1160,7 @@ async function loadCollection(){
 
     setTimeout(function(){
       hideZukanOpenFx();
-    }, 180);
+    }, 120);
 
   }catch(e){
     hideZukanOpenFx();
