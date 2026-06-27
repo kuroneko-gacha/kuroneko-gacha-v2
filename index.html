@@ -658,32 +658,32 @@ html,body{
 }
 
 
-/* LINE名つき吹き出し上書き */
+
+/* LINE名つき吹き出し：元画像の吹き出しは残し、文字部分だけを上書き */
 #welcomeMask{
   position:absolute;
-  left:14.2%;
-  top:28.15%;
-  width:57.0%;
-  height:6.05%;
+  left:22.5%;
+  top:30.18%;
+  width:40.5%;
+  height:4.55%;
   background:#fff4df;
-  border-radius:20px;
+  border-radius:8px;
   z-index:11;
   pointer-events:none;
-  box-shadow:0 0 0 2px rgba(120,70,30,.16) inset;
 }
 
 #welcomeDynamic{
   position:absolute;
-  left:15.8%;
-  top:28.45%;
-  width:53.8%;
-  height:5.45%;
+  left:22.5%;
+  top:30.18%;
+  width:40.5%;
+  height:4.55%;
   z-index:12;
   pointer-events:none;
   color:#5a351f;
   font-weight:bold;
   text-align:center;
-  line-height:1.25;
+  line-height:1.18;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -700,8 +700,11 @@ html,body{
 }
 
 #welcomeLine2{
-  font-size:11px;
+  font-size:10.5px;
   white-space:nowrap;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 </style>
