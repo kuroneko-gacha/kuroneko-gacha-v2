@@ -41,19 +41,21 @@ html,body{
 }
 
 #drawTap{
-  left:18%;
-  top:45.5%;
-  width:64%;
-  height:21%;
+  left:21%;
+  top:43.8%;
+  width:58%;
+  height:17.8%;
   border-radius:50%;
+  z-index:20;
 }
 
 #bookTap{
-  left:13%;
-  top:76.5%;
-  width:74%;
-  height:8%;
+  left:17%;
+  top:68.7%;
+  width:66%;
+  height:8.8%;
   border-radius:20px;
+  z-index:30;
 }
 
 /* 下の焼き込み文字を隠して状態表示 */
@@ -93,10 +95,10 @@ html,body{
 /* 押した瞬間の反応 */
 #pressFx{
   position:absolute;
-  left:18%;
-  top:45.5%;
-  width:64%;
-  height:21%;
+  left:21%;
+  top:43.8%;
+  width:58%;
+  height:17.8%;
   border-radius:50%;
   display:none;
   background:
@@ -697,7 +699,7 @@ html,body{
   text-overflow:ellipsis;
 }
 
-/* Ver.3 修正：元の見た目を崩さずに図鑑表示だけ強化 */
+/* Ver.3修正：図鑑ボタンの誤タップ対策・図鑑演出 */
 body.collectionOpen #app{
   visibility:hidden;
 }
@@ -712,19 +714,7 @@ body.collectionOpen #app{
   100%{opacity:1; transform:scale(1); filter:blur(0);}
 }
 
-#collection::before{
-  content:"";
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  background:
-    radial-gradient(circle at 50% 12%, rgba(250,204,21,.22), transparent 30%),
-    radial-gradient(circle at 20% 82%, rgba(56,189,248,.12), transparent 28%),
-    radial-gradient(circle at 82% 78%, rgba(244,114,182,.10), transparent 28%);
-  z-index:-1;
-}
-
-.zukanOpenFx{
+#zukanOpenFx{
   position:fixed;
   inset:0;
   z-index:160;
@@ -739,16 +729,16 @@ body.collectionOpen #app{
   pointer-events:none;
 }
 
-.zukanOpenFx.show{
+#zukanOpenFx.show{
   display:flex;
-  animation:zukanFxFade .7s ease both;
+  animation:zukanFxFade .62s ease both;
 }
 
 .zukanBookIcon{
   font-size:58px;
   line-height:1;
   filter:drop-shadow(0 0 18px #facc15);
-  animation:zukanBookPop .7s ease both;
+  animation:zukanBookPop .62s ease both;
 }
 
 .zukanFxText{
@@ -760,7 +750,7 @@ body.collectionOpen #app{
 @keyframes zukanFxFade{
   0%{opacity:0;}
   20%{opacity:1;}
-  75%{opacity:1;}
+  76%{opacity:1;}
   100%{opacity:0;}
 }
 
@@ -770,20 +760,9 @@ body.collectionOpen #app{
   100%{transform:scale(1) rotate(0); opacity:1;}
 }
 
-/* 効果音ON/OFF：画面を崩さない小さな固定ボタン */
-#soundToggle{
-  position:fixed;
-  right:10px;
-  bottom:calc(10px + env(safe-area-inset-bottom));
-  z-index:90;
-  border:1px solid rgba(250,204,21,.75);
-  background:rgba(0,0,0,.55);
-  color:#fff5d0;
-  border-radius:999px;
-  padding:8px 11px;
-  font-size:12px;
-  font-weight:bold;
-  box-shadow:0 0 10px rgba(0,0,0,.45);
+/* 透明ボタン確認用：普段は非表示。必要なら一時的にopacityを上げて確認 */
+.tap{
+  touch-action:manipulation;
 }
 
 </style>
@@ -806,9 +785,7 @@ body.collectionOpen #app{
   <button id="bookTap" class="tap" onclick="loadCollection()" aria-label="図鑑を見る"></button>
 </div>
 
-<button id="soundToggle" onclick="toggleSound()" aria-label="効果音切替">🔇 OFF</button>
-
-<div id="zukanOpenFx" class="zukanOpenFx">
+<div id="zukanOpenFx">
   <div class="zukanBookIcon">📖</div>
   <div class="zukanFxText">図鑑を開いています…</div>
 </div>
@@ -844,7 +821,6 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDY
 
 let profile = { userId:"", displayName:"" };
 let drawing = false;
-let soundEnabled = false;
 
 window.onload = async function(){
   setTopSpeech();
@@ -925,45 +901,6 @@ function hidePressFx(){
 }
 
 
-function toggleSound(){
-  soundEnabled = !soundEnabled;
-  const btn = document.getElementById("soundToggle");
-  if(btn) btn.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF";
-  playBeep(660, .05);
-}
-
-function playBeep(freq, sec){
-  if(!soundEnabled) return;
-  try{
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const ctx = new AudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.value = freq || 440;
-    gain.gain.value = .045;
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    setTimeout(function(){
-      osc.stop();
-      ctx.close();
-    }, Math.max(40, (sec || .08) * 1000));
-  }catch(e){}
-}
-
-function playOpenSound(){
-  playBeep(520, .06);
-  setTimeout(function(){ playBeep(780, .06); }, 90);
-  setTimeout(function(){ playBeep(1040, .08); }, 180);
-}
-
-function playSecretSound(){
-  playBeep(220, .08);
-  setTimeout(function(){ playBeep(440, .08); }, 110);
-  setTimeout(function(){ playBeep(880, .12); }, 230);
-}
-
 function playZukanOpenFx(){
   return new Promise(function(resolve){
     const fx = document.getElementById("zukanOpenFx");
@@ -971,14 +908,13 @@ function playZukanOpenFx(){
       resolve();
       return;
     }
-    playBeep(720, .06);
     fx.classList.remove("show");
     void fx.offsetWidth;
     fx.classList.add("show");
     setTimeout(function(){
       fx.classList.remove("show");
       resolve();
-    }, 720);
+    }, 640);
   });
 }
 
@@ -1061,10 +997,8 @@ function playGachaEffect(res){
     effect.style.display = "block";
 
     if(isSecret){
-      playSecretSound();
       playSecretEffect(stage,resolve);
     }else{
-      playOpenSound();
       const n = Math.floor(Math.random()*6);
       if(n === 0) playDashPaw(stage,resolve);
       if(n === 1) playChestStars(stage,resolve);
@@ -1235,10 +1169,14 @@ function closeResult(){
 }
 
 async function loadCollection(){
+  if(drawing) return;
+
   if(!profile.userId){
     alert("LINE名を確認中です。少し待ってから押してください。");
     return;
   }
+
+  drawing = true;
 
   try{
     await playZukanOpenFx();
@@ -1248,6 +1186,8 @@ async function loadCollection(){
       userId:profile.userId
     });
 
+    drawing = false;
+
     if(!res || res.ok === false){
       alert(res && res.message ? res.message : "図鑑を読み込めませんでした。");
       return;
@@ -1256,6 +1196,7 @@ async function loadCollection(){
     renderCollection(res.cards || []);
 
   }catch(e){
+    drawing = false;
     alert("図鑑の通信エラーが出ました。");
   }
 }
