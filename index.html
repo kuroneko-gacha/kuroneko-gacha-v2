@@ -41,30 +41,30 @@ html,body{
 }
 
 #drawTap{
-  left:21%;
-  top:44%;
-  width:58%;
-  height:17%;
+  left:22%;
+  top:47.8%;
+  width:56%;
+  height:15.2%;
   border-radius:50%;
   z-index:20;
 }
 
 #bookTap{
-  left:18%;
-  top:68.5%;
-  width:64%;
-  height:8.5%;
+  left:20%;
+  top:75.0%;
+  width:60%;
+  height:6.2%;
   border-radius:20px;
-  z-index:30;
+  z-index:35;
 }
 
 /* 下の焼き込み文字を隠して状態表示 */
 #statusMask{
   position:absolute;
-  left:11.1%;
-  top:82.95%;
-  width:77.8%;
-  height:5.65%;
+  left:14%;
+  top:83.7%;
+  width:72%;
+  height:5.0%;
   border-radius:999px;
   background:linear-gradient(180deg,#19130c,#050505);
   border:2px solid rgba(255,211,125,.9);
@@ -76,10 +76,10 @@ html,body{
 
 #statusText{
   position:absolute;
-  left:11.1%;
-  top:82.95%;
-  width:77.8%;
-  height:5.65%;
+  left:14%;
+  top:83.7%;
+  width:72%;
+  height:5.0%;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -95,10 +95,10 @@ html,body{
 /* 押した瞬間の反応 */
 #pressFx{
   position:absolute;
-  left:21%;
-  top:44%;
-  width:58%;
-  height:17%;
+  left:22%;
+  top:47.8%;
+  width:56%;
+  height:15.2%;
   border-radius:50%;
   display:none;
   background:
@@ -666,10 +666,10 @@ html,body{
 /* 上の吹き出し：ランダムメッセージ表示（画像は作らずHTML文字だけ） */
 #topSpeechText{
   position:absolute;
-  left:18.5%;
-  top:29.3%;
-  width:50%;
-  height:6.2%;
+  left:20%;
+  top:36.9%;
+  width:47%;
+  height:5.7%;
   z-index:12;
   pointer-events:none;
   color:#5a351f;
@@ -762,7 +762,7 @@ html,body{
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=4">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">クロネコガチャへようこそ！</div>
@@ -770,7 +770,7 @@ html,body{
   </div>
 
   <div id="statusMask"></div>
-  <div id="statusText">✨ ガチャを読み込み中...</div>
+  <div id="statusText">✨ 今日も素敵な出会いがありますように</div>
   <div id="pressFx"></div>
 
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
@@ -867,13 +867,18 @@ function setTopSpeech(){
 
 
 function setReadyStatus(){
-  const name = profile.displayName || "ゲスト";
-  setStatus("✨ " + name + "さん、今日のガチャを引けます");
+  const messages = [
+    "✨ 今日も素敵な出会いがありますように",
+    "🌙 黒猫があなたを待っています",
+    "🎁 どんなシールが出るかな？",
+    "⭐ シークレットが出るかも…？",
+    "🐾 一日一回のお楽しみ♪"
+  ];
+  setStatus(messages[Math.floor(Math.random() * messages.length)]);
 }
 
 function setDoneStatus(){
-  const name = profile.displayName || "ゲスト";
-  setStatus("✅ " + name + "さん、本日分は受け取り済みです");
+  setStatus("✅ 本日は受け取り済みです。また明日ね♪");
 }
 
 
