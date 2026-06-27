@@ -857,12 +857,80 @@ html,body{
   touch-action:manipulation !important;
 }
 
+/* ===== Ver.3.5 画面いっぱい表示修正 ===== */
+html,body{
+  width:100% !important;
+  min-height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:#020617 !important;
+  overflow:hidden !important;
+}
+
+#app{
+  position:relative !important;
+  width:100% !important;
+  max-width:430px !important;
+  height:100vh !important;
+  min-height:100vh !important;
+  margin:0 auto !important;
+  background:#020617 !important;
+  overflow:hidden !important;
+}
+
+#topImg{
+  width:100% !important;
+  height:100vh !important;
+  display:block !important;
+  object-fit:cover !important;
+  object-position:center top !important;
+  user-select:none !important;
+  pointer-events:none !important;
+}
+
+/* 画面いっぱい表示に合わせた位置補正 */
+#drawTap{
+  left:22% !important;
+  top:47.5% !important;
+  width:56% !important;
+  height:18.5% !important;
+}
+
+#bookTap{
+  left:13% !important;
+  top:78.0% !important;
+  width:74% !important;
+  height:7.5% !important;
+  z-index:90 !important;
+}
+
+#pressFx{
+  left:22% !important;
+  top:47.5% !important;
+  width:56% !important;
+  height:18.5% !important;
+}
+
+#topSpeechText{
+  left:19% !important;
+  top:34.1% !important;
+  width:49% !important;
+  height:6.5% !important;
+}
+
+#statusText{
+  left:16% !important;
+  top:88.35% !important;
+  width:68% !important;
+  height:4.0% !important;
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=7">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=8">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">クロネコガチャへようこそ！</div>
