@@ -84,7 +84,7 @@ html,body{
   text-align:center;
   color:#fff5d0;
   font-weight:bold;
-  font-size:15px;
+  font-size:13px;
   text-shadow:0 2px 4px #000;
   z-index:9;
   pointer-events:none;
@@ -659,54 +659,6 @@ html,body{
 
 
 
-/* LINE名つき吹き出し：元画像の吹き出しは残し、文字部分だけを上書き */
-#welcomeMask{
-  position:absolute;
-  left:22.5%;
-  top:30.18%;
-  width:40.5%;
-  height:4.55%;
-  background:#fff4df;
-  border-radius:8px;
-  z-index:11;
-  pointer-events:none;
-}
-
-#welcomeDynamic{
-  position:absolute;
-  left:22.5%;
-  top:30.18%;
-  width:40.5%;
-  height:4.55%;
-  z-index:12;
-  pointer-events:none;
-  color:#5a351f;
-  font-weight:bold;
-  text-align:center;
-  line-height:1.18;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-shadow:0 1px 0 rgba(255,255,255,.75);
-}
-
-#welcomeLine1{
-  font-size:13px;
-  white-space:nowrap;
-  max-width:100%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-#welcomeLine2{
-  font-size:10.5px;
-  white-space:nowrap;
-  max-width:100%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
 </style>
 </head>
 
@@ -714,14 +666,8 @@ html,body{
 <div id="app">
   <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/33e5c8ed-3a7d-4f64-ad75-060ed57ebefb%20(1).png?raw=true">
 
-  <div id="welcomeMask"></div>
-  <div id="welcomeDynamic">
-    <div id="welcomeLine1">LINE名を確認中...</div>
-    <div id="welcomeLine2">今日も素敵な出会いがあるよ♪</div>
-  </div>
-
   <div id="statusMask"></div>
-  <div id="statusText">✨ 今日のガチャを引けます</div>
+  <div id="statusText">✨ ガチャを読み込み中...</div>
   <div id="pressFx"></div>
 
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
@@ -773,32 +719,27 @@ window.onload = async function(){
     profile.userId = p.userId;
     profile.displayName = p.displayName;
     console.log("LINE名取得成功:", profile.displayName);
-    setWelcomeMessage(profile.displayName);
+    setReadyStatus();
+    setReadyStatus();
 
   }catch(e){
     console.error(e);
-    setWelcomeMessage("ゲスト");
     alert("LINE名の取得に失敗しました。LINE内から開いてください。");
   }
 };
 
 
-function setWelcomeMessage(displayName){
-  const line1 = document.getElementById("welcomeLine1");
-  const line2 = document.getElementById("welcomeLine2");
-  if(!line1 || !line2) return;
 
-  const name = displayName || "ゲスト";
-  const messages = [
-    "今日も素敵な出会いがあるよ♪",
-    "運試しするにゃ♪",
-    "クロネコがシールを運ぶよ♪",
-    "いい出会いがありますように♪",
-    "今日の1枚を見つけよう♪"
-  ];
 
-  line1.textContent = name + "さん、ようこそ！";
-  line2.textContent = messages[Math.floor(Math.random() * messages.length)];
+
+function setReadyStatus(){
+  const name = profile.displayName || "ゲスト";
+  setStatus("✨ " + name + "さん、今日のガチャを引けます");
+}
+
+function setDoneStatus(){
+  const name = profile.displayName || "ゲスト";
+  setStatus("✅ " + name + "さん、本日分は受け取り済みです");
 }
 
 
@@ -865,14 +806,14 @@ async function drawGacha(){
 
     if(!res || res.ok === false){
       drawing = false;
-      setStatus("✅ 本日分は受け取り済みです");
+      setDoneStatus();
       alert(res && res.message ? res.message : "今日はもう引いています。また明日ね！");
       return;
     }
 
     await playGachaEffect(res);
     drawing = false;
-    setStatus("✅ 本日分は受け取り済みです");
+    setDoneStatus();
     showResult(res);
 
   }catch(e){
