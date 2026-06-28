@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
+<heAad>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.3 安定版</title>
+<title>クロネコガチャ Ver.4 完全版</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style>
 html,body{
   margin:0;
   padding:0;
+  width:100%;
+  min-height:100%;
   background:#020617;
   font-family:"Hiragino Sans","Meiryo",sans-serif;
-  overflow-x:hidden;
+  overflow:hidden;
   -webkit-tap-highlight-color:transparent;
 }
 
@@ -20,14 +22,19 @@ html,body{
   position:relative;
   width:100%;
   max-width:430px;
-  margin:0 auto;
+  height:100vh;
   min-height:100vh;
+  margin:0 auto;
   background:#020617;
+  overflow:hidden;
 }
 
 #topImg{
   width:100%;
+  height:97.2vh;
   display:block;
+  object-fit:cover;
+  object-position:center top;
   user-select:none;
   pointer-events:none;
 }
@@ -37,66 +44,99 @@ html,body{
   border:none;
   background:rgba(255,255,255,0);
   cursor:pointer;
+  touch-action:manipulation;
+}
+
+/* ガチャボタン：図鑑と重ならない範囲 */
+#drawTap{
+  left:23%;
+  top:46.7%;
+  width:54%;
+  height:17.0%;
+  border-radius:50%;
   z-index:20;
 }
 
-#drawTap{
-  left:18%;
-  top:45.5%;
-  width:64%;
-  height:21%;
-  border-radius:50%;
-}
-
+/* 図鑑ボタン：青い「図鑑を見る」の上だけ */
 #bookTap{
-  left:13%;
-  top:76.5%;
-  width:74%;
-  height:8%;
-  border-radius:20px;
+  left:14%;
+  top:77.8%;
+  width:72%;
+  height:7.0%;
+  border-radius:22px;
+  z-index:90;
 }
 
-/* 下の焼き込み文字を隠して状態表示 */
+/* 下の黒帯は画像側を使う */
 #statusMask{
-  position:absolute;
-  left:11.1%;
-  top:82.95%;
-  width:77.8%;
-  height:5.65%;
-  border-radius:999px;
-  background:linear-gradient(180deg,#19130c,#050505);
-  border:2px solid rgba(255,211,125,.9);
-  box-shadow:0 0 10px rgba(0,0,0,.75), inset 0 0 10px rgba(255,255,255,.06);
-  box-sizing:border-box;
-  z-index:8;
-  pointer-events:none;
+  display:none;
 }
 
 #statusText{
   position:absolute;
-  left:11.1%;
-  top:82.95%;
-  width:77.8%;
-  height:5.65%;
+  left:15%;
+  top:87.65%;
+  width:70%;
+  height:4.2%;
   display:flex;
   align-items:center;
   justify-content:center;
   text-align:center;
-  color:#fff5d0;
-  font-weight:bold;
-  font-size:13px;
-  text-shadow:0 2px 4px #000;
-  z-index:9;
+  color:#fff7d6;
+  font-weight:800;
+  font-size:12px;
+  line-height:1.12;
+  text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55);
+  z-index:18;
   pointer-events:none;
+  background:transparent;
+}
+
+/* 上の吹き出し */
+#topSpeechText{
+  position:absolute;
+  left:18.5%;
+  top:34.0%;
+  width:50%;
+  height:6.8%;
+  z-index:12;
+  pointer-events:none;
+  color:#3b2408;
+  font-weight:800;
+  text-align:center;
+  line-height:1.13;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-shadow:0 1px 0 rgba(255,255,255,.88);
+}
+
+#topSpeechLine1{
+  font-size:15px;
+  font-weight:800;
+  white-space:nowrap;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+#topSpeechLine2{
+  font-size:12px;
+  font-weight:800;
+  white-space:nowrap;
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 /* 押した瞬間の反応 */
 #pressFx{
   position:absolute;
-  left:18%;
-  top:45.5%;
-  width:64%;
-  height:21%;
+  left:23%;
+  top:46.7%;
+  width:54%;
+  height:17.0%;
   border-radius:50%;
   display:none;
   background:
@@ -109,6 +149,45 @@ html,body{
 @keyframes pressGlow{
   from{transform:scale(.94);opacity:.55;}
   to{transform:scale(1.07);opacity:1;}
+}
+
+/* 図鑑を開く演出 */
+#zukanOpenFx{
+  position:fixed;
+  inset:0;
+  z-index:160;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  background:rgba(0,0,0,.82);
+  color:#facc15;
+  font-weight:bold;
+  text-align:center;
+  pointer-events:none;
+}
+
+#zukanOpenFx.show{
+  display:flex;
+}
+
+.zukanBookIcon{
+  font-size:56px;
+  line-height:1;
+  filter:drop-shadow(0 0 16px #facc15);
+  animation:zukanBookPop .45s ease both;
+}
+
+.zukanFxText{
+  margin-top:12px;
+  font-size:18px;
+  text-shadow:0 0 12px #facc15;
+}
+
+@keyframes zukanBookPop{
+  0%{transform:scale(.55) rotate(-8deg); opacity:0;}
+  60%{transform:scale(1.12) rotate(3deg); opacity:1;}
+  100%{transform:scale(1) rotate(0); opacity:1;}
 }
 
 /* 演出本体 */
@@ -127,7 +206,6 @@ html,body{
   overflow:hidden;
 }
 
-/* 文字演出は使わない */
 #effectText{ display:none; }
 
 .openFlash{
@@ -179,6 +257,7 @@ html,body{
   border-bottom:24px solid #020617;
   top:4px;
 }
+
 .ear1{left:16px; transform:rotate(-22deg);}
 .ear2{left:39px; transform:rotate(22deg);}
 
@@ -215,6 +294,7 @@ html,body{
   transform-origin:top center;
   animation:legRun .16s infinite alternate;
 }
+
 .leg1{left:55px;}
 .leg2{left:78px; animation-delay:.08s;}
 .leg3{left:101px;}
@@ -224,6 +304,7 @@ html,body{
   from{transform:rotate(-16deg);}
   to{transform:rotate(20deg);}
 }
+
 @keyframes legRun{
   from{transform:rotate(30deg);}
   to{transform:rotate(-30deg);}
@@ -258,6 +339,7 @@ html,body{
   filter:drop-shadow(0 0 14px #facc15);
   animation:pawPop 2.4s ease-in-out forwards;
 }
+
 .paw::before{
   content:"";
   position:absolute;
@@ -269,6 +351,7 @@ html,body{
   top:-10px;
   box-shadow:16px -8px 0 #facc15,32px 0 0 #facc15;
 }
+
 .paw::after{
   content:"";
   position:absolute;
@@ -279,6 +362,7 @@ html,body{
   left:17px;
   top:27px;
 }
+
 @keyframes pawPop{
   0%{transform:scale(.05) rotate(-30deg); opacity:0;}
   18%{opacity:1;}
@@ -296,6 +380,7 @@ html,body{
   box-shadow:0 0 14px #facc15;
   animation:starFall 2.7s linear forwards;
 }
+
 @keyframes starFall{
   0%{transform:translateY(-25vh) scale(.4); opacity:0;}
   18%{opacity:1;}
@@ -315,6 +400,7 @@ html,body{
   box-shadow:0 0 50px #fde68a,0 0 110px #facc15;
   animation:moonGlow 3.2s ease-in-out forwards;
 }
+
 .moon::after{
   content:"";
   position:absolute;
@@ -325,6 +411,7 @@ html,body{
   right:-18px;
   top:-8px;
 }
+
 @keyframes moonGlow{
   0%{opacity:.05; transform:translate(-50%,-50%) scale(.35);}
   45%{opacity:1; transform:translate(-50%,-50%) scale(1);}
@@ -342,6 +429,7 @@ html,body{
   transform:translate(-50%,-50%);
   animation:chestShake 2.5s ease-in-out forwards;
 }
+
 .chestLid{
   position:absolute;
   left:10px;
@@ -353,6 +441,7 @@ html,body{
   transform-origin:bottom center;
   animation:chestOpen 3.0s ease-in-out forwards;
 }
+
 .chestBody{
   position:absolute;
   left:0;
@@ -362,6 +451,7 @@ html,body{
   background:linear-gradient(#78350f,#f59e0b);
   border-radius:8px 8px 20px 20px;
 }
+
 .chestLight{
   position:absolute;
   left:50%;
@@ -375,6 +465,7 @@ html,body{
   opacity:0;
   animation:lightBurst 3.0s ease-in-out forwards;
 }
+
 @keyframes chestShake{
   0%,30%,48%{transform:translate(-50%,-50%) rotate(0);}
   35%{transform:translate(-50%,-50%) rotate(-9deg);}
@@ -382,10 +473,12 @@ html,body{
   55%{transform:translate(-50%,-50%) scale(1.08);}
   100%{transform:translate(-50%,-50%) scale(1);}
 }
+
 @keyframes chestOpen{
   0%,58%{transform:rotateX(0);}
   80%,100%{transform:rotateX(68deg) translateY(-22px);}
 }
+
 @keyframes lightBurst{
   0%,58%{opacity:0; transform:translate(-50%,-50%) scale(.2);}
   78%{opacity:1; transform:translate(-50%,-50%) scale(1.25);}
@@ -405,6 +498,7 @@ html,body{
   box-shadow:0 0 28px #facc15, inset 0 0 24px #facc15;
   animation:ringSpin 3.2s ease-in-out forwards;
 }
+
 .magicRing::before,.magicRing::after{
   content:"";
   position:absolute;
@@ -412,11 +506,13 @@ html,body{
   border:3px dashed rgba(250,204,21,.85);
   border-radius:50%;
 }
+
 .magicRing::after{
   inset:-55px;
   border-style:solid;
   opacity:.45;
 }
+
 @keyframes ringSpin{
   0%{transform:translate(-50%,-50%) scale(.15) rotate(0); opacity:0;}
   25%{opacity:1;}
@@ -437,6 +533,7 @@ html,body{
   box-shadow:0 0 50px #facc15;
   animation:cardSil 1.2s ease-in-out forwards;
 }
+
 @keyframes cardSil{
   0%{transform:translate(-50%,-50%) scale(.2) rotateY(90deg); opacity:0;}
   70%{transform:translate(-50%,-50%) scale(1.08) rotateY(0deg); opacity:1;}
@@ -447,6 +544,7 @@ html,body{
 .secretMode{
   animation:secretBg 3.8s ease-in-out forwards;
 }
+
 @keyframes secretBg{
   0%{background:rgba(0,0,0,.96);}
   20%{background:rgba(24,0,40,.96);}
@@ -454,6 +552,7 @@ html,body{
   70%{background:rgba(90,60,0,.96);}
   100%{background:rgba(0,0,0,.94);}
 }
+
 .lightning{
   position:absolute;
   left:50%;
@@ -467,10 +566,12 @@ html,body{
   opacity:0;
   animation:bolt 3.8s ease-in-out forwards;
 }
+
 @keyframes bolt{
   0%,22%,40%,54%,100%{opacity:0;}
   28%,34%,62%,70%{opacity:1;}
 }
+
 .secretAura{
   position:absolute;
   left:50%;
@@ -483,6 +584,7 @@ html,body{
   box-shadow:0 0 80px 60px rgba(250,204,21,.7),0 0 120px 80px rgba(147,51,234,.55);
   animation:secretAura 3.8s ease-in-out forwards;
 }
+
 @keyframes secretAura{
   0%{transform:translate(-50%,-50%) scale(.1); opacity:0;}
   35%{opacity:1;}
@@ -503,9 +605,11 @@ html,body{
   padding:20px;
   box-sizing:border-box;
 }
+
 #result.secretResult{
   background:radial-gradient(circle,rgba(250,204,21,.35),rgba(0,0,0,.93) 65%);
 }
+
 #resultImg{
   width:86%;
   max-width:360px;
@@ -514,10 +618,12 @@ html,body{
   box-shadow:0 0 35px #facc15;
   animation:cardPop .7s ease;
 }
+
 #result.secretResult #resultImg{
   box-shadow:0 0 35px #facc15,0 0 70px #f472b6,0 0 100px #60a5fa;
   animation:secretCardPop .9s ease;
 }
+
 #resultName{
   margin-top:16px;
   color:#facc15;
@@ -525,12 +631,14 @@ html,body{
   font-weight:bold;
   text-shadow:0 0 12px #facc15;
 }
+
 #resultMsg{
   margin-top:8px;
   color:#fff;
   font-size:18px;
   font-weight:bold;
 }
+
 #closeResult{
   margin-top:18px;
   padding:12px 28px;
@@ -541,11 +649,13 @@ html,body{
   background:#facc15;
   color:#3b2408;
 }
+
 @keyframes cardPop{
   0%{transform:scale(.2) rotateY(100deg);opacity:0;}
   70%{transform:scale(1.08) rotateY(0deg);opacity:1;}
   100%{transform:scale(1);}
 }
+
 @keyframes secretCardPop{
   0%{transform:scale(.1) rotate(30deg);opacity:0;}
   50%{transform:scale(1.22) rotate(-6deg);opacity:1;}
@@ -564,30 +674,51 @@ html,body{
   box-sizing:border-box;
   color:white;
 }
+
+#collection.collectionOpening{
+  animation:collectionOpenPop .28s ease both;
+}
+
+@keyframes collectionOpenPop{
+  0%{opacity:0; transform:scale(.98);}
+  100%{opacity:1; transform:scale(1);}
+}
+
 #collection h2{
   text-align:center;
   color:#facc15;
 }
+
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:12px;
 }
+
 .cardMini{
   background:rgba(255,255,255,.1);
   border-radius:14px;
   padding:8px;
   text-align:center;
+  cursor:pointer;
+  transition:transform .18s ease, box-shadow .18s ease;
 }
+
+.cardMini:active{
+  transform:scale(.96);
+}
+
 .cardMini.secretMini{
   background:linear-gradient(135deg,rgba(250,204,21,.25),rgba(147,51,234,.25));
   box-shadow:0 0 18px rgba(250,204,21,.25);
 }
+
 .cardMini img{
   width:100%;
   border-radius:10px;
   background:white;
 }
+
 #closeCollection{
   width:100%;
   margin:18px 0;
@@ -601,15 +732,6 @@ html,body{
 }
 
 /* 図鑑シール拡大表示 */
-.cardMini{
-  cursor:pointer;
-  transition:transform .18s ease, box-shadow .18s ease;
-}
-
-.cardMini:active{
-  transform:scale(.96);
-}
-
 #sealZoom{
   position:fixed;
   inset:0;
@@ -656,410 +778,16 @@ html,body{
   80%{transform:scale(1.04);opacity:1;}
   100%{transform:scale(1);}
 }
-
-
-
-
-
-/* 上の吹き出し：ランダムメッセージ表示（画像は作らずHTML文字だけ） */
-#topSpeechText{
-  position:absolute;
-  left:18.5%;
-  top:29.3%;
-  width:50%;
-  height:6.2%;
-  z-index:12;
-  pointer-events:none;
-  color:#5a351f;
-  font-weight:bold;
-  text-align:center;
-  line-height:1.25;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-shadow:0 1px 0 rgba(255,255,255,.75);
-}
-
-#topSpeechLine1{
-  font-size:13px;
-  white-space:nowrap;
-  max-width:100%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-#topSpeechLine2{
-  font-size:11px;
-  white-space:nowrap;
-  max-width:100%;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-/* ===== Ver.3.4 最終位置補正：元画像サイズ維持・HTML/CSSのみ ===== */
-html,body{
-  margin:0 !important;
-  padding:0 !important;
-  background:#020617 !important;
-  overflow-x:hidden !important;
-}
-
-#app{
-  position:relative !important;
-  width:100% !important;
-  max-width:430px !important;
-  margin:0 auto !important;
-  min-height:0 !important;
-  background:#020617 !important;
-}
-
-#topImg{
-  width:100% !important;
-  height:auto !important;
-  display:block !important;
-  user-select:none !important;
-  pointer-events:none !important;
-}
-
-/* 透明ボタンの当たり判定 */
-#drawTap{
-  left:22% !important;
-  top:47.5% !important;
-  width:56% !important;
-  height:18.5% !important;
-  border-radius:50% !important;
-  z-index:20 !important;
-}
-
-#bookTap{
-  left:13% !important;
-  top:78.0% !important;
-  width:74% !important;
-  height:7.5% !important;
-  border-radius:22px !important;
-  z-index:90 !important;
-}
-
-#pressFx{
-  left:22% !important;
-  top:47.5% !important;
-  width:56% !important;
-  height:18.5% !important;
-  z-index:10 !important;
-}
-
-/* 吹き出し文字：画像内の白い空白に合わせる */
-#topSpeechText{
-  position:absolute !important;
-  left:19% !important;
-  top:34.1% !important;
-  width:49% !important;
-  height:6.5% !important;
-  z-index:12 !important;
-  pointer-events:none !important;
-  color:#3b2408 !important;
-  font-weight:bold !important;
-  text-align:center !important;
-  line-height:1.18 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
-}
-
-#topSpeechLine1{
-  font-size:12px !important;
-  white-space:nowrap !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-#topSpeechLine2{
-  font-size:10px !important;
-  white-space:nowrap !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-/* 下の黒帯は画像を使う。黒マスクは消す */
-#statusMask{
-  display:none !important;
-}
-
-#statusText{
-  position:absolute !important;
-  left:16% !important;
-  top:88.35% !important;
-  width:68% !important;
-  height:4.0% !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-align:center !important;
-  color:#fff7d6 !important;
-  font-weight:bold !important;
-  font-size:10.5px !important;
-  line-height:1.1 !important;
-  text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55) !important;
-  z-index:18 !important;
-  pointer-events:none !important;
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
-}
-
-/* 図鑑オープン演出 */
-#zukanOpenFx{
-  position:fixed !important;
-  inset:0 !important;
-  z-index:160 !important;
-  display:none;
-  align-items:center !important;
-  justify-content:center !important;
-  flex-direction:column !important;
-  background:rgba(0,0,0,.82) !important;
-  color:#facc15 !important;
-  font-weight:bold !important;
-  text-align:center !important;
-  pointer-events:none !important;
-}
-#zukanOpenFx.show{
-  display:flex !important;
-}
-.zukanBookIcon{
-  font-size:56px !important;
-  line-height:1 !important;
-  filter:drop-shadow(0 0 16px #facc15) !important;
-  animation:zukanBookPop .45s ease both !important;
-}
-.zukanFxText{
-  margin-top:12px !important;
-  font-size:18px !important;
-  text-shadow:0 0 12px #facc15 !important;
-}
-@keyframes zukanBookPop{
-  0%{transform:scale(.55) rotate(-8deg); opacity:0;}
-  60%{transform:scale(1.12) rotate(3deg); opacity:1;}
-  100%{transform:scale(1) rotate(0); opacity:1;}
-}
-#collection.collectionOpening{
-  animation:collectionOpenPop .28s ease both !important;
-}
-@keyframes collectionOpenPop{
-  0%{opacity:0; transform:scale(.98);}
-  100%{opacity:1; transform:scale(1);}
-}
-.tap{
-  touch-action:manipulation !important;
-}
-
-/* ===== Ver.3.5 画面いっぱい表示修正 ===== */
-html,body{
-  width:100% !important;
-  min-height:100% !important;
-  margin:0 !important;
-  padding:0 !important;
-  background:#020617 !important;
-  overflow:hidden !important;
-}
-
-#app{
-  position:relative !important;
-  width:100% !important;
-  max-width:430px !important;
-  height:100vh !important;
-  min-height:100vh !important;
-  margin:0 auto !important;
-  background:#020617 !important;
-  overflow:hidden !important;
-}
-
-#topImg{
-  width:100% !important;
-  height:100vh !important;
-  display:block !important;
-  object-fit:cover !important;
-  object-position:center top !important;
-  user-select:none !important;
-  pointer-events:none !important;
-}
-
-/* 画面いっぱい表示に合わせた位置補正 */
-#drawTap{
-  left:22% !important;
-  top:47.5% !important;
-  width:56% !important;
-  height:18.5% !important;
-}
-
-#bookTap{
-  left:13% !important;
-  top:78.0% !important;
-  width:74% !important;
-  height:7.5% !important;
-  z-index:90 !important;
-}
-
-#pressFx{
-  left:22% !important;
-  top:47.5% !important;
-  width:56% !important;
-  height:18.5% !important;
-}
-
-#topSpeechText{
-  left:19% !important;
-  top:34.1% !important;
-  width:49% !important;
-  height:6.5% !important;
-}
-
-#statusText{
-  left:16% !important;
-  top:88.35% !important;
-  width:68% !important;
-  height:4.0% !important;
-}
-
-/* ===== Ver.3.6 微調整：少し縮小・文字拡大・図鑑当たり判定下げ ===== */
-html,body{
-  width:100% !important;
-  min-height:100% !important;
-  margin:0 !important;
-  padding:0 !important;
-  background:#020617 !important;
-  overflow:hidden !important;
-}
-
-#app{
-  position:relative !important;
-  width:100% !important;
-  max-width:430px !important;
-  height:100vh !important;
-  min-height:100vh !important;
-  margin:0 auto !important;
-  background:#020617 !important;
-  overflow:hidden !important;
-}
-
-/* v3.5より少しだけ縮小。画面いっぱい感は維持 */
-#topImg{
-  width:100% !important;
-  height:96.5vh !important;
-  display:block !important;
-  object-fit:cover !important;
-  object-position:center top !important;
-  user-select:none !important;
-  pointer-events:none !important;
-}
-
-/* ガチャは少しだけ小さめ */
-#drawTap{
-  left:23% !important;
-  top:46.8% !important;
-  width:54% !important;
-  height:17.2% !important;
-  border-radius:50% !important;
-  z-index:20 !important;
-}
-
-/* 図鑑は実ボタンより少し下へ。ガチャとは離す */
-#bookTap{
-  left:14% !important;
-  top:78.9% !important;
-  width:72% !important;
-  height:7.2% !important;
-  border-radius:22px !important;
-  z-index:90 !important;
-}
-
-#pressFx{
-  left:23% !important;
-  top:46.8% !important;
-  width:54% !important;
-  height:17.2% !important;
-  z-index:10 !important;
-}
-
-/* 吹き出し文字を大きく */
-#topSpeechText{
-  position:absolute !important;
-  left:18.5% !important;
-  top:34.0% !important;
-  width:50% !important;
-  height:6.8% !important;
-  z-index:12 !important;
-  pointer-events:none !important;
-  color:#3b2408 !important;
-  font-weight:800 !important;
-  text-align:center !important;
-  line-height:1.13 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-shadow:0 1px 0 rgba(255,255,255,.88) !important;
-}
-
-#topSpeechLine1{
-  font-size:15px !important;
-  font-weight:800 !important;
-  white-space:nowrap !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-#topSpeechLine2{
-  font-size:12px !important;
-  font-weight:800 !important;
-  white-space:nowrap !important;
-  max-width:100% !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-/* 下の黒帯文字も少し読みやすく */
-#statusMask{
-  display:none !important;
-}
-
-#statusText{
-  position:absolute !important;
-  left:15% !important;
-  top:87.85% !important;
-  width:70% !important;
-  height:4.2% !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-align:center !important;
-  color:#fff7d6 !important;
-  font-weight:800 !important;
-  font-size:12px !important;
-  line-height:1.12 !important;
-  text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55) !important;
-  z-index:18 !important;
-  pointer-events:none !important;
-  background:transparent !important;
-  border:none !important;
-  box-shadow:none !important;
-}
-
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=9">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=10">
 
   <div id="topSpeechText">
-    <div id="topSpeechLine1">クロネコガチャへようこそ！</div>
-    <div id="topSpeechLine2">今日も素敵な出会いがあるよ♪</div>
+    <div id="topSpeechLine1">今日の運試し！</div>
+    <div id="topSpeechLine2">何が出るかな♪</div>
   </div>
 
   <div id="statusMask"></div>
@@ -1092,7 +820,6 @@ html,body{
   <div id="collectionList" class="grid"></div>
   <button id="closeCollection" onclick="closeCollection()">図鑑を閉じる</button>
 </div>
-
 
 <div id="sealZoom" onclick="closeSealZoom()">
   <img id="zoomImg" onclick="event.stopPropagation()">
@@ -1129,14 +856,6 @@ window.onload = async function(){
   }
 };
 
-
-
-
-
-
-
-
-
 function setTopSpeech(){
   const line1 = document.getElementById("topSpeechLine1");
   const line2 = document.getElementById("topSpeechLine2");
@@ -1156,7 +875,6 @@ function setTopSpeech(){
   line2.textContent = m[1];
 }
 
-
 function setReadyStatus(){
   const messages = [
     "✨ 今日も素敵な出会いがありますように",
@@ -1171,7 +889,6 @@ function setReadyStatus(){
 function setDoneStatus(){
   setStatus("✅ 本日は受け取り済みです");
 }
-
 
 function setStatus(text){
   const el = document.getElementById("statusText");
@@ -1437,7 +1154,6 @@ function closeResult(){
   document.getElementById("result").style.display = "none";
 }
 
-
 function showZukanOpenFx(){
   const fx = document.getElementById("zukanOpenFx");
   if(!fx) return;
@@ -1449,7 +1165,6 @@ function hideZukanOpenFx(){
   if(!fx) return;
   fx.classList.remove("show");
 }
-
 
 async function loadCollection(){
   if(!profile.userId){
@@ -1497,7 +1212,6 @@ function renderCollection(cards){
       const img = escapeHtml(card.imageUrl);
       const name = escapeHtml(card.name);
 
-      // 日付表示は消して、名前と画像だけにする
       div.innerHTML =
         '<img src="' + img + '">' +
         '<div>' + name + '</div>';
