@@ -3,8 +3,237 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.4.2 完全版</title>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<title>クロネコガチャ Ver.5 完全版</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
+/* ===== Ver.5 追加JS：演出強化・図鑑並び順 ===== */
+
+function normalizeJoinDateValue(value){
+  const s = String(value || "").trim();
+  const m = s.match(/(\d{1,2})\s*[\/月]\s*(\d{1,2})/);
+  if(!m) return 9999;
+  return Number(m[1]) * 100 + Number(m[2]);
+}
+
+function specialMemberOrder(name){
+  const n = String(name || "").trim();
+  if(n === "ホタル") return 1;
+  if(n === "ゆき茶。" || n === "ゆき茶") return 2;
+  return 999;
+}
+
+function sortCollectionCards(cards){
+  return (cards || []).slice().sort(function(a,b){
+    const sa = Number(a.sortNo || a.no || 0);
+    const sb = Number(b.sortNo || b.no || 0);
+    if(sa && sb && sa !== sb) return sa - sb;
+    if(sa && !sb) return -1;
+    if(!sa && sb) return 1;
+
+    const pa = specialMemberOrder(a.name);
+    const pb = specialMemberOrder(b.name);
+    if(pa !== pb) return pa - pb;
+
+    const ja = normalizeJoinDateValue(a.joinDate);
+    const jb = normalizeJoinDateValue(b.joinDate);
+    if(ja !== jb) return ja - jb;
+
+    return String(a.name || "").localeCompare(String(b.name || ""), "ja");
+  });
+}
+
+function renderCollection(cards){
+  const list = document.getElementById("collectionList");
+  list.innerHTML = "";
+
+  const sorted = sortCollectionCards(cards || []);
+
+  let info = document.getElementById("collectionInfo");
+  if(!info){
+    info = document.createElement("div");
+    info.id = "collectionInfo";
+    const title = document.querySelector("#collection h2");
+    if(title && title.parentNode){
+      title.parentNode.insertBefore(info, title.nextSibling);
+    }
+  }
+
+  const total = sorted.length;
+  info.textContent = total > 0
+    ? "入手済み " + total + "枚　｜　入団順アルバム"
+    : "まだシールがありません";
+
+  if(sorted.length === 0){
+    list.innerHTML = "<div>まだシールがありません</div>";
+  }else{
+    sorted.forEach(function(card, index){
+      const div = document.createElement("div");
+      div.className = card.secret ? "cardMini secretMini" : "cardMini";
+      div.setAttribute("data-no", "No." + String(index + 1).padStart(3, "0"));
+
+      const img = escapeHtml(card.imageUrl);
+      const name = escapeHtml(card.name);
+
+      div.innerHTML =
+        '<img src="' + img + '">' +
+        '<div>' + name + '</div>';
+
+      div.onclick = function(){
+        openSealZoom(card.imageUrl, card.name);
+      };
+
+      list.appendChild(div);
+    });
+  }
+
+  const collection = document.getElementById("collection");
+  collection.style.display = "block";
+  collection.classList.remove("collectionOpening");
+  void collection.offsetWidth;
+  collection.classList.add("collectionOpening");
+}
+
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    if(isSecret){
+      playSecretUltimate(stage,resolve);
+    }else{
+      const n = Math.floor(Math.random()*10);
+      if(n === 0) playDashPaw(stage,resolve);
+      if(n === 1) playChestStars(stage,resolve);
+      if(n === 2) playMoonCat(stage,resolve);
+      if(n === 3) playPawRing(stage,resolve);
+      if(n === 4) playStarRainCard(stage,resolve);
+      if(n === 5) playDoubleCat(stage,resolve);
+      if(n === 6) playGiftExplosion(stage,resolve);
+      if(n === 7) playCatStorm(stage,resolve);
+      if(n === 8) playCrackBurst(stage,resolve);
+      if(n === 9) playCatAwakening(stage,resolve);
+    }
+  });
+}
+
+function playGiftExplosion(stage,done){
+  const gift = document.createElement("div");
+  gift.className = "giftBox";
+  gift.innerHTML = '<div class="giftRibbon"></div>';
+  stage.appendChild(gift);
+  addManyStars(stage,30,1.4);
+  setTimeout(()=>addManyPaws(stage,16,1.0),500);
+  setTimeout(()=>addBurstCore(stage),2100);
+  setTimeout(()=>addCardSilhouette(stage),2550);
+  setTimeout(()=>finishEffect(done),4050);
+}
+
+function playCatStorm(stage,done){
+  for(let i=0;i<4;i++){
+    setTimeout(function(){
+      stage.appendChild(makeCat(i % 2 === 0 ? "catDash1" : "catDash2"));
+    }, i * 330);
+  }
+  addManyPaws(stage,28,1.6);
+  addManyStars(stage,34,1.8);
+  setTimeout(()=>addCardSilhouette(stage),2850);
+  setTimeout(()=>finishEffect(done),4400);
+}
+
+function playCrackBurst(stage,done){
+  addManyStars(stage,24,1.0);
+  setTimeout(()=>addBurstCore(stage),900);
+  setTimeout(()=>addScreenCrack(stage),1500);
+  setTimeout(()=>addManyPaws(stage,18,1.0),1700);
+  setTimeout(()=>addCardSilhouette(stage),2550);
+  setTimeout(()=>finishEffect(done),4050);
+}
+
+function playCatAwakening(stage,done){
+  const shadow = document.createElement("div");
+  shadow.className = "catShadow";
+  stage.appendChild(shadow);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  stage.appendChild(ring);
+  addManyStars(stage,38,1.7);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),1450);
+  setTimeout(()=>addCardSilhouette(stage),2750);
+  setTimeout(()=>finishEffect(done),4300);
+}
+
+function playSecretUltimate(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  const title = document.createElement("div");
+  title.className = "secretTitle";
+  title.textContent = "SECRET CHANCE";
+  stage.appendChild(title);
+
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  stage.appendChild(aura);
+
+  const shadow = document.createElement("div");
+  shadow.className = "catShadow";
+  stage.appendChild(shadow);
+
+  const bolt1 = document.createElement("div");
+  bolt1.className = "lightning";
+  bolt1.style.left = "38%";
+  stage.appendChild(bolt1);
+
+  const bolt2 = document.createElement("div");
+  bolt2.className = "lightning";
+  bolt2.style.left = "62%";
+  bolt2.style.animationDelay = ".25s";
+  stage.appendChild(bolt2);
+
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  stage.appendChild(ring);
+
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),350);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),780);
+  setTimeout(()=>addScreenCrack(stage),1900);
+  setTimeout(()=>addBurstCore(stage),2500);
+
+  addManyStars(stage,80,2.6);
+  addManyPaws(stage,34,2.0);
+
+  setTimeout(()=>addCardSilhouette(stage),3550);
+  setTimeout(()=>finishEffect(done),5350);
+}
+
+function addBurstCore(stage){
+  const b = document.createElement("div");
+  b.className = "burstCore";
+  stage.appendChild(b);
+}
+
+function addScreenCrack(stage){
+  const c = document.createElement("div");
+  c.className = "screenCrack";
+  stage.appendChild(c);
+}
+
+function addSmoke(stage,count){
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "smokeCloud";
+    s.style.left = (15 + Math.random()*70) + "%";
+    s.style.top = (52 + Math.random()*25) + "%";
+    s.style.animationDelay = (Math.random()*.6) + "s";
+    stage.appendChild(s);
+  }
+}
+
+</script>
 
 <style>
 html,body{
@@ -778,12 +1007,285 @@ html,body{
   80%{transform:scale(1.04);opacity:1;}
   100%{transform:scale(1);}
 }
+
+/* ===== Ver.5 追加：演出強化・図鑑強化 ===== */
+
+/* 図鑑を3列アルバム風に */
+#collection{
+  background:
+    radial-gradient(circle at 50% 0%, rgba(250,204,21,.18), transparent 35%),
+    linear-gradient(180deg, rgba(15,23,42,.98), rgba(2,6,23,.98)) !important;
+}
+
+#collection h2{
+  margin:4px 0 8px !important;
+  font-size:24px !important;
+  letter-spacing:1px !important;
+  text-shadow:0 0 12px rgba(250,204,21,.55) !important;
+}
+
+#collectionInfo{
+  text-align:center;
+  color:#fff7d6;
+  font-weight:800;
+  font-size:13px;
+  margin:0 0 12px;
+  text-shadow:0 2px 4px #000;
+}
+
+.grid{
+  grid-template-columns:repeat(3,1fr) !important;
+  gap:9px !important;
+}
+
+.cardMini{
+  position:relative;
+  padding:5px !important;
+  border-radius:12px !important;
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.06)) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 6px 14px rgba(0,0,0,.25);
+}
+
+.cardMini img{
+  border-radius:8px !important;
+  box-shadow:0 0 8px rgba(0,0,0,.35);
+}
+
+.cardMini div{
+  margin-top:3px;
+  font-size:11px;
+  font-weight:800;
+  line-height:1.15;
+  color:#fff7d6;
+  text-shadow:0 2px 4px #000;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.cardMini::before{
+  content:attr(data-no);
+  position:absolute;
+  left:4px;
+  top:4px;
+  padding:2px 4px;
+  border-radius:999px;
+  background:rgba(0,0,0,.65);
+  color:#facc15;
+  font-size:9px;
+  font-weight:900;
+  z-index:2;
+}
+
+.cardMini.secretMini{
+  background:linear-gradient(135deg,rgba(250,204,21,.28),rgba(147,51,234,.32),rgba(56,189,248,.18)) !important;
+  box-shadow:0 0 16px rgba(250,204,21,.35), inset 0 0 0 1px rgba(255,255,255,.12) !important;
+}
+
+.cardMini.secretMini::after{
+  content:"SECRET";
+  position:absolute;
+  right:4px;
+  top:4px;
+  padding:2px 4px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#facc15,#f472b6);
+  color:#111827;
+  font-size:8px;
+  font-weight:900;
+  z-index:3;
+}
+
+/* 拡大表示をカードっぽく */
+#sealZoom{
+  background:
+    radial-gradient(circle at 50% 35%, rgba(250,204,21,.22), transparent 35%),
+    rgba(0,0,0,.94) !important;
+}
+
+#zoomImg{
+  animation:zoomSealPopV5 .38s ease both !important;
+}
+
+@keyframes zoomSealPopV5{
+  0%{transform:scale(.62) rotateY(65deg);opacity:0;filter:blur(4px);}
+  70%{transform:scale(1.05) rotateY(0deg);opacity:1;filter:blur(0);}
+  100%{transform:scale(1) rotateY(0deg);}
+}
+
+/* Ver.5 追加演出パーツ */
+.burstCore{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:#fff7ad;
+  box-shadow:0 0 60px 35px #facc15,0 0 120px 70px rgba(244,114,182,.45);
+  animation:burstCore .95s ease-out forwards;
+}
+@keyframes burstCore{
+  0%{transform:translate(-50%,-50%) scale(.1);opacity:0;}
+  35%{opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(7);opacity:0;}
+}
+
+.smokeCloud{
+  position:absolute;
+  width:90px;
+  height:55px;
+  border-radius:50%;
+  background:rgba(255,255,255,.18);
+  filter:blur(2px);
+  animation:smokeRise 2.2s ease-out forwards;
+}
+@keyframes smokeRise{
+  0%{transform:translateY(20px) scale(.45);opacity:0;}
+  25%{opacity:.75;}
+  100%{transform:translateY(-140px) scale(1.6);opacity:0;}
+}
+
+.giftBox{
+  position:absolute;
+  left:50%;
+  top:53%;
+  width:130px;
+  height:115px;
+  transform:translate(-50%,-50%);
+  animation:giftShake 2.4s ease-in-out forwards;
+}
+.giftBox::before{
+  content:"";
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:130px;
+  height:78px;
+  border-radius:10px 10px 18px 18px;
+  background:linear-gradient(135deg,#dc2626,#f97316);
+  box-shadow:0 0 25px rgba(250,204,21,.45);
+}
+.giftBox::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:0;
+  width:110px;
+  height:48px;
+  transform:translateX(-50%);
+  border-radius:16px 16px 4px 4px;
+  background:linear-gradient(135deg,#facc15,#fff7ad);
+  animation:giftLid 2.4s ease-in-out forwards;
+}
+.giftRibbon{
+  position:absolute;
+  left:57px;
+  bottom:0;
+  width:16px;
+  height:115px;
+  background:#fff7ad;
+  z-index:2;
+}
+@keyframes giftShake{
+  0%,32%,48%{transform:translate(-50%,-50%) rotate(0);}
+  36%{transform:translate(-50%,-50%) rotate(-10deg);}
+  42%{transform:translate(-50%,-50%) rotate(10deg);}
+  68%{transform:translate(-50%,-50%) scale(1.08);}
+  100%{transform:translate(-50%,-50%) scale(1);}
+}
+@keyframes giftLid{
+  0%,58%{transform:translateX(-50%) translateY(0) rotate(0);}
+  85%,100%{transform:translateX(-50%) translateY(-60px) rotate(-18deg);}
+}
+
+.screenCrack{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  background:
+    linear-gradient(115deg, transparent 49%, rgba(255,255,255,.9) 50%, transparent 51%),
+    linear-gradient(45deg, transparent 49.5%, rgba(250,204,21,.9) 50%, transparent 50.5%),
+    linear-gradient(160deg, transparent 49.5%, rgba(255,255,255,.65) 50%, transparent 50.5%);
+  filter:drop-shadow(0 0 10px #facc15);
+  animation:screenCrack .8s ease-out forwards;
+}
+@keyframes screenCrack{
+  0%{opacity:0;transform:scale(.7);}
+  25%{opacity:1;}
+  100%{opacity:0;transform:scale(1.25);}
+}
+
+.catShadow{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:190px;
+  height:190px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:radial-gradient(circle,#020617 0 34%, transparent 36%);
+  box-shadow:0 0 55px #facc15,0 0 120px rgba(250,204,21,.55);
+  animation:catShadowWake 2.7s ease-in-out forwards;
+}
+.catShadow::before{
+  content:"";
+  position:absolute;
+  left:48px;
+  top:10px;
+  width:0;
+  height:0;
+  border-left:24px solid transparent;
+  border-right:24px solid transparent;
+  border-bottom:54px solid #020617;
+  transform:rotate(-20deg);
+}
+.catShadow::after{
+  content:"";
+  position:absolute;
+  right:48px;
+  top:10px;
+  width:0;
+  height:0;
+  border-left:24px solid transparent;
+  border-right:24px solid transparent;
+  border-bottom:54px solid #020617;
+  transform:rotate(20deg);
+}
+@keyframes catShadowWake{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.25);}
+  40%{opacity:1;transform:translate(-50%,-50%) scale(1);}
+  75%{opacity:1;transform:translate(-50%,-50%) scale(1.18);}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.8);}
+}
+
+.secretTitle{
+  position:absolute;
+  left:50%;
+  top:18%;
+  transform:translateX(-50%);
+  color:#fff7ad;
+  font-size:26px;
+  font-weight:900;
+  letter-spacing:2px;
+  white-space:nowrap;
+  text-shadow:0 0 12px #facc15,0 0 28px #f472b6;
+  animation:secretTitlePop 3.6s ease-in-out forwards;
+}
+@keyframes secretTitlePop{
+  0%{opacity:0;transform:translateX(-50%) scale(.6);}
+  20%{opacity:1;transform:translateX(-50%) scale(1.08);}
+  76%{opacity:1;transform:translateX(-50%) scale(1);}
+  100%{opacity:0;transform:translateX(-50%) scale(1.25);}
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=11">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=12">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
@@ -1255,6 +1757,235 @@ function escapeHtml(str){
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
 }
+
+/* ===== Ver.5 追加JS：演出強化・図鑑並び順 ===== */
+
+function normalizeJoinDateValue(value){
+  const s = String(value || "").trim();
+  const m = s.match(/(\d{1,2})\s*[\/月]\s*(\d{1,2})/);
+  if(!m) return 9999;
+  return Number(m[1]) * 100 + Number(m[2]);
+}
+
+function specialMemberOrder(name){
+  const n = String(name || "").trim();
+  if(n === "ホタル") return 1;
+  if(n === "ゆき茶。" || n === "ゆき茶") return 2;
+  return 999;
+}
+
+function sortCollectionCards(cards){
+  return (cards || []).slice().sort(function(a,b){
+    const sa = Number(a.sortNo || a.no || 0);
+    const sb = Number(b.sortNo || b.no || 0);
+    if(sa && sb && sa !== sb) return sa - sb;
+    if(sa && !sb) return -1;
+    if(!sa && sb) return 1;
+
+    const pa = specialMemberOrder(a.name);
+    const pb = specialMemberOrder(b.name);
+    if(pa !== pb) return pa - pb;
+
+    const ja = normalizeJoinDateValue(a.joinDate);
+    const jb = normalizeJoinDateValue(b.joinDate);
+    if(ja !== jb) return ja - jb;
+
+    return String(a.name || "").localeCompare(String(b.name || ""), "ja");
+  });
+}
+
+function renderCollection(cards){
+  const list = document.getElementById("collectionList");
+  list.innerHTML = "";
+
+  const sorted = sortCollectionCards(cards || []);
+
+  let info = document.getElementById("collectionInfo");
+  if(!info){
+    info = document.createElement("div");
+    info.id = "collectionInfo";
+    const title = document.querySelector("#collection h2");
+    if(title && title.parentNode){
+      title.parentNode.insertBefore(info, title.nextSibling);
+    }
+  }
+
+  const total = sorted.length;
+  info.textContent = total > 0
+    ? "入手済み " + total + "枚　｜　入団順アルバム"
+    : "まだシールがありません";
+
+  if(sorted.length === 0){
+    list.innerHTML = "<div>まだシールがありません</div>";
+  }else{
+    sorted.forEach(function(card, index){
+      const div = document.createElement("div");
+      div.className = card.secret ? "cardMini secretMini" : "cardMini";
+      div.setAttribute("data-no", "No." + String(index + 1).padStart(3, "0"));
+
+      const img = escapeHtml(card.imageUrl);
+      const name = escapeHtml(card.name);
+
+      div.innerHTML =
+        '<img src="' + img + '">' +
+        '<div>' + name + '</div>';
+
+      div.onclick = function(){
+        openSealZoom(card.imageUrl, card.name);
+      };
+
+      list.appendChild(div);
+    });
+  }
+
+  const collection = document.getElementById("collection");
+  collection.style.display = "block";
+  collection.classList.remove("collectionOpening");
+  void collection.offsetWidth;
+  collection.classList.add("collectionOpening");
+}
+
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    if(isSecret){
+      playSecretUltimate(stage,resolve);
+    }else{
+      const n = Math.floor(Math.random()*10);
+      if(n === 0) playDashPaw(stage,resolve);
+      if(n === 1) playChestStars(stage,resolve);
+      if(n === 2) playMoonCat(stage,resolve);
+      if(n === 3) playPawRing(stage,resolve);
+      if(n === 4) playStarRainCard(stage,resolve);
+      if(n === 5) playDoubleCat(stage,resolve);
+      if(n === 6) playGiftExplosion(stage,resolve);
+      if(n === 7) playCatStorm(stage,resolve);
+      if(n === 8) playCrackBurst(stage,resolve);
+      if(n === 9) playCatAwakening(stage,resolve);
+    }
+  });
+}
+
+function playGiftExplosion(stage,done){
+  const gift = document.createElement("div");
+  gift.className = "giftBox";
+  gift.innerHTML = '<div class="giftRibbon"></div>';
+  stage.appendChild(gift);
+  addManyStars(stage,30,1.4);
+  setTimeout(()=>addManyPaws(stage,16,1.0),500);
+  setTimeout(()=>addBurstCore(stage),2100);
+  setTimeout(()=>addCardSilhouette(stage),2550);
+  setTimeout(()=>finishEffect(done),4050);
+}
+
+function playCatStorm(stage,done){
+  for(let i=0;i<4;i++){
+    setTimeout(function(){
+      stage.appendChild(makeCat(i % 2 === 0 ? "catDash1" : "catDash2"));
+    }, i * 330);
+  }
+  addManyPaws(stage,28,1.6);
+  addManyStars(stage,34,1.8);
+  setTimeout(()=>addCardSilhouette(stage),2850);
+  setTimeout(()=>finishEffect(done),4400);
+}
+
+function playCrackBurst(stage,done){
+  addManyStars(stage,24,1.0);
+  setTimeout(()=>addBurstCore(stage),900);
+  setTimeout(()=>addScreenCrack(stage),1500);
+  setTimeout(()=>addManyPaws(stage,18,1.0),1700);
+  setTimeout(()=>addCardSilhouette(stage),2550);
+  setTimeout(()=>finishEffect(done),4050);
+}
+
+function playCatAwakening(stage,done){
+  const shadow = document.createElement("div");
+  shadow.className = "catShadow";
+  stage.appendChild(shadow);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  stage.appendChild(ring);
+  addManyStars(stage,38,1.7);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),1450);
+  setTimeout(()=>addCardSilhouette(stage),2750);
+  setTimeout(()=>finishEffect(done),4300);
+}
+
+function playSecretUltimate(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  const title = document.createElement("div");
+  title.className = "secretTitle";
+  title.textContent = "SECRET CHANCE";
+  stage.appendChild(title);
+
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  stage.appendChild(aura);
+
+  const shadow = document.createElement("div");
+  shadow.className = "catShadow";
+  stage.appendChild(shadow);
+
+  const bolt1 = document.createElement("div");
+  bolt1.className = "lightning";
+  bolt1.style.left = "38%";
+  stage.appendChild(bolt1);
+
+  const bolt2 = document.createElement("div");
+  bolt2.className = "lightning";
+  bolt2.style.left = "62%";
+  bolt2.style.animationDelay = ".25s";
+  stage.appendChild(bolt2);
+
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  stage.appendChild(ring);
+
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),350);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),780);
+  setTimeout(()=>addScreenCrack(stage),1900);
+  setTimeout(()=>addBurstCore(stage),2500);
+
+  addManyStars(stage,80,2.6);
+  addManyPaws(stage,34,2.0);
+
+  setTimeout(()=>addCardSilhouette(stage),3550);
+  setTimeout(()=>finishEffect(done),5350);
+}
+
+function addBurstCore(stage){
+  const b = document.createElement("div");
+  b.className = "burstCore";
+  stage.appendChild(b);
+}
+
+function addScreenCrack(stage){
+  const c = document.createElement("div");
+  c.className = "screenCrack";
+  stage.appendChild(c);
+}
+
+function addSmoke(stage,count){
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "smokeCloud";
+    s.style.left = (15 + Math.random()*70) + "%";
+    s.style.top = (52 + Math.random()*25) + "%";
+    s.style.animationDelay = (Math.random()*.6) + "s";
+    stage.appendChild(s);
+  }
+}
+
 </script>
 </body>
 </html>
