@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.7 Ultimate</title>
+<title>クロネコガチャ Ver.7.1 Ultimate</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
 /* ===== Ver.7 Ultimate 演出差し替え ===== */
 
@@ -1475,12 +1475,84 @@ html,body{
   z-index:50;
 }
 
+
+/* ===== Ver.7.1 図鑑ジャンプ・吸い込み演出 ===== */
+
+.cardMini.focusCard{
+  animation:focusCardGlow 1.4s ease both;
+}
+
+@keyframes focusCardGlow{
+  0%{transform:scale(1); box-shadow:0 0 0 rgba(250,204,21,0);}
+  28%{transform:scale(1.08); box-shadow:0 0 22px #facc15,0 0 45px rgba(250,204,21,.65);}
+  62%{transform:scale(1.03); box-shadow:0 0 18px #facc15;}
+  100%{transform:scale(1); box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 6px 14px rgba(0,0,0,.25);}
+}
+
+#collectionAbsorbFx{
+  position:fixed;
+  inset:0;
+  z-index:220;
+  pointer-events:none;
+  display:none;
+}
+
+.absorbSeal{
+  position:fixed;
+  width:190px;
+  max-width:52vw;
+  border-radius:16px;
+  background:white;
+  box-shadow:0 0 30px #facc15,0 0 70px rgba(250,204,21,.55);
+  transform-origin:center center;
+  animation:absorbSealMove .95s cubic-bezier(.2,.9,.25,1) forwards;
+}
+
+.absorbSpark{
+  position:fixed;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#facc15;
+  box-shadow:0 0 14px #facc15;
+  animation:absorbSparkFly .85s ease-out forwards;
+}
+
+@keyframes absorbSealMove{
+  0%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1.05) rotate(0deg);
+    left:50%;
+    top:50%;
+    filter:brightness(1.15);
+  }
+  70%{
+    opacity:.92;
+    transform:translate(-50%,-50%) scale(.42) rotate(8deg);
+    left:var(--target-left);
+    top:var(--target-top);
+    filter:brightness(1.35);
+  }
+  100%{
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.12) rotate(12deg);
+    left:var(--target-left);
+    top:var(--target-top);
+    filter:brightness(1.8);
+  }
+}
+
+@keyframes absorbSparkFly{
+  0%{opacity:1; transform:translate(0,0) scale(1);}
+  100%{opacity:0; transform:translate(var(--sx),var(--sy)) scale(.2);}
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=21">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=22">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
@@ -1520,6 +1592,8 @@ html,body{
   <button id="closeCollection" onclick="closeCollection()">図鑑を閉じる</button>
 </div>
 
+<div id="collectionAbsorbFx"></div>
+
 <div id="sealZoom" onclick="closeSealZoom()">
   <img id="zoomImg" onclick="event.stopPropagation()">
   <div id="zoomName"></div>
@@ -1532,6 +1606,12 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDY
 
 let profile = { userId:"", displayName:"" };
 let drawing = false;
+let lastDrawnCardId = "";
+let lastDrawnImageUrl = "";
+let lastDrawnName = "";
+let pendingNewCardId = "";
+let pendingNewImageUrl = "";
+let pendingNewName = "";
 
 window.onload = async function(){
   setTopSpeech();
@@ -1921,6 +2001,16 @@ function addScreenCrack(stage){
 }
 
 function showResult(res){
+  lastDrawnCardId = String(res.id || "");
+  lastDrawnImageUrl = String(res.imageUrl || "");
+  lastDrawnName = String(res.name || "");
+
+  if(res.isNew){
+    pendingNewCardId = lastDrawnCardId;
+    pendingNewImageUrl = lastDrawnImageUrl;
+    pendingNewName = lastDrawnName;
+  }
+
   const result = document.getElementById("result");
   result.className = res.secret ? "secretResult" : "";
   document.getElementById("resultImg").src = res.imageUrl;
@@ -2010,6 +2100,7 @@ function renderCollection(cards, ownedCount, totalCount){
         (ownedCard ? "" : " lockedMini");
 
       div.setAttribute("data-no", "No." + String(index + 1).padStart(3, "0"));
+      div.setAttribute("data-card-id", String(card.id || ""));
 
       if(ownedCard){
         const img = escapeHtml(card.imageUrl);
@@ -2037,7 +2128,88 @@ function renderCollection(cards, ownedCount, totalCount){
   collection.classList.remove("collectionOpening");
   void collection.offsetWidth;
   collection.classList.add("collectionOpening");
+
+  setTimeout(function(){
+    handleCollectionAfterOpen();
+  }, 180);
 }
+
+
+function handleCollectionAfterOpen(){
+  const targetId = pendingNewCardId || lastDrawnCardId;
+  if(!targetId) return;
+
+  const target = document.querySelector('[data-card-id="' + cssEscapeSafe(targetId) + '"]');
+  if(!target) return;
+
+  target.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
+  setTimeout(function(){
+    if(pendingNewCardId && pendingNewImageUrl){
+      playCollectionAbsorb(target, pendingNewImageUrl);
+      pendingNewCardId = "";
+      pendingNewImageUrl = "";
+      pendingNewName = "";
+    }else{
+      focusCollectionCard(target);
+    }
+  }, 520);
+}
+
+function focusCollectionCard(target){
+  if(!target) return;
+  target.classList.remove("focusCard");
+  void target.offsetWidth;
+  target.classList.add("focusCard");
+}
+
+function playCollectionAbsorb(target, imageUrl){
+  const layer = document.getElementById("collectionAbsorbFx");
+  if(!layer || !target || !imageUrl){
+    focusCollectionCard(target);
+    return;
+  }
+
+  const rect = target.getBoundingClientRect();
+  const tx = rect.left + rect.width / 2;
+  const ty = rect.top + rect.height / 2;
+
+  layer.innerHTML = "";
+  layer.style.display = "block";
+
+  const img = document.createElement("img");
+  img.className = "absorbSeal";
+  img.src = imageUrl;
+  img.style.setProperty("--target-left", tx + "px");
+  img.style.setProperty("--target-top", ty + "px");
+  layer.appendChild(img);
+
+  for(let i=0;i<18;i++){
+    const sp = document.createElement("div");
+    sp.className = "absorbSpark";
+    sp.style.left = tx + "px";
+    sp.style.top = ty + "px";
+    sp.style.setProperty("--sx", (Math.random()*120 - 60) + "px");
+    sp.style.setProperty("--sy", (Math.random()*120 - 60) + "px");
+    sp.style.animationDelay = (Math.random()*0.22) + "s";
+    layer.appendChild(sp);
+  }
+
+  setTimeout(function(){
+    layer.style.display = "none";
+    layer.innerHTML = "";
+    focusCollectionCard(target);
+  }, 1050);
+}
+
+function cssEscapeSafe(value){
+  if(window.CSS && CSS.escape) return CSS.escape(value);
+  return String(value).replace(/"/g, '\\"');
+}
+
 
 function openSealZoom(imageUrl, name){
   if(!imageUrl) return;
