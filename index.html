@@ -3,8 +3,265 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.6 完全版</title>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<title>クロネコガチャ Ver.7 Ultimate</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
+/* ===== Ver.7 Ultimate 演出差し替え ===== */
+
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    const hint = document.createElement("div");
+    hint.className = "skipHint";
+    hint.textContent = "長押しでスキップ";
+    stage.appendChild(hint);
+
+    let finished = false;
+    let pressTimer = null;
+
+    function skipNow(){
+      if(finished) return;
+      finished = true;
+      finishEffect(resolve);
+    }
+
+    effect.onpointerdown = function(){
+      pressTimer = setTimeout(skipNow, 650);
+    };
+
+    effect.onpointerup = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+
+    effect.onpointercancel = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+
+    function done(){
+      if(finished) return;
+      finished = true;
+      effect.onpointerdown = null;
+      effect.onpointerup = null;
+      effect.onpointercancel = null;
+      finishEffect(resolve);
+    }
+
+    if(isSecret){
+      const n = Math.floor(Math.random()*3);
+      if(n === 0) playSecretTimeStop(stage,done);
+      if(n === 1) playSecretMiracle(stage,done);
+      if(n === 2) playSecretAwakening(stage,done);
+    }else{
+      const n = Math.floor(Math.random()*7);
+      if(n === 0) playV7CatDashDelivery(stage,done);
+      if(n === 1) playV7PawStamp(stage,done);
+      if(n === 2) playV7GiftBox(stage,done);
+      if(n === 3) playV7ShootingStar(stage,done);
+      if(n === 4) playV7MagicCircle(stage,done);
+      if(n === 5) playV7CatEyes(stage,done);
+      if(n === 6) playV7MoonJump(stage,done);
+    }
+  });
+}
+
+function addStory(stage,text,delay){
+  setTimeout(function(){
+    const el = document.createElement("div");
+    el.className = "storyText";
+    el.textContent = text;
+    stage.appendChild(el);
+  }, delay || 0);
+}
+
+function playV7CatDashDelivery(stage,done){
+  addStory(stage,"黒猫が何かを運んできた…",200);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),700);
+  setTimeout(()=>addEnvelope(stage),1550);
+  setTimeout(()=>addManyPaws(stage,12,.8),1700);
+  setTimeout(()=>addBurstCore(stage),2850);
+  setTimeout(()=>addCardSilhouette(stage),3350);
+  setTimeout(done,4550);
+}
+
+function playV7PawStamp(stage,done){
+  addStory(stage,"足音が近づいてくる…",200);
+  setTimeout(()=>addManyPaws(stage,22,1.5),700);
+  setTimeout(()=>addBigPaw(stage),2200);
+  setTimeout(()=>addBurstCore(stage),2750);
+  setTimeout(()=>addCardSilhouette(stage),3200);
+  setTimeout(done,4300);
+}
+
+function playV7GiftBox(stage,done){
+  addStory(stage,"プレゼント箱が震えている…",200);
+  const gift = document.createElement("div");
+  gift.className = "giftBox";
+  gift.innerHTML = '<div class="giftRibbon"></div>';
+  setTimeout(()=>stage.appendChild(gift),650);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),1450);
+  setTimeout(()=>addManyStars(stage,28,1.0),1800);
+  setTimeout(()=>addBurstCore(stage),2600);
+  setTimeout(()=>addCardSilhouette(stage),3200);
+  setTimeout(done,4400);
+}
+
+function playV7ShootingStar(stage,done){
+  addStory(stage,"夜空に願いを…",150);
+  for(let i=0;i<3;i++){
+    setTimeout(()=>addShootingStar(stage),650 + i*420);
+  }
+  setTimeout(()=>addManyStars(stage,42,1.9),900);
+  setTimeout(()=>addCardSilhouette(stage),3000);
+  setTimeout(done,4200);
+}
+
+function playV7MagicCircle(stage,done){
+  addStory(stage,"魔法陣が輝きだす…",200);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  setTimeout(()=>stage.appendChild(ring),650);
+  setTimeout(()=>addManyPaws(stage,18,1.0),1000);
+  setTimeout(()=>addBurstCore(stage),2650);
+  setTimeout(()=>addCardSilhouette(stage),3200);
+  setTimeout(done,4350);
+}
+
+function playV7CatEyes(stage,done){
+  addStory(stage,"暗闇に金色の目が光る…",200);
+  const eyes = document.createElement("div");
+  eyes.className = "catEyesOnly";
+  setTimeout(()=>stage.appendChild(eyes),700);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),2100);
+  setTimeout(()=>addEnvelope(stage),2450);
+  setTimeout(()=>addCardSilhouette(stage),3300);
+  setTimeout(done,4450);
+}
+
+function playV7MoonJump(stage,done){
+  addStory(stage,"月が赤く染まった…",150);
+  const moon = document.createElement("div");
+  moon.className = "moon redMoon";
+  setTimeout(()=>stage.appendChild(moon),450);
+  setTimeout(()=>addCatJump(stage),2100);
+  setTimeout(()=>addManyStars(stage,36,1.4),650);
+  setTimeout(()=>addBurstCore(stage),3000);
+  setTimeout(()=>addCardSilhouette(stage),3550);
+  setTimeout(done,4850);
+}
+
+function playSecretTimeStop(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+  addStory(stage,"……時間が止まった",350);
+  const stop = document.createElement("div");
+  stop.className = "timeStop";
+  setTimeout(()=>stage.appendChild(stop),700);
+  setTimeout(()=>addScreenCrack(stage),3100);
+  setTimeout(()=>addSecretGate(stage),3450);
+  setTimeout(()=>addCardSilhouette(stage),4400);
+  setTimeout(done,5750);
+}
+
+function playSecretMiracle(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+  addStory(stage,"黒猫の奇跡…",250);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),750);
+  setTimeout(()=>addEnvelope(stage),1650);
+  setTimeout(()=>addManyGoldPaws(stage,26,1.7),2200);
+  setTimeout(()=>addBurstCore(stage),3300);
+  setTimeout(()=>addSecretGate(stage),3600);
+  setTimeout(()=>addCardSilhouette(stage),4550);
+  setTimeout(done,5900);
+}
+
+function playSecretAwakening(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  addStory(stage,"クロネコ覚醒",400);
+
+  const title = document.createElement("div");
+  title.className = "secretTitle";
+  title.textContent = "SECRET";
+  setTimeout(()=>stage.appendChild(title),900);
+
+  const eyes = document.createElement("div");
+  eyes.className = "catEyesOnly";
+  setTimeout(()=>stage.appendChild(eyes),1200);
+
+  const bolt1 = document.createElement("div");
+  bolt1.className = "lightning";
+  bolt1.style.left = "35%";
+  setTimeout(()=>stage.appendChild(bolt1),1600);
+
+  const bolt2 = document.createElement("div");
+  bolt2.className = "lightning";
+  bolt2.style.left = "65%";
+  bolt2.style.animationDelay = ".18s";
+  setTimeout(()=>stage.appendChild(bolt2),1700);
+
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  setTimeout(()=>stage.appendChild(aura),2100);
+
+  setTimeout(()=>addManyGoldPaws(stage,42,2.2),2200);
+  setTimeout(()=>addScreenCrack(stage),3300);
+  setTimeout(()=>addSecretGate(stage),3800);
+  setTimeout(()=>addCardSilhouette(stage),5050);
+  setTimeout(done,6750);
+}
+
+function addEnvelope(stage){
+  const e = document.createElement("div");
+  e.className = "envelope";
+  stage.appendChild(e);
+}
+
+function addBigPaw(stage){
+  const p = document.createElement("div");
+  p.className = "bigPawStamp";
+  stage.appendChild(p);
+}
+
+function addShootingStar(stage){
+  const s = document.createElement("div");
+  s.className = "shootingStar";
+  s.style.top = (14 + Math.random()*32) + "%";
+  stage.appendChild(s);
+}
+
+function addCatJump(stage){
+  const c = document.createElement("div");
+  c.className = "catJump";
+  c.textContent = "🐈‍⬛";
+  stage.appendChild(c);
+}
+
+function addSecretGate(stage){
+  const g = document.createElement("div");
+  g.className = "secretGate";
+  stage.appendChild(g);
+}
+
+function addManyGoldPaws(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "goldPawRain";
+    p.style.left = (Math.random()*100) + "%";
+    p.style.top = (-20 - Math.random()*40) + "%";
+    p.style.animationDelay = (Math.random()*maxDelay) + "s";
+    stage.appendChild(p);
+  }
+}
+
+</script>
 
 <style>
 html,body{
@@ -944,12 +1201,286 @@ html,body{
   70%{transform:scale(1.05) rotateY(0deg);opacity:1;filter:blur(0);}
   100%{transform:scale(1) rotateY(0deg);}
 }
+
+/* ===== Ver.7 Ultimate：通常7種類・シークレット3種類 ===== */
+
+.storyText{
+  position:absolute;
+  left:50%;
+  top:18%;
+  transform:translateX(-50%);
+  color:#fff7d6;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:1px;
+  white-space:nowrap;
+  text-align:center;
+  text-shadow:0 0 12px #facc15,0 3px 8px #000;
+  opacity:0;
+  animation:storyTextPop 2.6s ease forwards;
+  z-index:40;
+}
+
+@keyframes storyTextPop{
+  0%{opacity:0; transform:translateX(-50%) scale(.82);}
+  18%{opacity:1; transform:translateX(-50%) scale(1.04);}
+  78%{opacity:1; transform:translateX(-50%) scale(1);}
+  100%{opacity:0; transform:translateX(-50%) scale(1.08);}
+}
+
+.catEyesOnly{
+  position:absolute;
+  left:50%;
+  top:46%;
+  width:115px;
+  height:34px;
+  transform:translate(-50%,-50%);
+  opacity:0;
+  filter:drop-shadow(0 0 14px #facc15);
+  animation:eyesWake 2.6s ease forwards;
+  z-index:32;
+}
+.catEyesOnly::before,
+.catEyesOnly::after{
+  content:"";
+  position:absolute;
+  top:7px;
+  width:30px;
+  height:18px;
+  border-radius:50%;
+  background:#facc15;
+  box-shadow:0 0 18px #facc15;
+}
+.catEyesOnly::before{left:8px;}
+.catEyesOnly::after{right:8px;}
+
+@keyframes eyesWake{
+  0%,18%{opacity:0; transform:translate(-50%,-50%) scale(.5);}
+  38%{opacity:1; transform:translate(-50%,-50%) scale(1);}
+  72%{opacity:1; transform:translate(-50%,-50%) scale(1.12);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.35);}
+}
+
+.envelope{
+  position:absolute;
+  left:50%;
+  top:54%;
+  width:150px;
+  height:100px;
+  transform:translate(-50%,-50%) scale(.2) rotate(-6deg);
+  background:linear-gradient(180deg,#fff7d6,#facc15);
+  border-radius:10px;
+  box-shadow:0 0 35px rgba(250,204,21,.65);
+  opacity:0;
+  animation:envelopeDrop 2.6s ease forwards;
+  z-index:25;
+}
+.envelope::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,transparent 49%,rgba(120,53,15,.35) 50%,transparent 51%),
+             linear-gradient(45deg,transparent 49%,rgba(120,53,15,.35) 50%,transparent 51%);
+  border-radius:10px;
+}
+.envelope::after{
+  content:"🐾";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:30px;
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));
+}
+@keyframes envelopeDrop{
+  0%{opacity:0; transform:translate(-50%,-80%) scale(.2) rotate(-15deg);}
+  35%{opacity:1; transform:translate(-50%,-50%) scale(1.05) rotate(4deg);}
+  72%{opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.25) rotate(0);}
+}
+
+.bigPawStamp{
+  position:absolute;
+  left:50%;
+  top:52%;
+  width:170px;
+  height:170px;
+  transform:translate(-50%,-50%) scale(.2);
+  border-radius:50%;
+  background:rgba(250,204,21,.92);
+  box-shadow:0 0 40px #facc15,0 0 95px rgba(250,204,21,.65);
+  opacity:0;
+  animation:bigPawStamp 1.7s ease-out forwards;
+  z-index:30;
+}
+.bigPawStamp::before{
+  content:"";
+  position:absolute;
+  left:28px;
+  top:8px;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#3b2408;
+  box-shadow:52px -16px 0 #3b2408,104px 0 0 #3b2408;
+}
+.bigPawStamp::after{
+  content:"";
+  position:absolute;
+  left:52px;
+  top:88px;
+  width:66px;
+  height:48px;
+  border-radius:50%;
+  background:#3b2408;
+}
+@keyframes bigPawStamp{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.2) rotate(-20deg);}
+  45%{opacity:1; transform:translate(-50%,-50%) scale(1.28) rotate(5deg);}
+  66%{opacity:1; transform:translate(-50%,-50%) scale(.98) rotate(0);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.8) rotate(0);}
+}
+
+.shootingStar{
+  position:absolute;
+  left:-20%;
+  top:18%;
+  width:160px;
+  height:5px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,#fff7ad,#facc15);
+  box-shadow:0 0 22px #facc15;
+  transform:rotate(-22deg);
+  opacity:0;
+  animation:shootingStar 1.35s ease forwards;
+  z-index:24;
+}
+@keyframes shootingStar{
+  0%{opacity:0; left:-25%; top:24%;}
+  16%{opacity:1;}
+  100%{opacity:0; left:110%; top:52%;}
+}
+
+.redMoon{
+  background:#f87171 !important;
+  box-shadow:0 0 65px #ef4444,0 0 130px rgba(250,204,21,.65) !important;
+}
+.redMoon::after{ background:#020617 !important; }
+
+.catJump{
+  position:absolute;
+  left:50%;
+  top:56%;
+  font-size:78px;
+  transform:translate(-50%,-50%) scale(.4);
+  opacity:0;
+  filter:drop-shadow(0 0 16px #facc15);
+  animation:catJump 1.8s ease forwards;
+  z-index:35;
+}
+@keyframes catJump{
+  0%{opacity:0; transform:translate(-50%,30%) scale(.4) rotate(-12deg);}
+  35%{opacity:1; transform:translate(-50%,-78%) scale(1.1) rotate(8deg);}
+  68%{opacity:1; transform:translate(-50%,-35%) scale(1) rotate(0);}
+  100%{opacity:0; transform:translate(-50%,-10%) scale(.8) rotate(0);}
+}
+
+.timeStop{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle,rgba(255,255,255,.2),rgba(0,0,0,.96) 70%);
+  opacity:0;
+  animation:timeStop 4.2s ease forwards;
+  z-index:22;
+}
+.timeStop::before{
+  content:"……";
+  position:absolute;
+  left:50%;
+  top:42%;
+  transform:translate(-50%,-50%);
+  color:#fff7d6;
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:8px;
+  text-shadow:0 0 18px #facc15;
+}
+.timeStop::after{
+  content:"🕛";
+  position:absolute;
+  left:50%;
+  top:56%;
+  transform:translate(-50%,-50%);
+  font-size:76px;
+  filter:drop-shadow(0 0 18px #facc15);
+}
+@keyframes timeStop{
+  0%,20%{opacity:0;}
+  32%,78%{opacity:1;}
+  100%{opacity:0;}
+}
+
+.goldPawRain{
+  position:absolute;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:#facc15;
+  box-shadow:0 0 18px #facc15;
+  animation:goldPawFall 2.6s linear forwards;
+  z-index:30;
+}
+.goldPawRain::before{
+  content:"🐾";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:24px;
+}
+@keyframes goldPawFall{
+  0%{transform:translateY(-20vh) scale(.5) rotate(0deg); opacity:0;}
+  15%{opacity:1;}
+  100%{transform:translateY(115vh) scale(1.15) rotate(260deg); opacity:0;}
+}
+
+.secretGate{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:52px;
+  height:220px;
+  transform:translate(-50%,-50%) scaleX(.1);
+  border-radius:999px;
+  background:linear-gradient(180deg,#fff7ad,#facc15,#f472b6);
+  box-shadow:0 0 60px #facc15,0 0 130px #f472b6;
+  opacity:0;
+  animation:secretGate 3.4s ease forwards;
+  z-index:28;
+}
+@keyframes secretGate{
+  0%{opacity:0; transform:translate(-50%,-50%) scaleX(.04) scaleY(.2);}
+  35%{opacity:1; transform:translate(-50%,-50%) scaleX(.35) scaleY(1);}
+  70%{opacity:1; transform:translate(-50%,-50%) scaleX(5) scaleY(1.3);}
+  100%{opacity:0; transform:translate(-50%,-50%) scaleX(8) scaleY(1.6);}
+}
+
+.skipHint{
+  position:absolute;
+  right:12px;
+  bottom:18px;
+  color:rgba(255,255,255,.72);
+  font-size:12px;
+  font-weight:700;
+  z-index:50;
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=20">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=21">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
@@ -1533,6 +2064,263 @@ function escapeHtml(str){
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
 }
+
+/* ===== Ver.7 Ultimate 演出差し替え ===== */
+
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    const hint = document.createElement("div");
+    hint.className = "skipHint";
+    hint.textContent = "長押しでスキップ";
+    stage.appendChild(hint);
+
+    let finished = false;
+    let pressTimer = null;
+
+    function skipNow(){
+      if(finished) return;
+      finished = true;
+      finishEffect(resolve);
+    }
+
+    effect.onpointerdown = function(){
+      pressTimer = setTimeout(skipNow, 650);
+    };
+
+    effect.onpointerup = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+
+    effect.onpointercancel = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+
+    function done(){
+      if(finished) return;
+      finished = true;
+      effect.onpointerdown = null;
+      effect.onpointerup = null;
+      effect.onpointercancel = null;
+      finishEffect(resolve);
+    }
+
+    if(isSecret){
+      const n = Math.floor(Math.random()*3);
+      if(n === 0) playSecretTimeStop(stage,done);
+      if(n === 1) playSecretMiracle(stage,done);
+      if(n === 2) playSecretAwakening(stage,done);
+    }else{
+      const n = Math.floor(Math.random()*7);
+      if(n === 0) playV7CatDashDelivery(stage,done);
+      if(n === 1) playV7PawStamp(stage,done);
+      if(n === 2) playV7GiftBox(stage,done);
+      if(n === 3) playV7ShootingStar(stage,done);
+      if(n === 4) playV7MagicCircle(stage,done);
+      if(n === 5) playV7CatEyes(stage,done);
+      if(n === 6) playV7MoonJump(stage,done);
+    }
+  });
+}
+
+function addStory(stage,text,delay){
+  setTimeout(function(){
+    const el = document.createElement("div");
+    el.className = "storyText";
+    el.textContent = text;
+    stage.appendChild(el);
+  }, delay || 0);
+}
+
+function playV7CatDashDelivery(stage,done){
+  addStory(stage,"黒猫が何かを運んできた…",200);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),700);
+  setTimeout(()=>addEnvelope(stage),1550);
+  setTimeout(()=>addManyPaws(stage,12,.8),1700);
+  setTimeout(()=>addBurstCore(stage),2850);
+  setTimeout(()=>addCardSilhouette(stage),3350);
+  setTimeout(done,4550);
+}
+
+function playV7PawStamp(stage,done){
+  addStory(stage,"足音が近づいてくる…",200);
+  setTimeout(()=>addManyPaws(stage,22,1.5),700);
+  setTimeout(()=>addBigPaw(stage),2200);
+  setTimeout(()=>addBurstCore(stage),2750);
+  setTimeout(()=>addCardSilhouette(stage),3200);
+  setTimeout(done,4300);
+}
+
+function playV7GiftBox(stage,done){
+  addStory(stage,"プレゼント箱が震えている…",200);
+  const gift = document.createElement("div");
+  gift.className = "giftBox";
+  gift.innerHTML = '<div class="giftRibbon"></div>';
+  setTimeout(()=>stage.appendChild(gift),650);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),1450);
+  setTimeout(()=>addManyStars(stage,28,1.0),1800);
+  setTimeout(()=>addBurstCore(stage),2600);
+  setTimeout(()=>addCardSilhouette(stage),3200);
+  setTimeout(done,4400);
+}
+
+function playV7ShootingStar(stage,done){
+  addStory(stage,"夜空に願いを…",150);
+  for(let i=0;i<3;i++){
+    setTimeout(()=>addShootingStar(stage),650 + i*420);
+  }
+  setTimeout(()=>addManyStars(stage,42,1.9),900);
+  setTimeout(()=>addCardSilhouette(stage),3000);
+  setTimeout(done,4200);
+}
+
+function playV7MagicCircle(stage,done){
+  addStory(stage,"魔法陣が輝きだす…",200);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  setTimeout(()=>stage.appendChild(ring),650);
+  setTimeout(()=>addManyPaws(stage,18,1.0),1000);
+  setTimeout(()=>addBurstCore(stage),2650);
+  setTimeout(()=>addCardSilhouette(stage),3200);
+  setTimeout(done,4350);
+}
+
+function playV7CatEyes(stage,done){
+  addStory(stage,"暗闇に金色の目が光る…",200);
+  const eyes = document.createElement("div");
+  eyes.className = "catEyesOnly";
+  setTimeout(()=>stage.appendChild(eyes),700);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),2100);
+  setTimeout(()=>addEnvelope(stage),2450);
+  setTimeout(()=>addCardSilhouette(stage),3300);
+  setTimeout(done,4450);
+}
+
+function playV7MoonJump(stage,done){
+  addStory(stage,"月が赤く染まった…",150);
+  const moon = document.createElement("div");
+  moon.className = "moon redMoon";
+  setTimeout(()=>stage.appendChild(moon),450);
+  setTimeout(()=>addCatJump(stage),2100);
+  setTimeout(()=>addManyStars(stage,36,1.4),650);
+  setTimeout(()=>addBurstCore(stage),3000);
+  setTimeout(()=>addCardSilhouette(stage),3550);
+  setTimeout(done,4850);
+}
+
+function playSecretTimeStop(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+  addStory(stage,"……時間が止まった",350);
+  const stop = document.createElement("div");
+  stop.className = "timeStop";
+  setTimeout(()=>stage.appendChild(stop),700);
+  setTimeout(()=>addScreenCrack(stage),3100);
+  setTimeout(()=>addSecretGate(stage),3450);
+  setTimeout(()=>addCardSilhouette(stage),4400);
+  setTimeout(done,5750);
+}
+
+function playSecretMiracle(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+  addStory(stage,"黒猫の奇跡…",250);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),750);
+  setTimeout(()=>addEnvelope(stage),1650);
+  setTimeout(()=>addManyGoldPaws(stage,26,1.7),2200);
+  setTimeout(()=>addBurstCore(stage),3300);
+  setTimeout(()=>addSecretGate(stage),3600);
+  setTimeout(()=>addCardSilhouette(stage),4550);
+  setTimeout(done,5900);
+}
+
+function playSecretAwakening(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  addStory(stage,"クロネコ覚醒",400);
+
+  const title = document.createElement("div");
+  title.className = "secretTitle";
+  title.textContent = "SECRET";
+  setTimeout(()=>stage.appendChild(title),900);
+
+  const eyes = document.createElement("div");
+  eyes.className = "catEyesOnly";
+  setTimeout(()=>stage.appendChild(eyes),1200);
+
+  const bolt1 = document.createElement("div");
+  bolt1.className = "lightning";
+  bolt1.style.left = "35%";
+  setTimeout(()=>stage.appendChild(bolt1),1600);
+
+  const bolt2 = document.createElement("div");
+  bolt2.className = "lightning";
+  bolt2.style.left = "65%";
+  bolt2.style.animationDelay = ".18s";
+  setTimeout(()=>stage.appendChild(bolt2),1700);
+
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  setTimeout(()=>stage.appendChild(aura),2100);
+
+  setTimeout(()=>addManyGoldPaws(stage,42,2.2),2200);
+  setTimeout(()=>addScreenCrack(stage),3300);
+  setTimeout(()=>addSecretGate(stage),3800);
+  setTimeout(()=>addCardSilhouette(stage),5050);
+  setTimeout(done,6750);
+}
+
+function addEnvelope(stage){
+  const e = document.createElement("div");
+  e.className = "envelope";
+  stage.appendChild(e);
+}
+
+function addBigPaw(stage){
+  const p = document.createElement("div");
+  p.className = "bigPawStamp";
+  stage.appendChild(p);
+}
+
+function addShootingStar(stage){
+  const s = document.createElement("div");
+  s.className = "shootingStar";
+  s.style.top = (14 + Math.random()*32) + "%";
+  stage.appendChild(s);
+}
+
+function addCatJump(stage){
+  const c = document.createElement("div");
+  c.className = "catJump";
+  c.textContent = "🐈‍⬛";
+  stage.appendChild(c);
+}
+
+function addSecretGate(stage){
+  const g = document.createElement("div");
+  g.className = "secretGate";
+  stage.appendChild(g);
+}
+
+function addManyGoldPaws(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "goldPawRain";
+    p.style.left = (Math.random()*100) + "%";
+    p.style.top = (-20 - Math.random()*40) + "%";
+    p.style.animationDelay = (Math.random()*maxDelay) + "s";
+    stage.appendChild(p);
+  }
+}
+
 </script>
 </body>
 </html>
