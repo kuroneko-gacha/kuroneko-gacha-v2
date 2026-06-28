@@ -925,12 +925,137 @@ html,body{
   height:4.0% !important;
 }
 
+/* ===== Ver.3.6 微調整：少し縮小・文字拡大・図鑑当たり判定下げ ===== */
+html,body{
+  width:100% !important;
+  min-height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  background:#020617 !important;
+  overflow:hidden !important;
+}
+
+#app{
+  position:relative !important;
+  width:100% !important;
+  max-width:430px !important;
+  height:100vh !important;
+  min-height:100vh !important;
+  margin:0 auto !important;
+  background:#020617 !important;
+  overflow:hidden !important;
+}
+
+/* v3.5より少しだけ縮小。画面いっぱい感は維持 */
+#topImg{
+  width:100% !important;
+  height:96.5vh !important;
+  display:block !important;
+  object-fit:cover !important;
+  object-position:center top !important;
+  user-select:none !important;
+  pointer-events:none !important;
+}
+
+/* ガチャは少しだけ小さめ */
+#drawTap{
+  left:23% !important;
+  top:46.8% !important;
+  width:54% !important;
+  height:17.2% !important;
+  border-radius:50% !important;
+  z-index:20 !important;
+}
+
+/* 図鑑は実ボタンより少し下へ。ガチャとは離す */
+#bookTap{
+  left:14% !important;
+  top:78.9% !important;
+  width:72% !important;
+  height:7.2% !important;
+  border-radius:22px !important;
+  z-index:90 !important;
+}
+
+#pressFx{
+  left:23% !important;
+  top:46.8% !important;
+  width:54% !important;
+  height:17.2% !important;
+  z-index:10 !important;
+}
+
+/* 吹き出し文字を大きく */
+#topSpeechText{
+  position:absolute !important;
+  left:18.5% !important;
+  top:34.0% !important;
+  width:50% !important;
+  height:6.8% !important;
+  z-index:12 !important;
+  pointer-events:none !important;
+  color:#3b2408 !important;
+  font-weight:800 !important;
+  text-align:center !important;
+  line-height:1.13 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.88) !important;
+}
+
+#topSpeechLine1{
+  font-size:15px !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+#topSpeechLine2{
+  font-size:12px !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+  max-width:100% !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 下の黒帯文字も少し読みやすく */
+#statusMask{
+  display:none !important;
+}
+
+#statusText{
+  position:absolute !important;
+  left:15% !important;
+  top:87.85% !important;
+  width:70% !important;
+  height:4.2% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  color:#fff7d6 !important;
+  font-weight:800 !important;
+  font-size:12px !important;
+  line-height:1.12 !important;
+  text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55) !important;
+  z-index:18 !important;
+  pointer-events:none !important;
+  background:transparent !important;
+  border:none !important;
+  box-shadow:none !important;
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=8">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=9">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">クロネコガチャへようこそ！</div>
