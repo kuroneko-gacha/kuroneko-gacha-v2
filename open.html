@@ -3,14 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐈 クロネコガチャ</title>
+<title>🐈‍⬛ クロネコガチャ案内</title>
 <style>
 html,body{
   margin:0;
   padding:0;
   width:100%;
   min-height:100%;
-  background:#020617;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(250,204,21,.20), transparent 32%),
+    linear-gradient(180deg,#020617,#0f172a 55%,#020617);
   font-family:"Hiragino Sans","Meiryo",sans-serif;
   color:white;
 }
@@ -22,46 +24,126 @@ body{
   box-sizing:border-box;
 }
 .card{
+  position:relative;
   width:100%;
   max-width:390px;
-  border-radius:28px;
-  padding:26px 20px 24px;
+  border-radius:30px;
+  padding:24px 20px 24px;
   box-sizing:border-box;
   text-align:center;
   background:
-    radial-gradient(circle at 50% 0%, rgba(250,204,21,.28), transparent 38%),
+    radial-gradient(circle at 50% 0%, rgba(250,204,21,.30), transparent 38%),
     linear-gradient(180deg, rgba(15,23,42,.96), rgba(2,6,23,.98));
-  box-shadow:0 0 30px rgba(250,204,21,.28), inset 0 0 0 1px rgba(255,255,255,.12);
+  box-shadow:
+    0 0 30px rgba(250,204,21,.28),
+    inset 0 0 0 1px rgba(255,255,255,.12);
+  overflow:hidden;
 }
-.cat{
-  font-size:54px;
-  margin-bottom:8px;
-  filter:drop-shadow(0 0 14px rgba(250,204,21,.65));
+.card::before{
+  content:"";
+  position:absolute;
+  inset:-70px;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,.55) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 22%, rgba(250,204,21,.7) 0 3px, transparent 4px),
+    radial-gradient(circle at 30% 78%, rgba(56,189,248,.55) 0 3px, transparent 4px),
+    radial-gradient(circle at 82% 76%, rgba(244,114,182,.55) 0 3px, transparent 4px);
+  opacity:.7;
+  pointer-events:none;
+}
+.inner{
+  position:relative;
+  z-index:1;
+}
+.catBox{
+  width:118px;
+  height:118px;
+  margin:0 auto 10px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 45% 42%, #111827 0 46%, #020617 47% 100%);
+  box-shadow:
+    0 0 24px rgba(250,204,21,.48),
+    inset 0 0 0 4px rgba(250,204,21,.28);
+  position:relative;
+}
+.catBox::before,
+.catBox::after{
+  content:"";
+  position:absolute;
+  top:18px;
+  width:36px;
+  height:42px;
+  background:#020617;
+  clip-path:polygon(50% 0,100% 100%,0 100%);
+}
+.catBox::before{
+  left:20px;
+  transform:rotate(-18deg);
+}
+.catBox::after{
+  right:20px;
+  transform:rotate(18deg);
+}
+.eye{
+  position:absolute;
+  top:50px;
+  width:18px;
+  height:24px;
+  border-radius:50%;
+  background:radial-gradient(circle,#fff7ad,#facc15 55%,#78350f);
+  box-shadow:0 0 12px #facc15;
+}
+.eye.left{left:36px;}
+.eye.right{right:36px;}
+.nose{
+  position:absolute;
+  left:50%;
+  top:75px;
+  transform:translateX(-50%);
+  width:10px;
+  height:8px;
+  border-radius:50%;
+  background:#fb7185;
 }
 h1{
   margin:0;
-  font-size:29px;
+  font-size:30px;
   color:#facc15;
   text-shadow:0 0 14px rgba(250,204,21,.65);
 }
 .sub{
-  margin:12px 0 22px;
+  margin:12px 0 20px;
   color:#fff7d6;
   font-size:15px;
   font-weight:800;
   line-height:1.6;
+}
+.speech{
+  margin:14px auto 18px;
+  padding:13px 14px;
+  border-radius:18px;
+  background:#fff7ed;
+  color:#3b2408;
+  font-size:15px;
+  font-weight:900;
+  line-height:1.45;
+  box-shadow:0 5px 18px rgba(0,0,0,.22);
 }
 .btn{
   display:block;
   width:100%;
   padding:17px 12px;
   border-radius:999px;
-  background:linear-gradient(135deg,#facc15,#f97316);
+  background:linear-gradient(135deg,#facc15,#fb923c,#f97316);
   color:#3b2408;
   text-decoration:none;
-  font-size:22px;
+  font-size:20px;
   font-weight:900;
   box-shadow:0 8px 22px rgba(250,204,21,.35);
+}
+.btn:active{
+  transform:scale(.98);
 }
 .note{
   margin-top:17px;
@@ -78,24 +160,37 @@ h1{
 </head>
 <body>
   <div class="card">
-    <div class="cat">🐈‍⬛</div>
-    <h1>クロネコガチャ</h1>
-    <div class="sub">
-      黒猫が運ぶ、特別な出会い♪<br>
-      今日の1枚を引いてみてください。
-    </div>
+    <div class="inner">
+      <div class="catBox">
+        <div class="eye left"></div>
+        <div class="eye right"></div>
+        <div class="nose"></div>
+      </div>
 
-    <a class="btn" href="https://liff.line.me/2010515194-r0gV3TRC">
-      🐾 ガチャを開く
-    </a>
+      <h1>クロネコガチャ</h1>
 
-    <div class="note">
-      ※引いたシール画像の投稿はご遠慮ください。<br>
-      まだ引いていない方の楽しみを守るため、ご協力お願いします。
-    </div>
+      <div class="sub">
+        黒猫が運ぶ、特別な出会い♪<br>
+        今日の1枚をお楽しみに。
+      </div>
 
-    <div class="small">
-      クロネコガチャ Ver.1.1
+      <div class="speech">
+        ここを押したら<br>
+        ガチャページに行くにゃー♪
+      </div>
+
+      <a class="btn" href="https://liff.line.me/2010515194-r0gV3TRC">
+        🐾 ガチャページへ
+      </a>
+
+      <div class="note">
+        ※引いたシール画像の投稿はご遠慮ください。<br>
+        まだ引いていない方の楽しみを守るため、ご協力お願いします。
+      </div>
+
+      <div class="small">
+        クロネコガチャ Ver.1.1
+      </div>
     </div>
   </div>
 </body>
