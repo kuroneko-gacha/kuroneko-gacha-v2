@@ -4645,5 +4645,162 @@ setTimeout(v11InitSoundButton, 300);
 })();
 </script>
 
+
+<style>
+/* ===== クロネコガチャ 安全追加：ガチャ券だけ ===== */
+#kuronekoTicketFx{
+  position:fixed;
+  inset:0;
+  z-index:260;
+  display:none;
+  pointer-events:none;
+  overflow:hidden;
+  background:rgba(0,0,0,.18);
+}
+#kuronekoTicketFx.show{
+  display:block;
+}
+.kuronekoTicketPaper{
+  position:absolute;
+  left:50%;
+  top:-110px;
+  width:150px;
+  height:72px;
+  transform:translateX(-50%);
+  border-radius:16px;
+  background:linear-gradient(135deg,#fff7ad,#facc15 45%,#f97316);
+  border:3px solid rgba(255,255,255,.85);
+  box-shadow:0 0 24px #facc15,0 0 60px rgba(250,204,21,.45);
+  animation:kuronekoTicketFall 2.8s cubic-bezier(.16,.84,.28,1) forwards;
+}
+.kuronekoTicketPaper::before{
+  content:"🎫";
+  position:absolute;
+  left:12px;
+  top:13px;
+  font-size:32px;
+}
+.kuronekoTicketPaper::after{
+  content:"もう1回";
+  position:absolute;
+  right:12px;
+  top:20px;
+  color:#3b2408;
+  font-size:21px;
+  font-weight:900;
+  text-shadow:0 1px 0 rgba(255,255,255,.75);
+}
+@keyframes kuronekoTicketFall{
+  0%{top:-110px; transform:translateX(-50%) rotate(-18deg) scale(.9); opacity:0;}
+  14%{opacity:1;}
+  38%{top:24%; transform:translateX(-62%) rotate(16deg) scale(1.06);}
+  62%{top:42%; transform:translateX(-38%) rotate(-10deg) scale(1.02);}
+  100%{top:52%; transform:translateX(-50%) rotate(0deg) scale(1); opacity:1;}
+}
+.kuronekoTicketMessage{
+  position:absolute;
+  left:50%;
+  top:66%;
+  width:min(86%,360px);
+  transform:translateX(-50%);
+  padding:16px 14px;
+  border-radius:22px;
+  background:rgba(0,0,0,.82);
+  color:#fff7d6;
+  text-align:center;
+  font-weight:900;
+  box-shadow:0 0 24px rgba(250,204,21,.45);
+  text-shadow:0 2px 4px #000;
+  opacity:0;
+  animation:kuronekoTicketMsg 2.6s .55s ease forwards;
+}
+.kuronekoTicketMessage .big{
+  display:block;
+  color:#facc15;
+  font-size:24px;
+  margin-bottom:5px;
+  text-shadow:0 0 12px #facc15;
+}
+.kuronekoTicketMessage .small{
+  display:block;
+  font-size:15px;
+}
+@keyframes kuronekoTicketMsg{
+  0%{opacity:0; transform:translateX(-50%) scale(.82);}
+  16%,82%{opacity:1; transform:translateX(-50%) scale(1);}
+  100%{opacity:0; transform:translateX(-50%) scale(.96);}
+}
+</style>
+
+<script>
+/* ===== クロネコガチャ 安全追加：ガチャ券だけ ===== */
+(function(){
+  function ensureTicketLayer(){
+    let fx = document.getElementById("kuronekoTicketFx");
+    if(fx) return fx;
+
+    fx = document.createElement("div");
+    fx.id = "kuronekoTicketFx";
+    fx.innerHTML =
+      '<div class="kuronekoTicketPaper"></div>' +
+      '<div class="kuronekoTicketMessage">' +
+      '<span class="big">🎫 ガチャ券GET！</span>' +
+      '<span class="small">黒猫からのおまけにゃ♪<br>もう1回引けるにゃー！</span>' +
+      '</div>';
+
+    document.body.appendChild(fx);
+    return fx;
+  }
+
+  function showTicketFx(){
+    const fx = ensureTicketLayer();
+    fx.classList.remove("show");
+    void fx.offsetWidth;
+    fx.classList.add("show");
+
+    try{
+      if(navigator.vibrate) navigator.vibrate([60,40,90,40,120]);
+    }catch(e){}
+
+    if(typeof window.kuronekoMeow === "function"){
+      window.kuronekoMeow("start");
+    }
+
+    setTimeout(function(){
+      fx.classList.remove("show");
+    }, 3400);
+  }
+
+  window.kuronekoShowTicketFx = showTicketFx;
+
+  document.addEventListener("DOMContentLoaded", ensureTicketLayer);
+
+  const oldShowResult = window.showResult;
+  if(typeof oldShowResult === "function"){
+    window.showResult = function(res){
+      const ret = oldShowResult.apply(this, arguments);
+
+      try{
+        if(res && res.bonusTicket){
+          setTimeout(showTicketFx, 900);
+
+          if(typeof updateDailyLimitText === "function"){
+            setTimeout(function(){
+              updateDailyLimitText(
+                Number(res.remaining || 0),
+                Number(res.dailyLimit || 2),
+                Number(res.bonusTickets || 0)
+              );
+            }, 1200);
+          }
+        }
+      }catch(e){}
+
+      return ret;
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
