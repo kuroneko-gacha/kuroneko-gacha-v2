@@ -10,188 +10,54 @@ html,body{
   padding:0;
   width:100%;
   min-height:100%;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(250,204,21,.20), transparent 32%),
-    linear-gradient(180deg,#020617,#0f172a 55%,#020617);
+  background:#fff3c4;
   font-family:"Hiragino Sans","Meiryo",sans-serif;
-  color:white;
 }
 body{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:18px;
-  box-sizing:border-box;
-}
-.card{
-  position:relative;
-  width:100%;
-  max-width:390px;
-  border-radius:30px;
-  padding:24px 20px 24px;
-  box-sizing:border-box;
-  text-align:center;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(250,204,21,.30), transparent 38%),
-    linear-gradient(180deg, rgba(15,23,42,.96), rgba(2,6,23,.98));
-  box-shadow:
-    0 0 30px rgba(250,204,21,.28),
-    inset 0 0 0 1px rgba(255,255,255,.12);
   overflow:hidden;
 }
-.card::before{
-  content:"";
-  position:absolute;
-  inset:-70px;
-  background:
-    radial-gradient(circle at 20% 18%, rgba(255,255,255,.55) 0 2px, transparent 3px),
-    radial-gradient(circle at 78% 22%, rgba(250,204,21,.7) 0 3px, transparent 4px),
-    radial-gradient(circle at 30% 78%, rgba(56,189,248,.55) 0 3px, transparent 4px),
-    radial-gradient(circle at 82% 76%, rgba(244,114,182,.55) 0 3px, transparent 4px);
-  opacity:.7;
-  pointer-events:none;
+a{
+  -webkit-tap-highlight-color:transparent;
 }
-.inner{
+.page{
   position:relative;
-  z-index:1;
-}
-.catBox{
-  width:118px;
-  height:118px;
-  margin:0 auto 10px;
-  border-radius:50%;
-  background:
-    radial-gradient(circle at 45% 42%, #111827 0 46%, #020617 47% 100%);
-  box-shadow:
-    0 0 24px rgba(250,204,21,.48),
-    inset 0 0 0 4px rgba(250,204,21,.28);
-  position:relative;
-}
-.catBox::before,
-.catBox::after{
-  content:"";
-  position:absolute;
-  top:18px;
-  width:36px;
-  height:42px;
-  background:#020617;
-  clip-path:polygon(50% 0,100% 100%,0 100%);
-}
-.catBox::before{
-  left:20px;
-  transform:rotate(-18deg);
-}
-.catBox::after{
-  right:20px;
-  transform:rotate(18deg);
-}
-.eye{
-  position:absolute;
-  top:50px;
-  width:18px;
-  height:24px;
-  border-radius:50%;
-  background:radial-gradient(circle,#fff7ad,#facc15 55%,#78350f);
-  box-shadow:0 0 12px #facc15;
-}
-.eye.left{left:36px;}
-.eye.right{right:36px;}
-.nose{
-  position:absolute;
-  left:50%;
-  top:75px;
-  transform:translateX(-50%);
-  width:10px;
-  height:8px;
-  border-radius:50%;
-  background:#fb7185;
-}
-h1{
-  margin:0;
-  font-size:30px;
-  color:#facc15;
-  text-shadow:0 0 14px rgba(250,204,21,.65);
-}
-.sub{
-  margin:12px 0 20px;
-  color:#fff7d6;
-  font-size:15px;
-  font-weight:800;
-  line-height:1.6;
-}
-.speech{
-  margin:14px auto 18px;
-  padding:13px 14px;
-  border-radius:18px;
-  background:#fff7ed;
-  color:#3b2408;
-  font-size:15px;
-  font-weight:900;
-  line-height:1.45;
-  box-shadow:0 5px 18px rgba(0,0,0,.22);
-}
-.btn{
-  display:block;
   width:100%;
-  padding:17px 12px;
-  border-radius:999px;
-  background:linear-gradient(135deg,#facc15,#fb923c,#f97316);
-  color:#3b2408;
-  text-decoration:none;
-  font-size:20px;
-  font-weight:900;
-  box-shadow:0 8px 22px rgba(250,204,21,.35);
+  max-width:430px;
+  height:100vh;
+  overflow:hidden;
+  background:#fff3c4;
 }
-.btn:active{
-  transform:scale(.98);
+.mainImage{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
+  display:block;
+  user-select:none;
+  -webkit-user-drag:none;
 }
-.note{
-  margin-top:17px;
-  font-size:12px;
-  line-height:1.55;
-  color:#cbd5e1;
+.tapArea{
+  position:absolute;
+  left:8%;
+  top:45%;
+  width:84%;
+  height:24%;
+  border-radius:38px;
+  display:block;
+  z-index:10;
 }
-.small{
-  margin-top:16px;
-  font-size:12px;
-  color:#94a3b8;
+.tapArea:active{
+  background:rgba(255,255,255,.18);
 }
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="inner">
-      <div class="catBox">
-        <div class="eye left"></div>
-        <div class="eye right"></div>
-        <div class="nose"></div>
-      </div>
-
-      <h1>クロネコガチャ</h1>
-
-      <div class="sub">
-        黒猫が運ぶ、特別な出会い♪<br>
-        今日の1枚をお楽しみに。
-      </div>
-
-      <div class="speech">
-        ここを押したら<br>
-        ガチャページに行くにゃー♪
-      </div>
-
-      <a class="btn" href="https://liff.line.me/2010515194-r0gV3TRC">
-        🐾 ガチャページへ
-      </a>
-
-      <div class="note">
-        ※引いたシール画像の投稿はご遠慮ください。<br>
-        まだ引いていない方の楽しみを守るため、ご協力お願いします。
-      </div>
-
-      <div class="small">
-        クロネコガチャ Ver.1.1
-      </div>
-    </div>
+  <div class="page">
+    <img class="mainImage" src="./open-bg.png" alt="クロネコガチャ案内">
+    <a class="tapArea" href="https://liff.line.me/2010515194-r0gV3TRC" aria-label="ガチャページに行く"></a>
   </div>
 </body>
 </html>
