@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.8 図鑑連動版</title>
+<title>クロネコガチャ Ver.8.1 一日2回対応</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style>
@@ -1050,12 +1050,36 @@ html,body{
   100%{opacity:0; transform:translateX(-50%) scale(.96);}
 }
 
+
+/* ===== Ver.8.1 一番下メッセージ自由化 ===== */
+#dailyLimitText{
+  position:absolute;
+  left:16%;
+  top:94.15%;
+  width:68%;
+  height:3.7%;
+  z-index:30;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:#3b2408;
+  font-size:14px;
+  font-weight:900;
+  line-height:1.05;
+  text-shadow:0 1px 0 rgba(255,255,255,.8);
+  pointer-events:none;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=30">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=31">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
@@ -1064,6 +1088,7 @@ html,body{
 
   <div id="statusMask"></div>
   <div id="statusText">✨ 今日も素敵な出会いがありますように</div>
+  <div id="dailyLimitText">🎁 本日はあと2回引けるにゃ♪</div>
   <div id="pressFx"></div>
 
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
@@ -1117,6 +1142,8 @@ let lastDrawnName = "";
 let pendingNewCardId = "";
 let pendingNewImageUrl = "";
 let pendingNewName = "";
+let dailyLimit = 2;
+let dailyRemaining = 2;
 
 try{
   lastDrawnCardId = sessionStorage.getItem("lastDrawnCardId") || "";
@@ -1143,6 +1170,7 @@ window.onload = async function(){
     profile.displayName = p.displayName;
     console.log("LINE名取得成功:", profile.displayName);
     setReadyStatus();
+    refreshDailyStatus();
 
   }catch(e){
     console.error(e);
@@ -1232,6 +1260,40 @@ function jsonp(params){
   });
 }
 
+
+async function refreshDailyStatus(){
+  if(!profile.userId) return;
+
+  try{
+    const res = await jsonp({
+      action:"status",
+      userId:profile.userId
+    });
+
+    if(res && res.ok){
+      updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || 2));
+    }
+  }catch(e){
+    setDailyLimitText("🎁 本日はあと2回引けるにゃ♪");
+  }
+}
+
+function updateDailyLimitText(remaining, limit){
+  dailyLimit = limit || 2;
+  dailyRemaining = remaining;
+
+  if(remaining <= 0){
+    setDailyLimitText("🐾 今日はもう引いてるにゃー");
+  }else{
+    setDailyLimitText("🎁 本日はあと" + remaining + "回引けるにゃ♪");
+  }
+}
+
+function setDailyLimitText(text){
+  const el = document.getElementById("dailyLimitText");
+  if(el) el.textContent = text;
+}
+
 async function drawGacha(){
   if(drawing) return;
 
@@ -1255,9 +1317,18 @@ async function drawGacha(){
 
     if(!res || res.ok === false){
       drawing = false;
+      if(res && typeof res.remaining !== "undefined"){
+        updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit));
+      }else{
+        setDailyLimitText("🐾 今日はもう引いてるにゃー");
+      }
       setDoneStatus();
-      alert(res && res.message ? res.message : "今日はもう引いています。また明日ね！");
+      alert(res && res.message ? res.message : "今日はもう引いてるにゃー🐾");
       return;
+    }
+
+    if(typeof res.remaining !== "undefined"){
+      updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit));
     }
 
     await playGachaEffect(res);
