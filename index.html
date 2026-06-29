@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.9 演出豪華版</title>
+<title>クロネコガチャ Ver.10 UI完成版</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
 /* ===== Ver.9 演出豪華版 JS ===== */
 
@@ -1848,12 +1848,80 @@ html,body{
   100%{opacity:1; transform:scale(1) rotateY(0) rotateZ(0);}
 }
 
+
+/* ===== Ver.10 UI完成版：吹き出し整理・効果音ボタン移動・残り回数専用 ===== */
+
+/* 効果音ボタンを左上へ */
+#soundToggle{
+  left:3.5% !important;
+  right:auto !important;
+  top:2.0% !important;
+  width:66px !important;
+  height:34px !important;
+  border-radius:999px !important;
+  border:1px solid rgba(250,204,21,.65) !important;
+  background:rgba(0,0,0,.68) !important;
+  color:#fff7d6 !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  z-index:95 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-shadow:0 0 14px rgba(250,204,21,.32) !important;
+}
+
+/* 図鑑下の黒い吹き出し：お知らせ専用 */
+#statusText{
+  left:14.5% !important;
+  top:86.05% !important;
+  width:71% !important;
+  height:4.1% !important;
+  font-size:11.5px !important;
+  line-height:1.12 !important;
+  color:#fff7d6 !important;
+  font-weight:900 !important;
+  text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55) !important;
+}
+
+/* 一番下の白い吹き出し：残り回数専用 */
+#dailyLimitText{
+  position:absolute !important;
+  left:16.5% !important;
+  top:93.55% !important;
+  width:67% !important;
+  height:3.6% !important;
+  z-index:30 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  color:#3b2408 !important;
+  font-size:13.5px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
+  pointer-events:none !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 白い吹き出しの文字を少し読みやすく */
+#topSpeechLine1{
+  font-size:15px !important;
+}
+
+#topSpeechLine2{
+  font-size:12px !important;
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=40">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=50">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
@@ -1862,7 +1930,7 @@ html,body{
 
   <div id="statusMask"></div>
   <div id="statusText">✨ 今日も素敵な出会いがありますように</div>
-  <div id="dailyLimitText">🎁 本日はあと2回引けるにゃ♪</div>
+  <div id="dailyLimitText">🎁 あと2回引けるにゃー♪</div>
   <div id="pressFx"></div>
 
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
@@ -1978,11 +2046,14 @@ function setTopSpeech(){
 
 function setReadyStatus(){
   const messages = [
-    "✨ 今日も素敵な出会いがありますように",
     "🌙 黒猫があなたを待っています",
-    "🎁 どんなシールが出るかな？",
-    "⭐ シークレットが出るかも…？",
-    "🐾 一日一回のお楽しみ♪"
+    "✨ シークレットの気配…？",
+    "🐾 今日も仲間を増やそう！",
+    "🎁 新しい出会いが待ってるにゃ♪",
+    "⭐ 図鑑コンプリートを目指そう！",
+    "💎 レアな一枚が眠っているかも…",
+    "🍀 幸運チャージ中…",
+    "🐈 今日の運試し、いってみよう！"
   ];
   setStatus(messages[Math.floor(Math.random() * messages.length)]);
 }
@@ -2053,7 +2124,7 @@ async function refreshDailyStatus(){
       updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || 2));
     }
   }catch(e){
-    setDailyLimitText("🎁 本日はあと2回引けるにゃ♪");
+    setDailyLimitText("🎁 あと2回引けるにゃー♪");
   }
 }
 
@@ -2064,7 +2135,7 @@ function updateDailyLimitText(remaining, limit){
   if(remaining <= 0){
     setDailyLimitText("🐾 今日はもう引いてるにゃー");
   }else{
-    setDailyLimitText("🎁 本日はあと" + remaining + "回引けるにゃ♪");
+    setDailyLimitText("🎁 あと" + remaining + "回引けるにゃー♪");
   }
 }
 
