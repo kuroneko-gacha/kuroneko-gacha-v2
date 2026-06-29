@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.10.2 UI修正版</title>
+<title>クロネコガチャ Ver.11 演出超強化版</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
 /* ===== Ver.9 演出豪華版 JS ===== */
 
@@ -398,6 +398,429 @@ function v9GoldDust(stage,count){
 }
 
 setTimeout(initSoundButton, 300);
+
+
+/* ===== Ver.11 演出超強化版 JS ===== */
+
+function v11InitSoundButton(){
+  const btn = document.getElementById("soundToggle");
+  if(!btn) return;
+  btn.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF";
+}
+
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  try{
+    localStorage.setItem("kuronekoSound", soundEnabled ? "on" : "off");
+  }catch(e){}
+  v11InitSoundButton();
+  if(soundEnabled) v11Sfx("open");
+}
+
+/* しょぼさ対策：単音ではなく複数音を重ねる */
+function v11Sfx(type){
+  if(!soundEnabled) return;
+
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+
+    const ctx = new AudioCtx();
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, ctx.currentTime);
+    master.gain.exponentialRampToValueAtTime(0.20, ctx.currentTime + 0.02);
+    master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.1);
+    master.connect(ctx.destination);
+
+    function tone(freq, start, dur, wave, volume){
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = wave || "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(volume || 0.12, ctx.currentTime + start + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur + 0.04);
+    }
+
+    if(type === "paw"){
+      tone(160,0,.10,"triangle",.16);
+      tone(95,.04,.14,"sine",.14);
+    }else if(type === "sparkle"){
+      tone(880,0,.12,"sine",.10);
+      tone(1320,.07,.14,"sine",.12);
+      tone(1760,.15,.12,"sine",.10);
+    }else if(type === "boom"){
+      tone(70,0,.24,"sawtooth",.18);
+      tone(120,.05,.18,"triangle",.14);
+      tone(45,.12,.3,"sine",.12);
+    }else if(type === "secret"){
+      tone(520,0,.18,"sine",.12);
+      tone(780,.12,.18,"sine",.13);
+      tone(1040,.24,.2,"sine",.14);
+      tone(1560,.38,.28,"square",.10);
+      tone(90,.48,.36,"sawtooth",.16);
+    }else if(type === "open"){
+      tone(660,0,.10,"sine",.08);
+      tone(990,.08,.10,"sine",.08);
+    }else{
+      tone(550,0,.12,"sine",.10);
+    }
+
+    setTimeout(function(){
+      try{ctx.close();}catch(e){}
+    },1300);
+  }catch(e){}
+}
+
+function v11Vibrate(pattern){
+  try{
+    if(navigator.vibrate) navigator.vibrate(pattern || [35]);
+  }catch(e){}
+}
+
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    const dim = document.createElement("div");
+    dim.className = "v11DimPulse";
+    stage.appendChild(dim);
+
+    const hint = document.createElement("div");
+    hint.className = "v11SkipHint";
+    hint.textContent = "長押しでスキップ";
+    stage.appendChild(hint);
+
+    let finished = false;
+    let pressTimer = null;
+
+    function done(){
+      if(finished) return;
+      finished = true;
+      effect.onpointerdown = null;
+      effect.onpointerup = null;
+      effect.onpointercancel = null;
+      finishEffect(resolve);
+    }
+
+    effect.onpointerdown = function(){
+      pressTimer = setTimeout(done, 650);
+    };
+    effect.onpointerup = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+    effect.onpointercancel = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+
+    if(isSecret){
+      v11Sfx("secret");
+      v11Vibrate([90,40,130,40,210]);
+      const n = Math.floor(Math.random()*3);
+      if(n === 0) v11SecretTimeStop(stage,done);
+      if(n === 1) v11SecretMiracle(stage,done);
+      if(n === 2) v11SecretAwakening(stage,done);
+    }else{
+      v11Sfx("sparkle");
+      v11Vibrate([40]);
+      const n = Math.floor(Math.random()*7);
+      if(n === 0) v11NormalCatDelivery(stage,done);
+      if(n === 1) v11NormalPawStamp(stage,done);
+      if(n === 2) v11NormalGiftBox(stage,done);
+      if(n === 3) v11NormalShootingStar(stage,done);
+      if(n === 4) v11NormalMagicCircle(stage,done);
+      if(n === 5) v11NormalCatEyes(stage,done);
+      if(n === 6) v11NormalMoonJump(stage,done);
+    }
+  });
+}
+
+function v11Cutin(stage,text,delay){
+  setTimeout(function(){
+    const el = document.createElement("div");
+    el.className = "v11Cutin";
+    el.textContent = text;
+    stage.appendChild(el);
+  },delay || 0);
+}
+
+/* 通常演出 7種類 */
+function v11NormalCatDelivery(stage,done){
+  v11Cutin(stage,"黒猫がシールを運んできた…",160);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),680);
+  setTimeout(()=>v11Envelope(stage),1450);
+  setTimeout(()=>v11Paws(stage,18,1.0),1600);
+  setTimeout(()=>v11Sfx("paw"),1800);
+  setTimeout(()=>v11Gold(stage,42),2250);
+  setTimeout(()=>v11Flash(stage),2780);
+  setTimeout(()=>v11Sfx("boom"),2800);
+  setTimeout(()=>v11Card(stage),3280);
+  setTimeout(done,4580);
+}
+
+function v11NormalPawStamp(stage,done){
+  v11Cutin(stage,"肉球パワー発動！",160);
+  setTimeout(()=>v11Paws(stage,30,1.5),550);
+  setTimeout(()=>v11BigPaw(stage),2050);
+  setTimeout(()=>v11Sfx("boom"),2100);
+  setTimeout(()=>v11Vibrate([60,35,90]),2120);
+  setTimeout(()=>v11Flash(stage),2320);
+  setTimeout(()=>v11Gold(stage,46),2500);
+  setTimeout(()=>v11Card(stage),3150);
+  setTimeout(done,4380);
+}
+
+function v11NormalGiftBox(stage,done){
+  v11Cutin(stage,"プレゼント箱が暴れている…",180);
+  const gift = document.createElement("div");
+  gift.className = "giftBox";
+  gift.innerHTML = '<div class="giftRibbon"></div>';
+  setTimeout(()=>stage.appendChild(gift),620);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),1300);
+  setTimeout(()=>v11Stars(stage,38,1.2),1500);
+  setTimeout(()=>v11Sfx("paw"),1750);
+  setTimeout(()=>v11Flash(stage),2600);
+  setTimeout(()=>v11Sfx("boom"),2640);
+  setTimeout(()=>v11Gold(stage,48),2750);
+  setTimeout(()=>v11Card(stage),3300);
+  setTimeout(done,4620);
+}
+
+function v11NormalShootingStar(stage,done){
+  v11Cutin(stage,"流れ星が願いを届ける…",120);
+  for(let i=0;i<5;i++){
+    setTimeout(()=>v11ShootingStar(stage),520 + i*310);
+  }
+  setTimeout(()=>v11Stars(stage,58,1.8),760);
+  setTimeout(()=>v11Sfx("sparkle"),1300);
+  setTimeout(()=>v11Gold(stage,40),2350);
+  setTimeout(()=>v11Flash(stage),2750);
+  setTimeout(()=>v11Card(stage),3150);
+  setTimeout(done,4380);
+}
+
+function v11NormalMagicCircle(stage,done){
+  v11Cutin(stage,"魔法陣が開く…",150);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  setTimeout(()=>stage.appendChild(ring),620);
+  setTimeout(()=>v11Paws(stage,22,1.1),900);
+  setTimeout(()=>v11Gold(stage,55),1600);
+  setTimeout(()=>v11Sfx("sparkle"),2150);
+  setTimeout(()=>v11Rainbow(stage),2380);
+  setTimeout(()=>v11Flash(stage),2820);
+  setTimeout(()=>v11Card(stage),3300);
+  setTimeout(done,4550);
+}
+
+function v11NormalCatEyes(stage,done){
+  v11Cutin(stage,"暗闇に金色の目が光る…",170);
+  setTimeout(()=>v11Eyes(stage),620);
+  setTimeout(()=>v11Sfx("paw"),1180);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),2050);
+  setTimeout(()=>v11Envelope(stage),2380);
+  setTimeout(()=>v11Gold(stage,38),2680);
+  setTimeout(()=>v11Flash(stage),3040);
+  setTimeout(()=>v11Card(stage),3460);
+  setTimeout(done,4700);
+}
+
+function v11NormalMoonJump(stage,done){
+  v11Cutin(stage,"月が赤く染まる…",120);
+  const moon = document.createElement("div");
+  moon.className = "moon redMoon";
+  setTimeout(()=>stage.appendChild(moon),420);
+  setTimeout(()=>v11Stars(stage,48,1.4),650);
+  setTimeout(()=>v11CatJump(stage),2050);
+  setTimeout(()=>v11Sfx("sparkle"),2350);
+  setTimeout(()=>v11Rainbow(stage),2750);
+  setTimeout(()=>v11Flash(stage),3250);
+  setTimeout(()=>v11Card(stage),3680);
+  setTimeout(done,5000);
+}
+
+/* シークレット演出 3種類：通常より長く・派手 */
+function v11SecretTimeStop(stage,done){
+  document.getElementById("effect").classList.add("secretMode");
+  v11Cutin(stage,"……時間が止まった",300);
+  const stop = document.createElement("div");
+  stop.className = "v11TimeStop";
+  setTimeout(()=>stage.appendChild(stop),650);
+  setTimeout(()=>v11Sfx("secret"),2500);
+  setTimeout(()=>v11UltraFlash(stage),3050);
+  setTimeout(()=>addScreenCrack(stage),3300);
+  setTimeout(()=>v11Gate(stage),3650);
+  setTimeout(()=>v11Rainbow(stage),4050);
+  setTimeout(()=>v11Gold(stage,95),4150);
+  setTimeout(()=>v11SecretTitle(stage,"SECRET TIME"),4400);
+  setTimeout(()=>v11Card(stage),5050);
+  setTimeout(done,6500);
+}
+
+function v11SecretMiracle(stage,done){
+  document.getElementById("effect").classList.add("secretMode");
+  v11Cutin(stage,"黒猫の奇跡が起きる…",240);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),650);
+  setTimeout(()=>v11Envelope(stage),1500);
+  setTimeout(()=>v11Paws(stage,34,1.7),1850);
+  setTimeout(()=>v11Gold(stage,110),2200);
+  setTimeout(()=>v11Sfx("secret"),2550);
+  setTimeout(()=>v11UltraFlash(stage),3150);
+  setTimeout(()=>v11Gate(stage),3550);
+  setTimeout(()=>v11Rainbow(stage),3950);
+  setTimeout(()=>v11SecretTitle(stage,"SECRET MIRACLE"),4250);
+  setTimeout(()=>v11Card(stage),5100);
+  setTimeout(done,6600);
+}
+
+function v11SecretAwakening(stage,done){
+  document.getElementById("effect").classList.add("secretMode");
+  v11Cutin(stage,"クロネコ覚醒",260);
+  setTimeout(()=>v11Eyes(stage),880);
+  setTimeout(()=>v11SecretTitle(stage,"SECRET"),1000);
+
+  const b1 = document.createElement("div");
+  b1.className = "v11Lightning";
+  b1.style.left = "32%";
+  const b2 = document.createElement("div");
+  b2.className = "v11Lightning";
+  b2.style.left = "62%";
+  b2.style.animationDelay = ".18s";
+
+  setTimeout(()=>stage.appendChild(b1),1450);
+  setTimeout(()=>stage.appendChild(b2),1580);
+
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  setTimeout(()=>stage.appendChild(aura),2000);
+
+  setTimeout(()=>v11Paws(stage,46,1.8),2100);
+  setTimeout(()=>v11Gold(stage,130),2350);
+  setTimeout(()=>v11Sfx("secret"),2850);
+  setTimeout(()=>v11UltraFlash(stage),3300);
+  setTimeout(()=>addScreenCrack(stage),3650);
+  setTimeout(()=>v11Gate(stage),4000);
+  setTimeout(()=>v11Rainbow(stage),4400);
+  setTimeout(()=>v11Card(stage),5350);
+  setTimeout(done,7000);
+}
+
+/* Parts */
+function v11Flash(stage){
+  const f = document.createElement("div");
+  f.className = "v11Flash";
+  stage.appendChild(f);
+}
+
+function v11UltraFlash(stage){
+  const f = document.createElement("div");
+  f.className = "v11UltraFlash";
+  stage.appendChild(f);
+}
+
+function v11Rainbow(stage){
+  const a = document.createElement("div");
+  a.className = "v11RainbowAura";
+  stage.appendChild(a);
+}
+
+function v11Card(stage){
+  const c = document.createElement("div");
+  c.className = "v11Card3D";
+  stage.appendChild(c);
+}
+
+function v11Envelope(stage){
+  const e = document.createElement("div");
+  e.className = "v11Envelope";
+  stage.appendChild(e);
+}
+
+function v11Eyes(stage){
+  const e = document.createElement("div");
+  e.className = "v11Eyes";
+  stage.appendChild(e);
+}
+
+function v11BigPaw(stage){
+  const p = document.createElement("div");
+  p.className = "v11BigPaw";
+  stage.appendChild(p);
+}
+
+function v11ShootingStar(stage){
+  const s = document.createElement("div");
+  s.className = "v11ShootingStar";
+  s.style.top = (13 + Math.random()*36) + "%";
+  stage.appendChild(s);
+}
+
+function v11CatJump(stage){
+  const c = document.createElement("div");
+  c.className = "catJump";
+  c.textContent = "🐈‍⬛";
+  stage.appendChild(c);
+}
+
+function v11Gate(stage){
+  const g = document.createElement("div");
+  g.className = "v11Gate";
+  stage.appendChild(g);
+}
+
+function v11SecretTitle(stage,text){
+  const t = document.createElement("div");
+  t.className = "v11SecretTitle";
+  t.textContent = text || "SECRET";
+  stage.appendChild(t);
+}
+
+function v11Stars(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "v11Star";
+    s.style.left = (Math.random()*100) + "%";
+    s.style.top = (-12 - Math.random()*32) + "%";
+    s.style.animationDelay = (Math.random()*(maxDelay || 1)) + "s";
+    stage.appendChild(s);
+  }
+}
+
+function v11Paws(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "v11Paw";
+    p.style.left = (Math.random()*94) + "%";
+    p.style.top = (12 + Math.random()*74) + "%";
+    p.style.animationDelay = (Math.random()*(maxDelay || 1)) + "s";
+    stage.appendChild(p);
+  }
+}
+
+function v11Gold(stage,count){
+  for(let i=0;i<count;i++){
+    const d = document.createElement("div");
+    d.className = "v11Gold";
+    d.style.left = (45 + Math.random()*10) + "%";
+    d.style.top = (46 + Math.random()*12) + "%";
+    d.style.setProperty("--dx", (Math.random()*360 - 180) + "px");
+    d.style.setProperty("--dy", (Math.random()*360 - 180) + "px");
+    d.style.animationDelay = (Math.random()*0.48) + "s";
+    stage.appendChild(d);
+  }
+}
+
+setTimeout(v11InitSoundButton, 300);
 
 </script>
 
@@ -1928,12 +2351,458 @@ html,body{
   font-size:12px !important;
 }
 
+
+/* ===== Ver.11 演出超強化版：通常7種・シークレット3種・効果音強化 ===== */
+
+#effect{
+  background:rgba(0,0,0,.96) !important;
+}
+
+.v11Cutin{
+  position:absolute;
+  left:50%;
+  top:14%;
+  transform:translateX(-50%);
+  z-index:100;
+  color:#fff7d6;
+  font-size:24px;
+  font-weight:900;
+  white-space:nowrap;
+  text-align:center;
+  letter-spacing:1px;
+  text-shadow:
+    0 0 10px #facc15,
+    0 0 22px rgba(250,204,21,.8),
+    0 4px 10px #000;
+  opacity:0;
+  animation:v11Cutin 2.8s ease forwards;
+}
+
+@keyframes v11Cutin{
+  0%{opacity:0; transform:translateX(-50%) scale(.72) translateY(12px);}
+  14%{opacity:1; transform:translateX(-50%) scale(1.08) translateY(0);}
+  76%{opacity:1; transform:translateX(-50%) scale(1);}
+  100%{opacity:0; transform:translateX(-50%) scale(1.12) translateY(-8px);}
+}
+
+.v11Flash{
+  position:absolute;
+  inset:0;
+  z-index:200;
+  background:white;
+  pointer-events:none;
+  opacity:0;
+  animation:v11Flash .75s ease forwards;
+}
+
+@keyframes v11Flash{
+  0%,100%{opacity:0;}
+  20%{opacity:.94;}
+  42%{opacity:.2;}
+  58%{opacity:.78;}
+  76%{opacity:.12;}
+}
+
+.v11UltraFlash{
+  position:absolute;
+  inset:0;
+  z-index:210;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 50%, #fff, rgba(250,204,21,.9) 26%, rgba(244,114,182,.65) 45%, transparent 70%);
+  opacity:0;
+  animation:v11UltraFlash 1.2s ease forwards;
+}
+
+@keyframes v11UltraFlash{
+  0%{opacity:0; transform:scale(.4);}
+  28%{opacity:1; transform:scale(1);}
+  55%{opacity:.5; transform:scale(1.35);}
+  100%{opacity:0; transform:scale(2.2);}
+}
+
+.v11DimPulse{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(250,204,21,.16), transparent 34%),
+    rgba(0,0,0,.78);
+  animation:v11DimPulse 3.5s ease infinite alternate;
+}
+
+@keyframes v11DimPulse{
+  from{filter:brightness(.8);}
+  to{filter:brightness(1.25);}
+}
+
+.v11Star{
+  position:absolute;
+  width:14px;
+  height:14px;
+  z-index:48;
+  background:#fff7ad;
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  filter:drop-shadow(0 0 10px #facc15);
+  animation:v11StarFall 2.6s linear forwards;
+}
+
+@keyframes v11StarFall{
+  0%{opacity:0; transform:translateY(-25vh) scale(.35) rotate(0);}
+  12%{opacity:1;}
+  100%{opacity:0; transform:translateY(118vh) scale(1.35) rotate(520deg);}
+}
+
+.v11Gold{
+  position:absolute;
+  width:8px;
+  height:8px;
+  z-index:70;
+  border-radius:50%;
+  background:#facc15;
+  box-shadow:0 0 12px #facc15, 0 0 22px rgba(250,204,21,.7);
+  animation:v11GoldBurst 1.8s cubic-bezier(.18,.8,.22,1) forwards;
+}
+
+@keyframes v11GoldBurst{
+  0%{opacity:0; transform:translate(0,0) scale(.2);}
+  16%{opacity:1;}
+  100%{opacity:0; transform:translate(var(--dx),var(--dy)) scale(1.3);}
+}
+
+.v11Paw{
+  position:absolute;
+  z-index:62;
+  opacity:0;
+  filter:drop-shadow(0 0 12px #facc15);
+  animation:v11PawFloat 2.3s ease forwards;
+}
+.v11Paw::before{
+  content:"🐾";
+  font-size:38px;
+}
+
+@keyframes v11PawFloat{
+  0%{opacity:0; transform:translateY(42px) scale(.25) rotate(-28deg);}
+  18%{opacity:1;}
+  70%{opacity:1;}
+  100%{opacity:0; transform:translateY(-155px) scale(1.18) rotate(28deg);}
+}
+
+.v11BigPaw{
+  position:absolute;
+  left:50%;
+  top:53%;
+  z-index:85;
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  transform:translate(-50%,-50%) scale(.1) rotate(-20deg);
+  background:radial-gradient(circle, #fff7ad 0%, #facc15 45%, #f97316 100%);
+  box-shadow:0 0 55px #facc15,0 0 120px rgba(250,204,21,.75);
+  opacity:0;
+  animation:v11BigPaw .95s ease-out forwards;
+}
+.v11BigPaw::before{
+  content:"🐾";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:112px;
+}
+
+@keyframes v11BigPaw{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.1) rotate(-20deg);}
+  42%{opacity:1; transform:translate(-50%,-50%) scale(1.32) rotate(8deg);}
+  70%{opacity:1; transform:translate(-50%,-50%) scale(.96) rotate(0);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.75) rotate(0);}
+}
+
+.v11RainbowAura{
+  position:absolute;
+  left:50%;
+  top:51%;
+  z-index:50;
+  width:160px;
+  height:160px;
+  border-radius:50%;
+  transform:translate(-50%,-50%) scale(.15) rotate(0);
+  background:conic-gradient(#f00,#fb0,#ff0,#0f0,#0ff,#00f,#a0f,#f0a,#f00);
+  filter:blur(5px);
+  opacity:0;
+  animation:v11RainbowAura 3.2s ease forwards;
+}
+
+@keyframes v11RainbowAura{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.15) rotate(0);}
+  25%{opacity:.9; transform:translate(-50%,-50%) scale(1.15) rotate(180deg);}
+  75%{opacity:.82; transform:translate(-50%,-50%) scale(2.65) rotate(560deg);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(3.8) rotate(760deg);}
+}
+
+.v11Card3D{
+  position:absolute;
+  left:50%;
+  top:52%;
+  z-index:120;
+  width:185px;
+  height:244px;
+  border-radius:19px;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.98),rgba(250,204,21,.88)),
+    radial-gradient(circle,rgba(255,255,255,.9),transparent);
+  transform:translate(-50%,-50%) scale(.12) rotateY(88deg) rotateZ(-10deg);
+  box-shadow:0 0 55px #facc15,0 0 110px rgba(250,204,21,.65);
+  opacity:0;
+  animation:v11Card3D 1.35s cubic-bezier(.16,.92,.24,1) forwards;
+}
+.v11Card3D::before{
+  content:"";
+  position:absolute;
+  inset:9px;
+  border-radius:14px;
+  border:3px solid rgba(120,53,15,.35);
+}
+.v11Card3D::after{
+  content:"🐾";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:58px;
+  filter:drop-shadow(0 0 12px #facc15);
+}
+
+@keyframes v11Card3D{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.12) rotateY(88deg) rotateZ(-10deg);}
+  40%{opacity:1; transform:translate(-50%,-50%) scale(1.22) rotateY(-14deg) rotateZ(4deg);}
+  68%{opacity:1; transform:translate(-50%,-50%) scale(.96) rotateY(7deg) rotateZ(-2deg);}
+  100%{opacity:1; transform:translate(-50%,-50%) scale(1) rotateY(0) rotateZ(0);}
+}
+
+.v11Envelope{
+  position:absolute;
+  left:50%;
+  top:54%;
+  z-index:72;
+  width:164px;
+  height:108px;
+  border-radius:13px;
+  background:linear-gradient(180deg,#fff7d6,#facc15);
+  box-shadow:0 0 44px rgba(250,204,21,.8);
+  opacity:0;
+  transform:translate(-50%,-95%) scale(.22) rotate(-14deg);
+  animation:v11Envelope 2.65s ease forwards;
+}
+.v11Envelope::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:13px;
+  background:
+    linear-gradient(135deg,transparent 49%,rgba(120,53,15,.34) 50%,transparent 51%),
+    linear-gradient(45deg,transparent 49%,rgba(120,53,15,.34) 50%,transparent 51%);
+}
+.v11Envelope::after{
+  content:"🐾";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:34px;
+}
+
+@keyframes v11Envelope{
+  0%{opacity:0; transform:translate(-50%,-95%) scale(.22) rotate(-14deg);}
+  32%{opacity:1; transform:translate(-50%,-50%) scale(1.1) rotate(6deg);}
+  72%{opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.3) rotate(0);}
+}
+
+.v11Eyes{
+  position:absolute;
+  left:50%;
+  top:46%;
+  z-index:80;
+  width:140px;
+  height:46px;
+  transform:translate(-50%,-50%) scale(.45);
+  opacity:0;
+  filter:drop-shadow(0 0 20px #facc15);
+  animation:v11Eyes 2.9s ease forwards;
+}
+.v11Eyes::before,
+.v11Eyes::after{
+  content:"";
+  position:absolute;
+  top:8px;
+  width:36px;
+  height:22px;
+  border-radius:50%;
+  background:#facc15;
+  box-shadow:0 0 22px #facc15, inset 0 0 8px #fff7ad;
+}
+.v11Eyes::before{left:8px;}
+.v11Eyes::after{right:8px;}
+
+@keyframes v11Eyes{
+  0%,18%{opacity:0; transform:translate(-50%,-50%) scale(.45);}
+  38%{opacity:1; transform:translate(-50%,-50%) scale(1);}
+  74%{opacity:1; transform:translate(-50%,-50%) scale(1.18);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.55);}
+}
+
+.v11ShootingStar{
+  position:absolute;
+  left:-32%;
+  top:22%;
+  z-index:65;
+  width:190px;
+  height:6px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,#fff,#fff7ad,#facc15);
+  box-shadow:0 0 26px #facc15;
+  transform:rotate(-24deg);
+  opacity:0;
+  animation:v11ShootingStar 1.25s ease forwards;
+}
+
+@keyframes v11ShootingStar{
+  0%{opacity:0; left:-32%; top:20%;}
+  14%{opacity:1;}
+  100%{opacity:0; left:118%; top:56%;}
+}
+
+.v11Gate{
+  position:absolute;
+  left:50%;
+  top:50%;
+  z-index:100;
+  width:58px;
+  height:250px;
+  border-radius:999px;
+  transform:translate(-50%,-50%) scaleX(.05);
+  background:linear-gradient(180deg,#fff,#fff7ad,#facc15,#f472b6,#60a5fa);
+  box-shadow:0 0 78px #facc15,0 0 150px #f472b6,0 0 210px rgba(96,165,250,.65);
+  opacity:0;
+  animation:v11Gate 3.35s ease forwards;
+}
+
+@keyframes v11Gate{
+  0%{opacity:0; transform:translate(-50%,-50%) scaleX(.04) scaleY(.2);}
+  28%{opacity:1; transform:translate(-50%,-50%) scaleX(.38) scaleY(1);}
+  72%{opacity:1; transform:translate(-50%,-50%) scaleX(5.8) scaleY(1.45);}
+  100%{opacity:0; transform:translate(-50%,-50%) scaleX(8.5) scaleY(1.7);}
+}
+
+.v11TimeStop{
+  position:absolute;
+  inset:0;
+  z-index:40;
+  background:radial-gradient(circle,rgba(255,255,255,.22),rgba(0,0,0,.97) 70%);
+  opacity:0;
+  animation:v11TimeStop 4.1s ease forwards;
+}
+.v11TimeStop::before{
+  content:"……";
+  position:absolute;
+  left:50%;
+  top:41%;
+  transform:translate(-50%,-50%);
+  color:#fff7d6;
+  font-size:46px;
+  font-weight:900;
+  letter-spacing:9px;
+  text-shadow:0 0 20px #facc15;
+}
+.v11TimeStop::after{
+  content:"🕛";
+  position:absolute;
+  left:50%;
+  top:57%;
+  transform:translate(-50%,-50%);
+  font-size:84px;
+  filter:drop-shadow(0 0 20px #facc15);
+}
+
+@keyframes v11TimeStop{
+  0%,20%{opacity:0;}
+  32%,78%{opacity:1;}
+  100%{opacity:0;}
+}
+
+.v11SecretTitle{
+  position:absolute;
+  left:50%;
+  top:23%;
+  z-index:140;
+  transform:translateX(-50%);
+  color:#fff7ad;
+  font-size:34px;
+  font-weight:900;
+  letter-spacing:3px;
+  white-space:nowrap;
+  text-shadow:
+    0 0 12px #facc15,
+    0 0 28px #f472b6,
+    0 0 46px #60a5fa;
+  opacity:0;
+  animation:v11SecretTitle 3.2s ease forwards;
+}
+
+@keyframes v11SecretTitle{
+  0%{opacity:0; transform:translateX(-50%) scale(.5) rotate(-3deg);}
+  22%{opacity:1; transform:translateX(-50%) scale(1.12) rotate(2deg);}
+  75%{opacity:1; transform:translateX(-50%) scale(1);}
+  100%{opacity:0; transform:translateX(-50%) scale(1.25);}
+}
+
+.v11Lightning{
+  position:absolute;
+  top:2%;
+  z-index:130;
+  width:38px;
+  height:340px;
+  background:#fef08a;
+  clip-path:polygon(45% 0,82% 0,58% 38%,92% 38%,32% 100%,48% 53%,16% 53%);
+  filter:drop-shadow(0 0 24px #facc15);
+  opacity:0;
+  animation:v11Lightning 4.0s ease-in-out forwards;
+}
+
+@keyframes v11Lightning{
+  0%,18%,34%,52%,100%{opacity:0;}
+  24%,30%,60%,68%{opacity:1;}
+}
+
+.v11SkipHint{
+  position:absolute;
+  right:12px;
+  bottom:18px;
+  z-index:220;
+  color:rgba(255,255,255,.75);
+  font-size:12px;
+  font-weight:700;
+}
+
+#result.result3d #resultImg{
+  animation:v11Result3D .92s cubic-bezier(.16,.92,.24,1) both;
+}
+
+@keyframes v11Result3D{
+  0%{opacity:0; transform:scale(.12) rotateY(88deg) rotateZ(-10deg);}
+  45%{opacity:1; transform:scale(1.22) rotateY(-14deg) rotateZ(4deg);}
+  72%{opacity:1; transform:scale(.96) rotateY(7deg) rotateZ(-2deg);}
+  100%{opacity:1; transform:scale(1) rotateY(0) rotateZ(0);}
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=52">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=60">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
@@ -3129,6 +3998,429 @@ function v9GoldDust(stage,count){
 }
 
 setTimeout(initSoundButton, 300);
+
+
+/* ===== Ver.11 演出超強化版 JS ===== */
+
+function v11InitSoundButton(){
+  const btn = document.getElementById("soundToggle");
+  if(!btn) return;
+  btn.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF";
+}
+
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  try{
+    localStorage.setItem("kuronekoSound", soundEnabled ? "on" : "off");
+  }catch(e){}
+  v11InitSoundButton();
+  if(soundEnabled) v11Sfx("open");
+}
+
+/* しょぼさ対策：単音ではなく複数音を重ねる */
+function v11Sfx(type){
+  if(!soundEnabled) return;
+
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+
+    const ctx = new AudioCtx();
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, ctx.currentTime);
+    master.gain.exponentialRampToValueAtTime(0.20, ctx.currentTime + 0.02);
+    master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.1);
+    master.connect(ctx.destination);
+
+    function tone(freq, start, dur, wave, volume){
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = wave || "sine";
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(volume || 0.12, ctx.currentTime + start + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur + 0.04);
+    }
+
+    if(type === "paw"){
+      tone(160,0,.10,"triangle",.16);
+      tone(95,.04,.14,"sine",.14);
+    }else if(type === "sparkle"){
+      tone(880,0,.12,"sine",.10);
+      tone(1320,.07,.14,"sine",.12);
+      tone(1760,.15,.12,"sine",.10);
+    }else if(type === "boom"){
+      tone(70,0,.24,"sawtooth",.18);
+      tone(120,.05,.18,"triangle",.14);
+      tone(45,.12,.3,"sine",.12);
+    }else if(type === "secret"){
+      tone(520,0,.18,"sine",.12);
+      tone(780,.12,.18,"sine",.13);
+      tone(1040,.24,.2,"sine",.14);
+      tone(1560,.38,.28,"square",.10);
+      tone(90,.48,.36,"sawtooth",.16);
+    }else if(type === "open"){
+      tone(660,0,.10,"sine",.08);
+      tone(990,.08,.10,"sine",.08);
+    }else{
+      tone(550,0,.12,"sine",.10);
+    }
+
+    setTimeout(function(){
+      try{ctx.close();}catch(e){}
+    },1300);
+  }catch(e){}
+}
+
+function v11Vibrate(pattern){
+  try{
+    if(navigator.vibrate) navigator.vibrate(pattern || [35]);
+  }catch(e){}
+}
+
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    const dim = document.createElement("div");
+    dim.className = "v11DimPulse";
+    stage.appendChild(dim);
+
+    const hint = document.createElement("div");
+    hint.className = "v11SkipHint";
+    hint.textContent = "長押しでスキップ";
+    stage.appendChild(hint);
+
+    let finished = false;
+    let pressTimer = null;
+
+    function done(){
+      if(finished) return;
+      finished = true;
+      effect.onpointerdown = null;
+      effect.onpointerup = null;
+      effect.onpointercancel = null;
+      finishEffect(resolve);
+    }
+
+    effect.onpointerdown = function(){
+      pressTimer = setTimeout(done, 650);
+    };
+    effect.onpointerup = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+    effect.onpointercancel = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+
+    if(isSecret){
+      v11Sfx("secret");
+      v11Vibrate([90,40,130,40,210]);
+      const n = Math.floor(Math.random()*3);
+      if(n === 0) v11SecretTimeStop(stage,done);
+      if(n === 1) v11SecretMiracle(stage,done);
+      if(n === 2) v11SecretAwakening(stage,done);
+    }else{
+      v11Sfx("sparkle");
+      v11Vibrate([40]);
+      const n = Math.floor(Math.random()*7);
+      if(n === 0) v11NormalCatDelivery(stage,done);
+      if(n === 1) v11NormalPawStamp(stage,done);
+      if(n === 2) v11NormalGiftBox(stage,done);
+      if(n === 3) v11NormalShootingStar(stage,done);
+      if(n === 4) v11NormalMagicCircle(stage,done);
+      if(n === 5) v11NormalCatEyes(stage,done);
+      if(n === 6) v11NormalMoonJump(stage,done);
+    }
+  });
+}
+
+function v11Cutin(stage,text,delay){
+  setTimeout(function(){
+    const el = document.createElement("div");
+    el.className = "v11Cutin";
+    el.textContent = text;
+    stage.appendChild(el);
+  },delay || 0);
+}
+
+/* 通常演出 7種類 */
+function v11NormalCatDelivery(stage,done){
+  v11Cutin(stage,"黒猫がシールを運んできた…",160);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),680);
+  setTimeout(()=>v11Envelope(stage),1450);
+  setTimeout(()=>v11Paws(stage,18,1.0),1600);
+  setTimeout(()=>v11Sfx("paw"),1800);
+  setTimeout(()=>v11Gold(stage,42),2250);
+  setTimeout(()=>v11Flash(stage),2780);
+  setTimeout(()=>v11Sfx("boom"),2800);
+  setTimeout(()=>v11Card(stage),3280);
+  setTimeout(done,4580);
+}
+
+function v11NormalPawStamp(stage,done){
+  v11Cutin(stage,"肉球パワー発動！",160);
+  setTimeout(()=>v11Paws(stage,30,1.5),550);
+  setTimeout(()=>v11BigPaw(stage),2050);
+  setTimeout(()=>v11Sfx("boom"),2100);
+  setTimeout(()=>v11Vibrate([60,35,90]),2120);
+  setTimeout(()=>v11Flash(stage),2320);
+  setTimeout(()=>v11Gold(stage,46),2500);
+  setTimeout(()=>v11Card(stage),3150);
+  setTimeout(done,4380);
+}
+
+function v11NormalGiftBox(stage,done){
+  v11Cutin(stage,"プレゼント箱が暴れている…",180);
+  const gift = document.createElement("div");
+  gift.className = "giftBox";
+  gift.innerHTML = '<div class="giftRibbon"></div>';
+  setTimeout(()=>stage.appendChild(gift),620);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),1300);
+  setTimeout(()=>v11Stars(stage,38,1.2),1500);
+  setTimeout(()=>v11Sfx("paw"),1750);
+  setTimeout(()=>v11Flash(stage),2600);
+  setTimeout(()=>v11Sfx("boom"),2640);
+  setTimeout(()=>v11Gold(stage,48),2750);
+  setTimeout(()=>v11Card(stage),3300);
+  setTimeout(done,4620);
+}
+
+function v11NormalShootingStar(stage,done){
+  v11Cutin(stage,"流れ星が願いを届ける…",120);
+  for(let i=0;i<5;i++){
+    setTimeout(()=>v11ShootingStar(stage),520 + i*310);
+  }
+  setTimeout(()=>v11Stars(stage,58,1.8),760);
+  setTimeout(()=>v11Sfx("sparkle"),1300);
+  setTimeout(()=>v11Gold(stage,40),2350);
+  setTimeout(()=>v11Flash(stage),2750);
+  setTimeout(()=>v11Card(stage),3150);
+  setTimeout(done,4380);
+}
+
+function v11NormalMagicCircle(stage,done){
+  v11Cutin(stage,"魔法陣が開く…",150);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  setTimeout(()=>stage.appendChild(ring),620);
+  setTimeout(()=>v11Paws(stage,22,1.1),900);
+  setTimeout(()=>v11Gold(stage,55),1600);
+  setTimeout(()=>v11Sfx("sparkle"),2150);
+  setTimeout(()=>v11Rainbow(stage),2380);
+  setTimeout(()=>v11Flash(stage),2820);
+  setTimeout(()=>v11Card(stage),3300);
+  setTimeout(done,4550);
+}
+
+function v11NormalCatEyes(stage,done){
+  v11Cutin(stage,"暗闇に金色の目が光る…",170);
+  setTimeout(()=>v11Eyes(stage),620);
+  setTimeout(()=>v11Sfx("paw"),1180);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),2050);
+  setTimeout(()=>v11Envelope(stage),2380);
+  setTimeout(()=>v11Gold(stage,38),2680);
+  setTimeout(()=>v11Flash(stage),3040);
+  setTimeout(()=>v11Card(stage),3460);
+  setTimeout(done,4700);
+}
+
+function v11NormalMoonJump(stage,done){
+  v11Cutin(stage,"月が赤く染まる…",120);
+  const moon = document.createElement("div");
+  moon.className = "moon redMoon";
+  setTimeout(()=>stage.appendChild(moon),420);
+  setTimeout(()=>v11Stars(stage,48,1.4),650);
+  setTimeout(()=>v11CatJump(stage),2050);
+  setTimeout(()=>v11Sfx("sparkle"),2350);
+  setTimeout(()=>v11Rainbow(stage),2750);
+  setTimeout(()=>v11Flash(stage),3250);
+  setTimeout(()=>v11Card(stage),3680);
+  setTimeout(done,5000);
+}
+
+/* シークレット演出 3種類：通常より長く・派手 */
+function v11SecretTimeStop(stage,done){
+  document.getElementById("effect").classList.add("secretMode");
+  v11Cutin(stage,"……時間が止まった",300);
+  const stop = document.createElement("div");
+  stop.className = "v11TimeStop";
+  setTimeout(()=>stage.appendChild(stop),650);
+  setTimeout(()=>v11Sfx("secret"),2500);
+  setTimeout(()=>v11UltraFlash(stage),3050);
+  setTimeout(()=>addScreenCrack(stage),3300);
+  setTimeout(()=>v11Gate(stage),3650);
+  setTimeout(()=>v11Rainbow(stage),4050);
+  setTimeout(()=>v11Gold(stage,95),4150);
+  setTimeout(()=>v11SecretTitle(stage,"SECRET TIME"),4400);
+  setTimeout(()=>v11Card(stage),5050);
+  setTimeout(done,6500);
+}
+
+function v11SecretMiracle(stage,done){
+  document.getElementById("effect").classList.add("secretMode");
+  v11Cutin(stage,"黒猫の奇跡が起きる…",240);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),650);
+  setTimeout(()=>v11Envelope(stage),1500);
+  setTimeout(()=>v11Paws(stage,34,1.7),1850);
+  setTimeout(()=>v11Gold(stage,110),2200);
+  setTimeout(()=>v11Sfx("secret"),2550);
+  setTimeout(()=>v11UltraFlash(stage),3150);
+  setTimeout(()=>v11Gate(stage),3550);
+  setTimeout(()=>v11Rainbow(stage),3950);
+  setTimeout(()=>v11SecretTitle(stage,"SECRET MIRACLE"),4250);
+  setTimeout(()=>v11Card(stage),5100);
+  setTimeout(done,6600);
+}
+
+function v11SecretAwakening(stage,done){
+  document.getElementById("effect").classList.add("secretMode");
+  v11Cutin(stage,"クロネコ覚醒",260);
+  setTimeout(()=>v11Eyes(stage),880);
+  setTimeout(()=>v11SecretTitle(stage,"SECRET"),1000);
+
+  const b1 = document.createElement("div");
+  b1.className = "v11Lightning";
+  b1.style.left = "32%";
+  const b2 = document.createElement("div");
+  b2.className = "v11Lightning";
+  b2.style.left = "62%";
+  b2.style.animationDelay = ".18s";
+
+  setTimeout(()=>stage.appendChild(b1),1450);
+  setTimeout(()=>stage.appendChild(b2),1580);
+
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  setTimeout(()=>stage.appendChild(aura),2000);
+
+  setTimeout(()=>v11Paws(stage,46,1.8),2100);
+  setTimeout(()=>v11Gold(stage,130),2350);
+  setTimeout(()=>v11Sfx("secret"),2850);
+  setTimeout(()=>v11UltraFlash(stage),3300);
+  setTimeout(()=>addScreenCrack(stage),3650);
+  setTimeout(()=>v11Gate(stage),4000);
+  setTimeout(()=>v11Rainbow(stage),4400);
+  setTimeout(()=>v11Card(stage),5350);
+  setTimeout(done,7000);
+}
+
+/* Parts */
+function v11Flash(stage){
+  const f = document.createElement("div");
+  f.className = "v11Flash";
+  stage.appendChild(f);
+}
+
+function v11UltraFlash(stage){
+  const f = document.createElement("div");
+  f.className = "v11UltraFlash";
+  stage.appendChild(f);
+}
+
+function v11Rainbow(stage){
+  const a = document.createElement("div");
+  a.className = "v11RainbowAura";
+  stage.appendChild(a);
+}
+
+function v11Card(stage){
+  const c = document.createElement("div");
+  c.className = "v11Card3D";
+  stage.appendChild(c);
+}
+
+function v11Envelope(stage){
+  const e = document.createElement("div");
+  e.className = "v11Envelope";
+  stage.appendChild(e);
+}
+
+function v11Eyes(stage){
+  const e = document.createElement("div");
+  e.className = "v11Eyes";
+  stage.appendChild(e);
+}
+
+function v11BigPaw(stage){
+  const p = document.createElement("div");
+  p.className = "v11BigPaw";
+  stage.appendChild(p);
+}
+
+function v11ShootingStar(stage){
+  const s = document.createElement("div");
+  s.className = "v11ShootingStar";
+  s.style.top = (13 + Math.random()*36) + "%";
+  stage.appendChild(s);
+}
+
+function v11CatJump(stage){
+  const c = document.createElement("div");
+  c.className = "catJump";
+  c.textContent = "🐈‍⬛";
+  stage.appendChild(c);
+}
+
+function v11Gate(stage){
+  const g = document.createElement("div");
+  g.className = "v11Gate";
+  stage.appendChild(g);
+}
+
+function v11SecretTitle(stage,text){
+  const t = document.createElement("div");
+  t.className = "v11SecretTitle";
+  t.textContent = text || "SECRET";
+  stage.appendChild(t);
+}
+
+function v11Stars(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "v11Star";
+    s.style.left = (Math.random()*100) + "%";
+    s.style.top = (-12 - Math.random()*32) + "%";
+    s.style.animationDelay = (Math.random()*(maxDelay || 1)) + "s";
+    stage.appendChild(s);
+  }
+}
+
+function v11Paws(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "v11Paw";
+    p.style.left = (Math.random()*94) + "%";
+    p.style.top = (12 + Math.random()*74) + "%";
+    p.style.animationDelay = (Math.random()*(maxDelay || 1)) + "s";
+    stage.appendChild(p);
+  }
+}
+
+function v11Gold(stage,count){
+  for(let i=0;i<count;i++){
+    const d = document.createElement("div");
+    d.className = "v11Gold";
+    d.style.left = (45 + Math.random()*10) + "%";
+    d.style.top = (46 + Math.random()*12) + "%";
+    d.style.setProperty("--dx", (Math.random()*360 - 180) + "px");
+    d.style.setProperty("--dy", (Math.random()*360 - 180) + "px");
+    d.style.animationDelay = (Math.random()*0.48) + "s";
+    stage.appendChild(d);
+  }
+}
+
+setTimeout(v11InitSoundButton, 300);
 
 </script>
 </body>
