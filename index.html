@@ -3002,49 +3002,35 @@ async function refreshDailyStatus(){
     });
 
     if(res && res.ok){
-      updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || 2), Number(res.bonusTickets || 0));
+      updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || 2));
     }
   }catch(e){
     setDailyLimitText("🎁 あと2回引けるにゃー♪");
   }
 }
 
-function updateDailyLimitText(remaining, limit, bonusTickets){
+function updateDailyLimitText(remaining, limit){
   dailyLimit = limit || 2;
   dailyRemaining = remaining;
 
-  const bonus = Number(bonusTickets || 0);
-
   if(remaining <= 0){
-    setDailyLimitText("また明日8時に来てにゃー♪");
-    setStatus("本日のガチャは終了です");
+    setDailyLimitText("🐾 今日はもう引いてるにゃー");
   }else{
     setDailyLimitText("🎁 あと" + remaining + "回引けるにゃー♪");
-    if(bonus > 0){
-      setStatus("黒猫のガチャ券を持ってるにゃ♪");
-    }else{
-      setStatus("今日も黒猫が待ってるにゃ♪");
-    }
   }
 }
-
-
 
 function setDailyLimitText(text){
   const el = document.getElementById("dailyLimitText");
   if(el) el.textContent = text;
 }
 
-async async function drawGacha(){
+async function drawGacha(){
   if(drawing) return;
 
   if(!profile.userId){
     alert("LINE名を確認中です。少し待ってから押してください。");
     return;
-  }
-
-  if(typeof kuronekoMeow === "function"){
-    kuronekoMeow("tap");
   }
 
   drawing = true;
@@ -3063,7 +3049,7 @@ async async function drawGacha(){
     if(!res || res.ok === false){
       drawing = false;
       if(res && typeof res.remaining !== "undefined"){
-        updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit), Number(res.bonusTickets || 0));
+        updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit));
       }else{
         setDailyLimitText("🐾 今日はもう引いてるにゃー");
       }
@@ -3073,30 +3059,13 @@ async async function drawGacha(){
     }
 
     if(typeof res.remaining !== "undefined"){
-      updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit), Number(res.bonusTickets || 0));
-    }
-
-    if(typeof kuronekoMeow === "function"){
-      kuronekoMeow(res.secret ? "secret" : "start");
+      updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit));
     }
 
     await playGachaEffect(res);
     drawing = false;
-
-    if(Number(res.remaining || 0) > 0){
-      setReadyStatus();
-    }else{
-      setDoneStatus();
-    }
-
+    setDoneStatus();
     showResult(res);
-
-    if(res.bonusTicket && typeof kuronekoShowBonusTicketFx === "function"){
-      setTimeout(function(){
-        kuronekoShowBonusTicketFx();
-        updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit), Number(res.bonusTickets || 0));
-      }, 900);
-    }
 
   }catch(e){
     drawing = false;
@@ -3106,8 +3075,6 @@ async async function drawGacha(){
     alert("通信エラーが出ました。少し待ってからもう一度試してください。");
   }
 }
-
-
 
 function playGachaEffect(res){
   return new Promise(resolve=>{
@@ -4513,230 +4480,81 @@ setTimeout(v11InitSoundButton, 300);
 </script>
 
 
-
-<style>
-/* ===== クロネコガチャ Ver.14 Final Complete 追加演出 ===== */
-#kuronekoBonusTicketFx{
-  position:fixed;
-  inset:0;
-  z-index:260;
-  display:none;
-  pointer-events:none;
-  overflow:hidden;
-  background:rgba(0,0,0,.20);
-}
-#kuronekoBonusTicketFx.show{display:block;}
-.kuroTicket{
-  position:absolute;
-  top:-100px;
-  left:50%;
-  width:150px;
-  height:72px;
-  transform:translateX(-50%);
-  border-radius:16px;
-  background:linear-gradient(135deg,#fff7ad,#facc15 45%,#f97316);
-  box-shadow:0 0 24px #facc15,0 0 60px rgba(250,204,21,.45);
-  border:3px solid rgba(255,255,255,.8);
-  animation:kuroTicketFall 2.8s cubic-bezier(.16,.84,.28,1) forwards;
-}
-.kuroTicket::before{
-  content:"🎫";
-  position:absolute;
-  left:12px;
-  top:13px;
-  font-size:32px;
-}
-.kuroTicket::after{
-  content:"もう1回";
-  position:absolute;
-  right:12px;
-  top:20px;
-  color:#3b2408;
-  font-size:21px;
-  font-weight:900;
-  text-shadow:0 1px 0 rgba(255,255,255,.75);
-}
-@keyframes kuroTicketFall{
-  0%{top:-100px; transform:translateX(-50%) rotate(-18deg) scale(.9); opacity:0;}
-  14%{opacity:1;}
-  38%{top:24%; transform:translateX(-62%) rotate(16deg) scale(1.06);}
-  62%{top:42%; transform:translateX(-38%) rotate(-10deg) scale(1.02);}
-  100%{top:52%; transform:translateX(-50%) rotate(0deg) scale(1); opacity:1;}
-}
-.kuroTicketMsg{
-  position:absolute;
-  left:50%;
-  top:66%;
-  width:min(86%,360px);
-  transform:translateX(-50%);
-  padding:16px 14px;
-  border-radius:22px;
-  background:rgba(0,0,0,.82);
-  color:#fff7d6;
-  text-align:center;
-  font-weight:900;
-  box-shadow:0 0 24px rgba(250,204,21,.45);
-  text-shadow:0 2px 4px #000;
-  opacity:0;
-  animation:kuroTicketMsgPop 2.6s .55s ease forwards;
-}
-.kuroTicketMsg .big{
-  display:block;
-  color:#facc15;
-  font-size:24px;
-  margin-bottom:5px;
-  text-shadow:0 0 12px #facc15;
-}
-.kuroTicketMsg .small{
-  display:block;
-  font-size:15px;
-}
-@keyframes kuroTicketMsgPop{
-  0%{opacity:0; transform:translateX(-50%) scale(.82);}
-  16%,82%{opacity:1; transform:translateX(-50%) scale(1);}
-  100%{opacity:0; transform:translateX(-50%) scale(.96);}
-}
-.kuroNewBadge{
-  position:absolute;
-  left:50%;
-  top:7%;
-  transform:translateX(-50%);
-  z-index:4;
-  padding:6px 14px;
-  border-radius:999px;
-  background:linear-gradient(90deg,#facc15,#f472b6);
-  color:#111827;
-  font-size:15px;
-  font-weight:900;
-  box-shadow:0 0 18px rgba(250,204,21,.7);
-  animation:kuroNewPulse 1.2s ease-in-out infinite alternate;
-}
-@keyframes kuroNewPulse{
-  from{transform:translateX(-50%) scale(.96); filter:brightness(1);}
-  to{transform:translateX(-50%) scale(1.06); filter:brightness(1.25);}
-}
-#collectionInfo .percentText{
-  display:block;
-  margin-top:3px;
-  color:#facc15;
-  font-size:13px;
-  font-weight:900;
-}
-</style>
-
 <script>
-/* ===== クロネコガチャ Ver.14 Final Complete 追加JS ===== */
+/* ===== Ver.12.1 表示文修正：受け取り済み表示の矛盾対策 ===== */
 (function(){
-  let kuroAudioCtx = null;
+  function setKuronekoStatusFixed(status){
+    const statusText = document.getElementById("statusText");
+    const dailyLimitText = document.getElementById("dailyLimitText");
 
-  function getAudioCtx(){
-    try{
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if(!Ctx) return null;
-      if(!kuroAudioCtx) kuroAudioCtx = new Ctx();
-      if(kuroAudioCtx.state === "suspended") kuroAudioCtx.resume();
-      return kuroAudioCtx;
-    }catch(e){ return null; }
-  }
+    const remaining = Number(status && status.remaining !== undefined ? status.remaining : 0);
+    const dailyLimit = Number(status && status.dailyLimit !== undefined ? status.dailyLimit : 1);
+    const usedCount = Math.max(0, dailyLimit - remaining);
 
-  function tone(freq,start,dur,wave,vol){
-    const ctx = getAudioCtx();
-    if(!ctx) return;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = wave || "sine";
-    osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
-    gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
-    gain.gain.exponentialRampToValueAtTime(vol || .08, ctx.currentTime + start + .018);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(ctx.currentTime + start);
-    osc.stop(ctx.currentTime + start + dur + .04);
-  }
-
-  function kuronekoMeow(kind){
-    try{
-      if(window.soundEnabled === false) return;
-      if(kind === "secret"){
-        tone(260,0,.18,"sine",.10);
-        tone(210,.11,.28,"triangle",.11);
-        tone(330,.26,.22,"sine",.08);
-      }else if(kind === "start"){
-        tone(720,0,.08,"sine",.08);
-        tone(880,.05,.13,"sine",.09);
-        tone(640,.16,.16,"triangle",.07);
+    if(statusText){
+      if(remaining > 0){
+        statusText.textContent = "今日も黒猫が待ってるにゃ♪";
       }else{
-        tone(660,0,.09,"sine",.08);
-        tone(820,.07,.12,"sine",.09);
+        statusText.textContent = "本日のガチャは終了です";
       }
-    }catch(e){}
-  }
+    }
 
-  window.kuronekoMeow = kuronekoMeow;
-
-  function ensureBonusLayer(){
-    let fx = document.getElementById("kuronekoBonusTicketFx");
-    if(fx) return fx;
-    fx = document.createElement("div");
-    fx.id = "kuronekoBonusTicketFx";
-    fx.innerHTML = '<div class="kuroTicket"></div><div class="kuroTicketMsg"><span class="big">🎫 ガチャ券GET！</span><span class="small">黒猫からのおまけにゃ♪<br>もう1回引けるにゃー！</span></div>';
-    document.body.appendChild(fx);
-    return fx;
-  }
-
-  function kuronekoShowBonusTicketFx(){
-    const fx = ensureBonusLayer();
-    fx.classList.remove("show");
-    void fx.offsetWidth;
-    fx.classList.add("show");
-    try{ if(navigator.vibrate) navigator.vibrate([60,40,90,40,120]); }catch(e){}
-    kuronekoMeow("start");
-    setTimeout(function(){ fx.classList.remove("show"); },3400);
-  }
-
-  window.kuronekoShowBonusTicketFx = kuronekoShowBonusTicketFx;
-
-  function enhanceCollectionPercent(){
-    const info = document.getElementById("collectionInfo");
-    if(!info) return;
-    const text = info.textContent || "";
-    const m = text.match(/(\d+)\s*\/\s*(\d+)/);
-    if(!m) return;
-    if(info.querySelector(".percentText")) return;
-    const owned = Number(m[1]);
-    const total = Number(m[2]);
-    if(!total) return;
-    const span = document.createElement("span");
-    span.className = "percentText";
-    span.textContent = "収集率 " + Math.floor((owned / total) * 100) + "%";
-    info.appendChild(span);
-  }
-
-  function enhanceResultNew(){
-    const result = document.getElementById("result");
-    const msg = document.getElementById("resultMsg");
-    if(!result || !msg || result.dataset.kuroNewDone === "1") return;
-    if(/NEW|新規|初/.test(msg.textContent)){
-      result.dataset.kuroNewDone = "1";
-      const badge = document.createElement("div");
-      badge.className = "kuroNewBadge";
-      badge.textContent = "NEW SEAL";
-      result.appendChild(badge);
+    if(dailyLimitText){
+      if(remaining > 0){
+        dailyLimitText.textContent = "🎁 あと" + remaining + "回引けるにゃー♪";
+      }else{
+        dailyLimitText.textContent = "また明日8時に来てにゃー♪";
+      }
     }
   }
 
+  window.kuronekoFixDailyStatusText = setKuronekoStatusFixed;
+
+  const oldUpdateDailyStatus = window.updateDailyStatus;
+  if(typeof oldUpdateDailyStatus === "function"){
+    window.updateDailyStatus = function(status){
+      try{
+        oldUpdateDailyStatus(status);
+      }catch(e){}
+      setKuronekoStatusFixed(status);
+    };
+  }
+
+  const oldRenderStatus = window.renderStatus;
+  if(typeof oldRenderStatus === "function"){
+    window.renderStatus = function(status){
+      try{
+        oldRenderStatus(status);
+      }catch(e){}
+      setKuronekoStatusFixed(status);
+    };
+  }
+
+  const oldSetStatus = window.setStatus;
+  if(typeof oldSetStatus === "function"){
+    window.setStatus = function(message){
+      oldSetStatus(message);
+      const dailyLimitText = document.getElementById("dailyLimitText");
+      if(dailyLimitText && /あと\d+回引ける/.test(dailyLimitText.textContent)){
+        const statusText = document.getElementById("statusText");
+        if(statusText && /受け取り済み|受取済み/.test(statusText.textContent)){
+          statusText.textContent = "今日も黒猫が待ってるにゃ♪";
+        }
+      }
+    };
+  }
+
   document.addEventListener("DOMContentLoaded", function(){
-    ensureBonusLayer();
-    const mo = new MutationObserver(function(){
-      enhanceCollectionPercent();
-      enhanceResultNew();
-    });
-    mo.observe(document.body,{childList:true,subtree:true,characterData:true});
     setTimeout(function(){
-      enhanceCollectionPercent();
-      enhanceResultNew();
-    },600);
+      const statusText = document.getElementById("statusText");
+      const dailyLimitText = document.getElementById("dailyLimitText");
+      if(statusText && dailyLimitText){
+        const m = dailyLimitText.textContent.match(/あと(\d+)回引ける/);
+        if(m && Number(m[1]) > 0 && /受け取り済み|受取済み/.test(statusText.textContent)){
+          statusText.textContent = "今日も黒猫が待ってるにゃ♪";
+        }
+      }
+    }, 800);
   });
 })();
 </script>
