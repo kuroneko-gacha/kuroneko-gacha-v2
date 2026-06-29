@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.10.1 下吹き出し修正版</title>
+<title>クロネコガチャ Ver.10.2 UI修正版</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
 /* ===== Ver.9 演出豪華版 JS ===== */
 
@@ -1849,13 +1849,14 @@ html,body{
 }
 
 
-/* ===== Ver.10 UI完成版：吹き出し整理・効果音ボタン移動・残り回数専用 ===== */
+/* ===== Ver.10.2 UI修正版：効果音ボタン・黒吹き出し・一番下吹き出し ===== */
 
-/* 効果音ボタンを左上へ */
+/* 効果音ボタン：左上へ移動 */
 #soundToggle{
+  position:absolute !important;
   left:3.5% !important;
   right:auto !important;
-  top:2.0% !important;
+  top:2.1% !important;
   width:66px !important;
   height:34px !important;
   border-radius:999px !important;
@@ -1873,33 +1874,44 @@ html,body{
 
 /* 図鑑下の黒い吹き出し：お知らせ専用 */
 #statusText{
+  position:absolute !important;
   left:14.5% !important;
-  top:86.05% !important;
+  top:85.85% !important;
   width:71% !important;
-  height:4.1% !important;
-  font-size:11.5px !important;
-  line-height:1.12 !important;
+  height:4.2% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
   color:#fff7d6 !important;
+  font-size:11.5px !important;
   font-weight:900 !important;
+  line-height:1.12 !important;
   text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55) !important;
+  z-index:35 !important;
+  pointer-events:none !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
 }
 
 /* 一番下の白い吹き出し：残り回数専用 */
+/* ここを白い吹き出し内に固定 */
 #dailyLimitText{
   position:absolute !important;
-  left:16.5% !important;
-  top:93.55% !important;
-  width:67% !important;
-  height:3.6% !important;
-  z-index:30 !important;
+  left:15.0% !important;
+  top:91.90% !important;
+  width:70.0% !important;
+  height:3.35% !important;
+  z-index:80 !important;
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
   text-align:center !important;
   color:#3b2408 !important;
-  font-size:13.5px !important;
+  font-size:13.0px !important;
   font-weight:900 !important;
-  line-height:1.05 !important;
+  line-height:1.0 !important;
   text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
   pointer-events:none !important;
   white-space:nowrap !important;
@@ -1907,7 +1919,7 @@ html,body{
   text-overflow:ellipsis !important;
 }
 
-/* 白い吹き出しの文字を少し読みやすく */
+/* 白吹き出しのセリフ */
 #topSpeechLine1{
   font-size:15px !important;
 }
@@ -1916,47 +1928,12 @@ html,body{
   font-size:12px !important;
 }
 
-
-/* ===== Ver.10.1 一番下の白い吹き出し位置修正 ===== */
-/* 文字が吹き出しより下に出ていたため、白い吹き出し内へ戻す */
-#dailyLimitText{
-  position:absolute !important;
-  left:14.0% !important;
-  top:90.25% !important;
-  width:72.0% !important;
-  height:4.0% !important;
-  z-index:120 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  text-align:center !important;
-  color:#3b2408 !important;
-  font-size:13.5px !important;
-  font-weight:900 !important;
-  line-height:1.05 !important;
-  text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
-  pointer-events:none !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-/* 効果音ボタンは左上で固定 */
-#soundToggle{
-  left:3.5% !important;
-  right:auto !important;
-  top:2.0% !important;
-  width:66px !important;
-  height:34px !important;
-  z-index:95 !important;
-}
-
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=51">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=52">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
