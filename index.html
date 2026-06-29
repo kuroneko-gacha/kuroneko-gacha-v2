@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.10 UI完成版</title>
+<title>クロネコガチャ Ver.10.1 下吹き出し修正版</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
 /* ===== Ver.9 演出豪華版 JS ===== */
 
@@ -1916,12 +1916,47 @@ html,body{
   font-size:12px !important;
 }
 
+
+/* ===== Ver.10.1 一番下の白い吹き出し位置修正 ===== */
+/* 文字が吹き出しより下に出ていたため、白い吹き出し内へ戻す */
+#dailyLimitText{
+  position:absolute !important;
+  left:14.0% !important;
+  top:90.25% !important;
+  width:72.0% !important;
+  height:4.0% !important;
+  z-index:120 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  color:#3b2408 !important;
+  font-size:13.5px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.85) !important;
+  pointer-events:none !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* 効果音ボタンは左上で固定 */
+#soundToggle{
+  left:3.5% !important;
+  right:auto !important;
+  top:2.0% !important;
+  width:66px !important;
+  height:34px !important;
+  z-index:95 !important;
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=50">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=51">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
