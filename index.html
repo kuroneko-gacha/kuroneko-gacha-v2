@@ -4479,5 +4479,85 @@ setTimeout(v11InitSoundButton, 300);
 })();
 </script>
 
+
+<script>
+/* ===== Ver.12.1 表示文修正：受け取り済み表示の矛盾対策 ===== */
+(function(){
+  function setKuronekoStatusFixed(status){
+    const statusText = document.getElementById("statusText");
+    const dailyLimitText = document.getElementById("dailyLimitText");
+
+    const remaining = Number(status && status.remaining !== undefined ? status.remaining : 0);
+    const dailyLimit = Number(status && status.dailyLimit !== undefined ? status.dailyLimit : 1);
+    const usedCount = Math.max(0, dailyLimit - remaining);
+
+    if(statusText){
+      if(remaining > 0){
+        statusText.textContent = "今日も黒猫が待ってるにゃ♪";
+      }else{
+        statusText.textContent = "本日のガチャは終了です";
+      }
+    }
+
+    if(dailyLimitText){
+      if(remaining > 0){
+        dailyLimitText.textContent = "🎁 あと" + remaining + "回引けるにゃー♪";
+      }else{
+        dailyLimitText.textContent = "また明日8時に来てにゃー♪";
+      }
+    }
+  }
+
+  window.kuronekoFixDailyStatusText = setKuronekoStatusFixed;
+
+  const oldUpdateDailyStatus = window.updateDailyStatus;
+  if(typeof oldUpdateDailyStatus === "function"){
+    window.updateDailyStatus = function(status){
+      try{
+        oldUpdateDailyStatus(status);
+      }catch(e){}
+      setKuronekoStatusFixed(status);
+    };
+  }
+
+  const oldRenderStatus = window.renderStatus;
+  if(typeof oldRenderStatus === "function"){
+    window.renderStatus = function(status){
+      try{
+        oldRenderStatus(status);
+      }catch(e){}
+      setKuronekoStatusFixed(status);
+    };
+  }
+
+  const oldSetStatus = window.setStatus;
+  if(typeof oldSetStatus === "function"){
+    window.setStatus = function(message){
+      oldSetStatus(message);
+      const dailyLimitText = document.getElementById("dailyLimitText");
+      if(dailyLimitText && /あと\d+回引ける/.test(dailyLimitText.textContent)){
+        const statusText = document.getElementById("statusText");
+        if(statusText && /受け取り済み|受取済み/.test(statusText.textContent)){
+          statusText.textContent = "今日も黒猫が待ってるにゃ♪";
+        }
+      }
+    };
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    setTimeout(function(){
+      const statusText = document.getElementById("statusText");
+      const dailyLimitText = document.getElementById("dailyLimitText");
+      if(statusText && dailyLimitText){
+        const m = dailyLimitText.textContent.match(/あと(\d+)回引ける/);
+        if(m && Number(m[1]) > 0 && /受け取り済み|受取済み/.test(statusText.textContent)){
+          statusText.textContent = "今日も黒猫が待ってるにゃ♪";
+        }
+      }
+    }, 800);
+  });
+})();
+</script>
+
 </body>
 </html>
