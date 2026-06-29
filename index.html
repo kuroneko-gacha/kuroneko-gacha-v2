@@ -3,8 +3,403 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>クロネコガチャ Ver.8.2 一日2回対応</title>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<title>クロネコガチャ Ver.9 演出豪華版</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
+/* ===== Ver.9 演出豪華版 JS ===== */
+
+function initSoundButton(){
+  const btn = document.getElementById("soundToggle");
+  if(!btn) return;
+  btn.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF";
+}
+
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  try{
+    localStorage.setItem("kuronekoSound", soundEnabled ? "on" : "off");
+  }catch(e){}
+  initSoundButton();
+  if(soundEnabled) playSfx("sparkle");
+}
+
+function playSfx(type){
+  if(!soundEnabled) return;
+
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+
+    const ctx = new AudioCtx();
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+
+    let freq = 660;
+    let duration = 0.11;
+    let wave = "sine";
+
+    if(type === "paw"){
+      freq = 180;
+      duration = 0.09;
+      wave = "triangle";
+    }else if(type === "sparkle"){
+      freq = 980;
+      duration = 0.14;
+      wave = "sine";
+    }else if(type === "boom"){
+      freq = 90;
+      duration = 0.22;
+      wave = "sawtooth";
+    }else if(type === "secret"){
+      freq = 1320;
+      duration = 0.3;
+      wave = "square";
+    }
+
+    const osc = ctx.createOscillator();
+    osc.type = wave;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.13, ctx.currentTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    osc.connect(gain);
+    osc.start();
+    osc.stop(ctx.currentTime + duration + 0.03);
+
+    setTimeout(function(){
+      try{ ctx.close(); }catch(e){}
+    }, 420);
+  }catch(e){}
+}
+
+function vibratePhone(pattern){
+  try{
+    if(navigator.vibrate) navigator.vibrate(pattern || [40]);
+  }catch(e){}
+}
+
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    const hint = document.createElement("div");
+    hint.className = "v9SkipHint";
+    hint.textContent = "長押しでスキップ";
+    stage.appendChild(hint);
+
+    let finished = false;
+    let pressTimer = null;
+
+    function finishOnce(){
+      if(finished) return;
+      finished = true;
+      effect.onpointerdown = null;
+      effect.onpointerup = null;
+      effect.onpointercancel = null;
+      finishEffect(resolve);
+    }
+
+    effect.onpointerdown = function(){
+      pressTimer = setTimeout(finishOnce, 650);
+    };
+    effect.onpointerup = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+    effect.onpointercancel = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+
+    if(isSecret){
+      playSfx("secret");
+      vibratePhone([80,40,120,40,180]);
+      const n = Math.floor(Math.random()*3);
+      if(n === 0) v9SecretTimeStop(stage, finishOnce);
+      if(n === 1) v9SecretMiracle(stage, finishOnce);
+      if(n === 2) v9SecretAwakening(stage, finishOnce);
+    }else{
+      playSfx("sparkle");
+      vibratePhone([35]);
+      const n = Math.floor(Math.random()*7);
+      if(n === 0) v9NormalCatDelivery(stage, finishOnce);
+      if(n === 1) v9NormalPawStamp(stage, finishOnce);
+      if(n === 2) v9NormalGiftBox(stage, finishOnce);
+      if(n === 3) v9NormalShootingStar(stage, finishOnce);
+      if(n === 4) v9NormalMagicCircle(stage, finishOnce);
+      if(n === 5) v9NormalCatEyes(stage, finishOnce);
+      if(n === 6) v9NormalMoonJump(stage, finishOnce);
+    }
+  });
+}
+
+function v9Headline(stage,text,delay){
+  setTimeout(function(){
+    const el = document.createElement("div");
+    el.className = "effectHeadline";
+    el.textContent = text;
+    stage.appendChild(el);
+  }, delay || 0);
+}
+
+function v9NormalCatDelivery(stage,done){
+  v9Headline(stage,"黒猫が何かを運んできた…",150);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),680);
+  setTimeout(()=>v9Envelope(stage),1500);
+  setTimeout(()=>v9Paws(stage,16,1.0),1650);
+  setTimeout(()=>playSfx("paw"),1900);
+  setTimeout(()=>v9GoldDust(stage,28),2300);
+  setTimeout(()=>v9Flash(stage),2850);
+  setTimeout(()=>v9Card3D(stage),3300);
+  setTimeout(done,4520);
+}
+
+function v9NormalPawStamp(stage,done){
+  v9Headline(stage,"足音が近づいてくる…",150);
+  setTimeout(()=>v9Paws(stage,26,1.7),650);
+  setTimeout(()=>v9BigPaw(stage),2200);
+  setTimeout(()=>playSfx("boom"),2200);
+  setTimeout(()=>v9Flash(stage),2380);
+  setTimeout(()=>v9GoldDust(stage,34),2500);
+  setTimeout(()=>v9Card3D(stage),3150);
+  setTimeout(done,4300);
+}
+
+function v9NormalGiftBox(stage,done){
+  v9Headline(stage,"プレゼント箱が震えている…",180);
+  const gift = document.createElement("div");
+  gift.className = "giftBox";
+  gift.innerHTML = '<div class="giftRibbon"></div>';
+  setTimeout(()=>stage.appendChild(gift),620);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),1350);
+  setTimeout(()=>v9Stars(stage,32,1.0),1650);
+  setTimeout(()=>playSfx("paw"),1800);
+  setTimeout(()=>v9Flash(stage),2600);
+  setTimeout(()=>playSfx("boom"),2650);
+  setTimeout(()=>v9Card3D(stage),3220);
+  setTimeout(done,4420);
+}
+
+function v9NormalShootingStar(stage,done){
+  v9Headline(stage,"夜空に願いを…",120);
+  for(let i=0;i<4;i++){
+    setTimeout(()=>v9ShootingStar(stage),560 + i*350);
+  }
+  setTimeout(()=>v9Stars(stage,48,1.8),750);
+  setTimeout(()=>playSfx("sparkle"),1400);
+  setTimeout(()=>v9GoldDust(stage,30),2350);
+  setTimeout(()=>v9Card3D(stage),3000);
+  setTimeout(done,4180);
+}
+
+function v9NormalMagicCircle(stage,done){
+  v9Headline(stage,"魔法陣が輝きだす…",150);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  setTimeout(()=>stage.appendChild(ring),620);
+  setTimeout(()=>v9Paws(stage,18,1.0),950);
+  setTimeout(()=>v9GoldDust(stage,40),1700);
+  setTimeout(()=>playSfx("sparkle"),2200);
+  setTimeout(()=>v9Flash(stage),2650);
+  setTimeout(()=>v9Card3D(stage),3200);
+  setTimeout(done,4350);
+}
+
+function v9NormalCatEyes(stage,done){
+  v9Headline(stage,"暗闇に金色の目が光る…",170);
+  setTimeout(()=>v9Eyes(stage),650);
+  setTimeout(()=>playSfx("paw"),1300);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),2100);
+  setTimeout(()=>v9Envelope(stage),2450);
+  setTimeout(()=>v9GoldDust(stage,26),2700);
+  setTimeout(()=>v9Card3D(stage),3300);
+  setTimeout(done,4450);
+}
+
+function v9NormalMoonJump(stage,done){
+  v9Headline(stage,"月が赤く染まった…",120);
+  const moon = document.createElement("div");
+  moon.className = "moon redMoon";
+  setTimeout(()=>stage.appendChild(moon),420);
+  setTimeout(()=>v9Stars(stage,40,1.4),650);
+  setTimeout(()=>v9CatJump(stage),2050);
+  setTimeout(()=>playSfx("sparkle"),2400);
+  setTimeout(()=>v9RainbowAura(stage),2800);
+  setTimeout(()=>v9Card3D(stage),3500);
+  setTimeout(done,4860);
+}
+
+function v9SecretTimeStop(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  v9Headline(stage,"……時間が止まった",320);
+  const stop = document.createElement("div");
+  stop.className = "v9TimeStop";
+  setTimeout(()=>stage.appendChild(stop),700);
+
+  setTimeout(()=>v9Flash(stage),3000);
+  setTimeout(()=>addScreenCrack(stage),3200);
+  setTimeout(()=>v9Gate(stage),3500);
+  setTimeout(()=>v9RainbowAura(stage),3850);
+  setTimeout(()=>v9GoldDust(stage,70),3950);
+  setTimeout(()=>v9Card3D(stage),4550);
+  setTimeout(done,5850);
+}
+
+function v9SecretMiracle(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  v9Headline(stage,"黒猫の奇跡…",220);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),720);
+  setTimeout(()=>v9Envelope(stage),1650);
+  setTimeout(()=>v9Paws(stage,24,1.5),1900);
+  setTimeout(()=>v9GoldDust(stage,70),2200);
+  setTimeout(()=>playSfx("secret"),2600);
+  setTimeout(()=>v9Flash(stage),3150);
+  setTimeout(()=>v9Gate(stage),3500);
+  setTimeout(()=>v9RainbowAura(stage),3820);
+  setTimeout(()=>v9Card3D(stage),4550);
+  setTimeout(done,5900);
+}
+
+function v9SecretAwakening(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  v9Headline(stage,"クロネコ覚醒",330);
+  setTimeout(()=>v9Eyes(stage),1050);
+
+  const title = document.createElement("div");
+  title.className = "secretTitle";
+  title.textContent = "SECRET";
+  setTimeout(()=>stage.appendChild(title),900);
+
+  const bolt1 = document.createElement("div");
+  bolt1.className = "lightning";
+  bolt1.style.left = "35%";
+  setTimeout(()=>stage.appendChild(bolt1),1550);
+
+  const bolt2 = document.createElement("div");
+  bolt2.className = "lightning";
+  bolt2.style.left = "65%";
+  bolt2.style.animationDelay = ".18s";
+  setTimeout(()=>stage.appendChild(bolt2),1700);
+
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  setTimeout(()=>stage.appendChild(aura),2100);
+
+  setTimeout(()=>v9Paws(stage,34,1.7),2200);
+  setTimeout(()=>v9GoldDust(stage,95),2450);
+  setTimeout(()=>v9Flash(stage),3300);
+  setTimeout(()=>addScreenCrack(stage),3550);
+  setTimeout(()=>v9Gate(stage),3850);
+  setTimeout(()=>v9RainbowAura(stage),4250);
+  setTimeout(()=>v9Card3D(stage),5150);
+  setTimeout(done,6800);
+}
+
+function v9Flash(stage){
+  const f = document.createElement("div");
+  f.className = "screenFlash";
+  stage.appendChild(f);
+}
+
+function v9RainbowAura(stage){
+  const a = document.createElement("div");
+  a.className = "rainbowAura";
+  stage.appendChild(a);
+}
+
+function v9Card3D(stage){
+  const c = document.createElement("div");
+  c.className = "v9CardBurst";
+  stage.appendChild(c);
+}
+
+function v9Envelope(stage){
+  const e = document.createElement("div");
+  e.className = "v9Envelope";
+  stage.appendChild(e);
+}
+
+function v9Eyes(stage){
+  const e = document.createElement("div");
+  e.className = "v9Eyes";
+  stage.appendChild(e);
+}
+
+function v9BigPaw(stage){
+  const p = document.createElement("div");
+  p.className = "v9BigPaw";
+  stage.appendChild(p);
+}
+
+function v9ShootingStar(stage){
+  const s = document.createElement("div");
+  s.className = "v9ShootingStar";
+  s.style.top = (14 + Math.random()*34) + "%";
+  stage.appendChild(s);
+}
+
+function v9CatJump(stage){
+  const c = document.createElement("div");
+  c.className = "catJump";
+  c.textContent = "🐈‍⬛";
+  stage.appendChild(c);
+}
+
+function v9Gate(stage){
+  const g = document.createElement("div");
+  g.className = "v9Gate";
+  stage.appendChild(g);
+}
+
+function v9Paws(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "v9PawParticle";
+    p.style.left = (Math.random()*94) + "%";
+    p.style.top = (12 + Math.random()*74) + "%";
+    p.style.animationDelay = (Math.random()*(maxDelay || 1)) + "s";
+    stage.appendChild(p);
+  }
+}
+
+function v9Stars(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "v9StarParticle";
+    s.style.left = (Math.random()*100) + "%";
+    s.style.top = (-10 - Math.random()*28) + "%";
+    s.style.animationDelay = (Math.random()*(maxDelay || 1)) + "s";
+    stage.appendChild(s);
+  }
+}
+
+function v9GoldDust(stage,count){
+  for(let i=0;i<count;i++){
+    const d = document.createElement("div");
+    d.className = "goldDust";
+    d.style.left = (45 + Math.random()*10) + "%";
+    d.style.top = (46 + Math.random()*12) + "%";
+    d.style.setProperty("--dx", (Math.random()*320 - 160) + "px");
+    d.style.setProperty("--dy", (Math.random()*320 - 160) + "px");
+    d.style.animationDelay = (Math.random()*0.45) + "s";
+    stage.appendChild(d);
+  }
+}
+
+setTimeout(initSoundButton, 300);
+
+</script>
 
 <style>
 html,body{
@@ -1031,7 +1426,7 @@ html,body{
   border-radius:999px;
   background:rgba(0,0,0,.72);
   color:#fff7d6;
-  font-size:13px;
+  font-size:14px;
   font-weight:900;
   text-shadow:0 2px 4px #000;
   box-shadow:0 0 18px rgba(250,204,21,.45);
@@ -1055,9 +1450,9 @@ html,body{
 #dailyLimitText{
   position:absolute;
   left:16%;
-  top:91.65%;
+  top:94.15%;
   width:68%;
-  height:3.2%;
+  height:3.7%;
   z-index:30;
   display:flex;
   align-items:center;
@@ -1074,12 +1469,391 @@ html,body{
   text-overflow:ellipsis;
 }
 
+
+/* ===== Ver.9 演出豪華版：通常7種類・シークレット3種類・音ON/OFF・パーティクル ===== */
+
+#soundToggle{
+  position:absolute;
+  right:3.5%;
+  top:87.4%;
+  width:58px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid rgba(250,204,21,.55);
+  background:rgba(0,0,0,.62);
+  color:#fff7d6;
+  font-size:12px;
+  font-weight:900;
+  z-index:80;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 0 12px rgba(250,204,21,.22);
+}
+
+#soundToggle:active{
+  transform:scale(.96);
+}
+
+.effectHeadline{
+  position:absolute;
+  left:50%;
+  top:16%;
+  transform:translateX(-50%);
+  color:#fff7d6;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:1px;
+  white-space:nowrap;
+  text-align:center;
+  text-shadow:0 0 12px #facc15,0 3px 8px #000;
+  opacity:0;
+  animation:effectHeadlinePop 2.8s ease forwards;
+  z-index:60;
+}
+
+@keyframes effectHeadlinePop{
+  0%{opacity:0; transform:translateX(-50%) scale(.78);}
+  16%{opacity:1; transform:translateX(-50%) scale(1.05);}
+  78%{opacity:1; transform:translateX(-50%) scale(1);}
+  100%{opacity:0; transform:translateX(-50%) scale(1.08);}
+}
+
+.screenFlash{
+  position:absolute;
+  inset:0;
+  background:white;
+  opacity:0;
+  animation:screenFlash .8s ease forwards;
+  z-index:90;
+}
+
+@keyframes screenFlash{
+  0%,100%{opacity:0;}
+  30%{opacity:.92;}
+  55%{opacity:.18;}
+}
+
+.rainbowAura{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:130px;
+  height:130px;
+  border-radius:50%;
+  transform:translate(-50%,-50%) scale(.2);
+  background:conic-gradient(#f00,#fb0,#ff0,#0f0,#0ff,#00f,#a0f,#f0a,#f00);
+  filter:blur(4px);
+  opacity:0;
+  animation:rainbowAura 2.9s ease forwards;
+  z-index:28;
+}
+
+@keyframes rainbowAura{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.15) rotate(0deg);}
+  32%{opacity:.95; transform:translate(-50%,-50%) scale(1.2) rotate(180deg);}
+  78%{opacity:.85; transform:translate(-50%,-50%) scale(2.5) rotate(520deg);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(3.4) rotate(720deg);}
+}
+
+.v9CardBurst{
+  position:absolute;
+  left:50%;
+  top:52%;
+  width:180px;
+  height:238px;
+  border-radius:18px;
+  background:
+    linear-gradient(135deg,rgba(255,255,255,.98),rgba(250,204,21,.9)),
+    radial-gradient(circle,rgba(255,255,255,.7),transparent);
+  transform:translate(-50%,-50%) scale(.18) rotateY(82deg) rotateZ(-8deg);
+  box-shadow:0 0 45px #facc15,0 0 90px rgba(250,204,21,.55);
+  opacity:0;
+  animation:v9CardBurst 1.25s cubic-bezier(.2,.9,.25,1) forwards;
+  z-index:75;
+}
+
+@keyframes v9CardBurst{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.18) rotateY(82deg) rotateZ(-8deg);}
+  48%{opacity:1; transform:translate(-50%,-50%) scale(1.18) rotateY(-10deg) rotateZ(3deg);}
+  74%{opacity:1; transform:translate(-50%,-50%) scale(.96) rotateY(4deg) rotateZ(-1deg);}
+  100%{opacity:.98; transform:translate(-50%,-50%) scale(1) rotateY(0deg) rotateZ(0);}
+}
+
+.goldDust{
+  position:absolute;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#facc15;
+  box-shadow:0 0 12px #facc15;
+  animation:goldDustFly 1.8s ease-out forwards;
+  z-index:50;
+}
+
+@keyframes goldDustFly{
+  0%{opacity:0; transform:translate(0,0) scale(.25);}
+  18%{opacity:1;}
+  100%{opacity:0; transform:translate(var(--dx),var(--dy)) scale(1.25);}
+}
+
+.v9PawParticle{
+  position:absolute;
+  width:34px;
+  height:34px;
+  opacity:0;
+  filter:drop-shadow(0 0 10px #facc15);
+  animation:v9PawParticle 2.2s ease forwards;
+  z-index:45;
+}
+
+.v9PawParticle::before{
+  content:"🐾";
+  font-size:34px;
+}
+
+@keyframes v9PawParticle{
+  0%{opacity:0; transform:translateY(40px) scale(.3) rotate(-20deg);}
+  18%{opacity:1;}
+  100%{opacity:0; transform:translateY(-140px) scale(1.2) rotate(30deg);}
+}
+
+.v9StarParticle{
+  position:absolute;
+  width:12px;
+  height:12px;
+  background:#fff7ad;
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  box-shadow:0 0 12px #facc15;
+  animation:v9StarFall 2.4s linear forwards;
+  z-index:42;
+}
+
+@keyframes v9StarFall{
+  0%{opacity:0; transform:translateY(-20vh) scale(.35) rotate(0);}
+  15%{opacity:1;}
+  100%{opacity:0; transform:translateY(110vh) scale(1.3) rotate(360deg);}
+}
+
+.v9Envelope{
+  position:absolute;
+  left:50%;
+  top:54%;
+  width:154px;
+  height:102px;
+  transform:translate(-50%,-50%) scale(.22) rotate(-8deg);
+  border-radius:12px;
+  background:linear-gradient(180deg,#fff7d6,#facc15);
+  box-shadow:0 0 36px rgba(250,204,21,.7);
+  opacity:0;
+  animation:v9Envelope 2.45s ease forwards;
+  z-index:32;
+}
+
+.v9Envelope::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:12px;
+  background:
+    linear-gradient(135deg,transparent 49%,rgba(120,53,15,.35) 50%,transparent 51%),
+    linear-gradient(45deg,transparent 49%,rgba(120,53,15,.35) 50%,transparent 51%);
+}
+
+.v9Envelope::after{
+  content:"🐾";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:30px;
+}
+
+@keyframes v9Envelope{
+  0%{opacity:0; transform:translate(-50%,-90%) scale(.22) rotate(-18deg);}
+  34%{opacity:1; transform:translate(-50%,-50%) scale(1.08) rotate(4deg);}
+  72%{opacity:1; transform:translate(-50%,-50%) scale(1) rotate(0);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.25) rotate(0);}
+}
+
+.v9Eyes{
+  position:absolute;
+  left:50%;
+  top:46%;
+  width:122px;
+  height:40px;
+  transform:translate(-50%,-50%);
+  opacity:0;
+  filter:drop-shadow(0 0 18px #facc15);
+  animation:v9Eyes 2.7s ease forwards;
+  z-index:33;
+}
+
+.v9Eyes::before,
+.v9Eyes::after{
+  content:"";
+  position:absolute;
+  top:8px;
+  width:32px;
+  height:19px;
+  border-radius:50%;
+  background:#facc15;
+  box-shadow:0 0 18px #facc15;
+}
+
+.v9Eyes::before{left:8px;}
+.v9Eyes::after{right:8px;}
+
+@keyframes v9Eyes{
+  0%,18%{opacity:0; transform:translate(-50%,-50%) scale(.45);}
+  40%{opacity:1; transform:translate(-50%,-50%) scale(1);}
+  72%{opacity:1; transform:translate(-50%,-50%) scale(1.15);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.45);}
+}
+
+.v9BigPaw{
+  position:absolute;
+  left:50%;
+  top:52%;
+  width:170px;
+  height:170px;
+  border-radius:50%;
+  transform:translate(-50%,-50%) scale(.15);
+  background:rgba(250,204,21,.95);
+  box-shadow:0 0 42px #facc15,0 0 95px rgba(250,204,21,.65);
+  opacity:0;
+  animation:v9BigPaw .95s ease-out forwards;
+  z-index:35;
+}
+
+.v9BigPaw::before{
+  content:"🐾";
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  font-size:105px;
+}
+
+@keyframes v9BigPaw{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.15) rotate(-20deg);}
+  48%{opacity:1; transform:translate(-50%,-50%) scale(1.25) rotate(5deg);}
+  76%{opacity:1; transform:translate(-50%,-50%) scale(.98) rotate(0);}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(1.65) rotate(0);}
+}
+
+.v9ShootingStar{
+  position:absolute;
+  left:-26%;
+  top:22%;
+  width:170px;
+  height:5px;
+  border-radius:999px;
+  background:linear-gradient(90deg,transparent,#fff7ad,#facc15);
+  box-shadow:0 0 22px #facc15;
+  transform:rotate(-22deg);
+  opacity:0;
+  animation:v9ShootingStar 1.25s ease forwards;
+  z-index:30;
+}
+
+@keyframes v9ShootingStar{
+  0%{opacity:0; left:-25%; top:20%;}
+  18%{opacity:1;}
+  100%{opacity:0; left:112%; top:54%;}
+}
+
+.v9Gate{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:52px;
+  height:230px;
+  transform:translate(-50%,-50%) scaleX(.08);
+  border-radius:999px;
+  background:linear-gradient(180deg,#fff7ad,#facc15,#f472b6,#60a5fa);
+  box-shadow:0 0 65px #facc15,0 0 130px #f472b6;
+  opacity:0;
+  animation:v9Gate 3.2s ease forwards;
+  z-index:55;
+}
+
+@keyframes v9Gate{
+  0%{opacity:0; transform:translate(-50%,-50%) scaleX(.04) scaleY(.25);}
+  32%{opacity:1; transform:translate(-50%,-50%) scaleX(.35) scaleY(1);}
+  72%{opacity:1; transform:translate(-50%,-50%) scaleX(5.4) scaleY(1.35);}
+  100%{opacity:0; transform:translate(-50%,-50%) scaleX(8) scaleY(1.65);}
+}
+
+.v9TimeStop{
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle,rgba(255,255,255,.2),rgba(0,0,0,.96) 70%);
+  opacity:0;
+  animation:v9TimeStop 4.0s ease forwards;
+  z-index:22;
+}
+
+.v9TimeStop::before{
+  content:"……";
+  position:absolute;
+  left:50%;
+  top:42%;
+  transform:translate(-50%,-50%);
+  color:#fff7d6;
+  font-size:42px;
+  font-weight:900;
+  letter-spacing:8px;
+  text-shadow:0 0 18px #facc15;
+}
+
+.v9TimeStop::after{
+  content:"🕛";
+  position:absolute;
+  left:50%;
+  top:56%;
+  transform:translate(-50%,-50%);
+  font-size:76px;
+  filter:drop-shadow(0 0 18px #facc15);
+}
+
+@keyframes v9TimeStop{
+  0%,20%{opacity:0;}
+  32%,78%{opacity:1;}
+  100%{opacity:0;}
+}
+
+.v9SkipHint{
+  position:absolute;
+  right:12px;
+  bottom:18px;
+  color:rgba(255,255,255,.72);
+  font-size:12px;
+  font-weight:700;
+  z-index:95;
+}
+
+#resultImg{
+  transform-style:preserve-3d;
+}
+
+#result.result3d #resultImg{
+  animation:v9Result3D .85s cubic-bezier(.2,.9,.25,1) both;
+}
+
+@keyframes v9Result3D{
+  0%{opacity:0; transform:scale(.15) rotateY(85deg) rotateZ(-8deg);}
+  52%{opacity:1; transform:scale(1.18) rotateY(-10deg) rotateZ(3deg);}
+  78%{opacity:1; transform:scale(.96) rotateY(4deg) rotateZ(-1deg);}
+  100%{opacity:1; transform:scale(1) rotateY(0) rotateZ(0);}
+}
+
 </style>
 </head>
 
 <body>
 <div id="app">
-  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=32">
+  <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=40">
 
   <div id="topSpeechText">
     <div id="topSpeechLine1">今日の運試し！</div>
@@ -1092,6 +1866,7 @@ html,body{
   <div id="pressFx"></div>
 
   <button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
+  <button id="soundToggle" onclick="toggleSound()" aria-label="効果音切替">🔊 ON</button>
   <button id="bookTap" class="tap" onclick="loadCollection()" aria-label="図鑑を見る"></button>
 </div>
 
@@ -1144,6 +1919,10 @@ let pendingNewImageUrl = "";
 let pendingNewName = "";
 let dailyLimit = 2;
 let dailyRemaining = 2;
+let soundEnabled = true;
+try{
+  soundEnabled = localStorage.getItem("kuronekoSound") !== "off";
+}catch(e){}
 
 try{
   lastDrawnCardId = sessionStorage.getItem("lastDrawnCardId") || "";
@@ -1606,7 +2385,7 @@ function showResult(res){
   }catch(e){}
 
   const result = document.getElementById("result");
-  result.className = res.secret ? "secretResult" : "";
+  result.className = res.secret ? "secretResult result3d" : "result3d";
   document.getElementById("resultImg").src = res.imageUrl;
   document.getElementById("resultName").textContent = res.name;
   document.getElementById("resultMsg").textContent =
@@ -1873,6 +2652,401 @@ function escapeHtml(str){
     .replace(/"/g,"&quot;")
     .replace(/'/g,"&#039;");
 }
+
+/* ===== Ver.9 演出豪華版 JS ===== */
+
+function initSoundButton(){
+  const btn = document.getElementById("soundToggle");
+  if(!btn) return;
+  btn.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF";
+}
+
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  try{
+    localStorage.setItem("kuronekoSound", soundEnabled ? "on" : "off");
+  }catch(e){}
+  initSoundButton();
+  if(soundEnabled) playSfx("sparkle");
+}
+
+function playSfx(type){
+  if(!soundEnabled) return;
+
+  try{
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx) return;
+
+    const ctx = new AudioCtx();
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+
+    let freq = 660;
+    let duration = 0.11;
+    let wave = "sine";
+
+    if(type === "paw"){
+      freq = 180;
+      duration = 0.09;
+      wave = "triangle";
+    }else if(type === "sparkle"){
+      freq = 980;
+      duration = 0.14;
+      wave = "sine";
+    }else if(type === "boom"){
+      freq = 90;
+      duration = 0.22;
+      wave = "sawtooth";
+    }else if(type === "secret"){
+      freq = 1320;
+      duration = 0.3;
+      wave = "square";
+    }
+
+    const osc = ctx.createOscillator();
+    osc.type = wave;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.13, ctx.currentTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+    osc.connect(gain);
+    osc.start();
+    osc.stop(ctx.currentTime + duration + 0.03);
+
+    setTimeout(function(){
+      try{ ctx.close(); }catch(e){}
+    }, 420);
+  }catch(e){}
+}
+
+function vibratePhone(pattern){
+  try{
+    if(navigator.vibrate) navigator.vibrate(pattern || [40]);
+  }catch(e){}
+}
+
+function playGachaEffect(res){
+  return new Promise(resolve=>{
+    const isSecret = !!res.secret;
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+
+    effect.className = "";
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    const hint = document.createElement("div");
+    hint.className = "v9SkipHint";
+    hint.textContent = "長押しでスキップ";
+    stage.appendChild(hint);
+
+    let finished = false;
+    let pressTimer = null;
+
+    function finishOnce(){
+      if(finished) return;
+      finished = true;
+      effect.onpointerdown = null;
+      effect.onpointerup = null;
+      effect.onpointercancel = null;
+      finishEffect(resolve);
+    }
+
+    effect.onpointerdown = function(){
+      pressTimer = setTimeout(finishOnce, 650);
+    };
+    effect.onpointerup = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+    effect.onpointercancel = function(){
+      if(pressTimer) clearTimeout(pressTimer);
+    };
+
+    if(isSecret){
+      playSfx("secret");
+      vibratePhone([80,40,120,40,180]);
+      const n = Math.floor(Math.random()*3);
+      if(n === 0) v9SecretTimeStop(stage, finishOnce);
+      if(n === 1) v9SecretMiracle(stage, finishOnce);
+      if(n === 2) v9SecretAwakening(stage, finishOnce);
+    }else{
+      playSfx("sparkle");
+      vibratePhone([35]);
+      const n = Math.floor(Math.random()*7);
+      if(n === 0) v9NormalCatDelivery(stage, finishOnce);
+      if(n === 1) v9NormalPawStamp(stage, finishOnce);
+      if(n === 2) v9NormalGiftBox(stage, finishOnce);
+      if(n === 3) v9NormalShootingStar(stage, finishOnce);
+      if(n === 4) v9NormalMagicCircle(stage, finishOnce);
+      if(n === 5) v9NormalCatEyes(stage, finishOnce);
+      if(n === 6) v9NormalMoonJump(stage, finishOnce);
+    }
+  });
+}
+
+function v9Headline(stage,text,delay){
+  setTimeout(function(){
+    const el = document.createElement("div");
+    el.className = "effectHeadline";
+    el.textContent = text;
+    stage.appendChild(el);
+  }, delay || 0);
+}
+
+function v9NormalCatDelivery(stage,done){
+  v9Headline(stage,"黒猫が何かを運んできた…",150);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),680);
+  setTimeout(()=>v9Envelope(stage),1500);
+  setTimeout(()=>v9Paws(stage,16,1.0),1650);
+  setTimeout(()=>playSfx("paw"),1900);
+  setTimeout(()=>v9GoldDust(stage,28),2300);
+  setTimeout(()=>v9Flash(stage),2850);
+  setTimeout(()=>v9Card3D(stage),3300);
+  setTimeout(done,4520);
+}
+
+function v9NormalPawStamp(stage,done){
+  v9Headline(stage,"足音が近づいてくる…",150);
+  setTimeout(()=>v9Paws(stage,26,1.7),650);
+  setTimeout(()=>v9BigPaw(stage),2200);
+  setTimeout(()=>playSfx("boom"),2200);
+  setTimeout(()=>v9Flash(stage),2380);
+  setTimeout(()=>v9GoldDust(stage,34),2500);
+  setTimeout(()=>v9Card3D(stage),3150);
+  setTimeout(done,4300);
+}
+
+function v9NormalGiftBox(stage,done){
+  v9Headline(stage,"プレゼント箱が震えている…",180);
+  const gift = document.createElement("div");
+  gift.className = "giftBox";
+  gift.innerHTML = '<div class="giftRibbon"></div>';
+  setTimeout(()=>stage.appendChild(gift),620);
+  setTimeout(()=>stage.appendChild(makeCat("catDash2")),1350);
+  setTimeout(()=>v9Stars(stage,32,1.0),1650);
+  setTimeout(()=>playSfx("paw"),1800);
+  setTimeout(()=>v9Flash(stage),2600);
+  setTimeout(()=>playSfx("boom"),2650);
+  setTimeout(()=>v9Card3D(stage),3220);
+  setTimeout(done,4420);
+}
+
+function v9NormalShootingStar(stage,done){
+  v9Headline(stage,"夜空に願いを…",120);
+  for(let i=0;i<4;i++){
+    setTimeout(()=>v9ShootingStar(stage),560 + i*350);
+  }
+  setTimeout(()=>v9Stars(stage,48,1.8),750);
+  setTimeout(()=>playSfx("sparkle"),1400);
+  setTimeout(()=>v9GoldDust(stage,30),2350);
+  setTimeout(()=>v9Card3D(stage),3000);
+  setTimeout(done,4180);
+}
+
+function v9NormalMagicCircle(stage,done){
+  v9Headline(stage,"魔法陣が輝きだす…",150);
+  const ring = document.createElement("div");
+  ring.className = "magicRing";
+  setTimeout(()=>stage.appendChild(ring),620);
+  setTimeout(()=>v9Paws(stage,18,1.0),950);
+  setTimeout(()=>v9GoldDust(stage,40),1700);
+  setTimeout(()=>playSfx("sparkle"),2200);
+  setTimeout(()=>v9Flash(stage),2650);
+  setTimeout(()=>v9Card3D(stage),3200);
+  setTimeout(done,4350);
+}
+
+function v9NormalCatEyes(stage,done){
+  v9Headline(stage,"暗闇に金色の目が光る…",170);
+  setTimeout(()=>v9Eyes(stage),650);
+  setTimeout(()=>playSfx("paw"),1300);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),2100);
+  setTimeout(()=>v9Envelope(stage),2450);
+  setTimeout(()=>v9GoldDust(stage,26),2700);
+  setTimeout(()=>v9Card3D(stage),3300);
+  setTimeout(done,4450);
+}
+
+function v9NormalMoonJump(stage,done){
+  v9Headline(stage,"月が赤く染まった…",120);
+  const moon = document.createElement("div");
+  moon.className = "moon redMoon";
+  setTimeout(()=>stage.appendChild(moon),420);
+  setTimeout(()=>v9Stars(stage,40,1.4),650);
+  setTimeout(()=>v9CatJump(stage),2050);
+  setTimeout(()=>playSfx("sparkle"),2400);
+  setTimeout(()=>v9RainbowAura(stage),2800);
+  setTimeout(()=>v9Card3D(stage),3500);
+  setTimeout(done,4860);
+}
+
+function v9SecretTimeStop(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  v9Headline(stage,"……時間が止まった",320);
+  const stop = document.createElement("div");
+  stop.className = "v9TimeStop";
+  setTimeout(()=>stage.appendChild(stop),700);
+
+  setTimeout(()=>v9Flash(stage),3000);
+  setTimeout(()=>addScreenCrack(stage),3200);
+  setTimeout(()=>v9Gate(stage),3500);
+  setTimeout(()=>v9RainbowAura(stage),3850);
+  setTimeout(()=>v9GoldDust(stage,70),3950);
+  setTimeout(()=>v9Card3D(stage),4550);
+  setTimeout(done,5850);
+}
+
+function v9SecretMiracle(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  v9Headline(stage,"黒猫の奇跡…",220);
+  setTimeout(()=>stage.appendChild(makeCat("catDash1")),720);
+  setTimeout(()=>v9Envelope(stage),1650);
+  setTimeout(()=>v9Paws(stage,24,1.5),1900);
+  setTimeout(()=>v9GoldDust(stage,70),2200);
+  setTimeout(()=>playSfx("secret"),2600);
+  setTimeout(()=>v9Flash(stage),3150);
+  setTimeout(()=>v9Gate(stage),3500);
+  setTimeout(()=>v9RainbowAura(stage),3820);
+  setTimeout(()=>v9Card3D(stage),4550);
+  setTimeout(done,5900);
+}
+
+function v9SecretAwakening(stage,done){
+  const effect = document.getElementById("effect");
+  effect.classList.add("secretMode");
+
+  v9Headline(stage,"クロネコ覚醒",330);
+  setTimeout(()=>v9Eyes(stage),1050);
+
+  const title = document.createElement("div");
+  title.className = "secretTitle";
+  title.textContent = "SECRET";
+  setTimeout(()=>stage.appendChild(title),900);
+
+  const bolt1 = document.createElement("div");
+  bolt1.className = "lightning";
+  bolt1.style.left = "35%";
+  setTimeout(()=>stage.appendChild(bolt1),1550);
+
+  const bolt2 = document.createElement("div");
+  bolt2.className = "lightning";
+  bolt2.style.left = "65%";
+  bolt2.style.animationDelay = ".18s";
+  setTimeout(()=>stage.appendChild(bolt2),1700);
+
+  const aura = document.createElement("div");
+  aura.className = "secretAura";
+  setTimeout(()=>stage.appendChild(aura),2100);
+
+  setTimeout(()=>v9Paws(stage,34,1.7),2200);
+  setTimeout(()=>v9GoldDust(stage,95),2450);
+  setTimeout(()=>v9Flash(stage),3300);
+  setTimeout(()=>addScreenCrack(stage),3550);
+  setTimeout(()=>v9Gate(stage),3850);
+  setTimeout(()=>v9RainbowAura(stage),4250);
+  setTimeout(()=>v9Card3D(stage),5150);
+  setTimeout(done,6800);
+}
+
+function v9Flash(stage){
+  const f = document.createElement("div");
+  f.className = "screenFlash";
+  stage.appendChild(f);
+}
+
+function v9RainbowAura(stage){
+  const a = document.createElement("div");
+  a.className = "rainbowAura";
+  stage.appendChild(a);
+}
+
+function v9Card3D(stage){
+  const c = document.createElement("div");
+  c.className = "v9CardBurst";
+  stage.appendChild(c);
+}
+
+function v9Envelope(stage){
+  const e = document.createElement("div");
+  e.className = "v9Envelope";
+  stage.appendChild(e);
+}
+
+function v9Eyes(stage){
+  const e = document.createElement("div");
+  e.className = "v9Eyes";
+  stage.appendChild(e);
+}
+
+function v9BigPaw(stage){
+  const p = document.createElement("div");
+  p.className = "v9BigPaw";
+  stage.appendChild(p);
+}
+
+function v9ShootingStar(stage){
+  const s = document.createElement("div");
+  s.className = "v9ShootingStar";
+  s.style.top = (14 + Math.random()*34) + "%";
+  stage.appendChild(s);
+}
+
+function v9CatJump(stage){
+  const c = document.createElement("div");
+  c.className = "catJump";
+  c.textContent = "🐈‍⬛";
+  stage.appendChild(c);
+}
+
+function v9Gate(stage){
+  const g = document.createElement("div");
+  g.className = "v9Gate";
+  stage.appendChild(g);
+}
+
+function v9Paws(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const p = document.createElement("div");
+    p.className = "v9PawParticle";
+    p.style.left = (Math.random()*94) + "%";
+    p.style.top = (12 + Math.random()*74) + "%";
+    p.style.animationDelay = (Math.random()*(maxDelay || 1)) + "s";
+    stage.appendChild(p);
+  }
+}
+
+function v9Stars(stage,count,maxDelay){
+  for(let i=0;i<count;i++){
+    const s = document.createElement("div");
+    s.className = "v9StarParticle";
+    s.style.left = (Math.random()*100) + "%";
+    s.style.top = (-10 - Math.random()*28) + "%";
+    s.style.animationDelay = (Math.random()*(maxDelay || 1)) + "s";
+    stage.appendChild(s);
+  }
+}
+
+function v9GoldDust(stage,count){
+  for(let i=0;i<count;i++){
+    const d = document.createElement("div");
+    d.className = "goldDust";
+    d.style.left = (45 + Math.random()*10) + "%";
+    d.style.top = (46 + Math.random()*12) + "%";
+    d.style.setProperty("--dx", (Math.random()*320 - 160) + "px");
+    d.style.setProperty("--dy", (Math.random()*320 - 160) + "px");
+    d.style.animationDelay = (Math.random()*0.45) + "s";
+    stage.appendChild(d);
+  }
+}
+
+setTimeout(initSoundButton, 300);
+
 </script>
 </body>
 </html>
