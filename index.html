@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>🐈 クロネコガチャ Ver.1.0</title>
+<title>🐈 クロネコガチャ Ver.1.2</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js">
 /* ===== Ver.9 演出豪華版 JS ===== */
 
@@ -5409,6 +5409,197 @@ setTimeout(v11InitSoundButton, 300);
     });
     mo.observe(document.body,{childList:true,subtree:true});
   });
+})();
+</script>
+
+
+<style>
+/* ===== クロネコガチャ Ver.1.1 安定版：図鑑sortNo固定・画像リトライ ===== */
+.cardMini img.kuroRetryImg{
+  background:
+    radial-gradient(circle at 50% 45%, rgba(250,204,21,.16), transparent 42%),
+    linear-gradient(135deg,rgba(15,23,42,.96),rgba(2,6,23,.96));
+  object-fit:contain;
+}
+#collectionInfo .kuroPercent{
+  display:block;
+  margin-top:3px;
+  color:#facc15;
+  font-size:13px;
+  font-weight:900;
+  text-shadow:0 0 8px rgba(250,204,21,.5);
+}
+</style>
+
+<script>
+/* ===== クロネコガチャ Ver.1.1 安定版：図鑑sortNo固定・画像リトライ ===== */
+(function(){
+  let kuroLastCollectionData = null;
+
+  function sortCollectionData(data){
+    if(!data || !Array.isArray(data.cards)) return data;
+
+    data.cards.sort(function(a,b){
+      const sa = Number(a.sortNo || 999999);
+      const sb = Number(b.sortNo || 999999);
+      if(sa !== sb) return sa - sb;
+      return String(a.id || "").localeCompare(String(b.id || ""));
+    });
+
+    if(Array.isArray(data.specialCards)){
+      data.specialCards.sort(function(a,b){
+        const sa = Number(a.sortNo || 999999);
+        const sb = Number(b.sortNo || 999999);
+        if(sa !== sb) return sa - sb;
+        return String(a.id || "").localeCompare(String(b.id || ""));
+      });
+    }
+
+    return data;
+  }
+
+  const oldRenderCollection = window.renderCollection;
+  if(typeof oldRenderCollection === "function"){
+    window.renderCollection = function(data){
+      kuroLastCollectionData = sortCollectionData(data);
+      const ret = oldRenderCollection.call(this, kuroLastCollectionData);
+      setTimeout(function(){
+        applyImageRetry();
+        fixCollectionPercent(kuroLastCollectionData);
+      },80);
+      return ret;
+    };
+  }
+
+  function applyImageRetry(){
+    const imgs = document.querySelectorAll(".cardMini img:not([data-kuro-img-ready])");
+
+    imgs.forEach(function(img){
+      img.dataset.kuroImgReady = "1";
+
+      img.addEventListener("error", function(){
+        const count = Number(img.dataset.kuroRetryCount || 0);
+        if(count >= 3){
+          img.classList.add("kuroRetryImg");
+          return;
+        }
+
+        img.dataset.kuroRetryCount = String(count + 1);
+        img.classList.add("kuroRetryImg");
+
+        const base = String(img.src || "").split("?")[0];
+        setTimeout(function(){
+          img.src = base + "?retry=" + Date.now();
+        }, 500 + count * 800);
+      });
+
+      img.addEventListener("load", function(){
+        img.classList.remove("kuroRetryImg");
+      });
+    });
+  }
+
+  function fixCollectionPercent(data){
+    const info = document.getElementById("collectionInfo");
+    if(!info || !data) return;
+
+    const owned = Number(data.ownedCount || 0);
+    const total = Number(data.totalCount || 0);
+    if(!total) return;
+
+    let p = info.querySelector(".kuroPercent");
+    if(!p){
+      p = document.createElement("span");
+      p.className = "kuroPercent";
+      info.appendChild(p);
+    }
+
+    const percent = Math.floor((owned / total) * 100);
+    p.textContent = "通常図鑑 収集率 " + percent + "%";
+  }
+
+  document.addEventListener("DOMContentLoaded", function(){
+    applyImageRetry();
+
+    const mo = new MutationObserver(function(){
+      applyImageRetry();
+      if(kuroLastCollectionData) fixCollectionPercent(kuroLastCollectionData);
+    });
+
+    mo.observe(document.body,{
+      childList:true,
+      subtree:true
+    });
+  });
+})();
+</script>
+
+
+<style>
+/* ===== クロネコガチャ Ver.1.2 管理人機能：メンテナンス表示 ===== */
+#maintenanceOverlay{
+  position:fixed;
+  inset:0;
+  z-index:500;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  box-sizing:border-box;
+  background:rgba(0,0,0,.88);
+  color:white;
+  text-align:center;
+}
+#maintenanceOverlay.show{
+  display:flex;
+}
+.maintenanceBox{
+  width:min(92%,380px);
+  padding:24px 18px;
+  border-radius:24px;
+  background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(2,6,23,.98));
+  box-shadow:0 0 28px rgba(250,204,21,.35), inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.maintenanceTitle{
+  color:#facc15;
+  font-size:24px;
+  font-weight:900;
+  margin-bottom:12px;
+  text-shadow:0 0 12px rgba(250,204,21,.65);
+}
+.maintenanceMsg{
+  color:#fff7d6;
+  font-size:15px;
+  font-weight:800;
+  line-height:1.6;
+}
+</style>
+
+<script>
+/* ===== クロネコガチャ Ver.1.2 管理人機能：メンテナンス表示 ===== */
+(function(){
+  function ensureMaintenanceOverlay(){
+    let ov = document.getElementById("maintenanceOverlay");
+    if(ov) return ov;
+
+    ov = document.createElement("div");
+    ov.id = "maintenanceOverlay";
+    ov.innerHTML =
+      '<div class="maintenanceBox">' +
+      '<div class="maintenanceTitle">🛠 メンテナンス中</div>' +
+      '<div class="maintenanceMsg" id="maintenanceMsg">ただいまアップデート中です。少し待ってにゃー🐾</div>' +
+      '</div>';
+
+    document.body.appendChild(ov);
+    return ov;
+  }
+
+  window.kuronekoShowMaintenance = function(message){
+    const ov = ensureMaintenanceOverlay();
+    const msg = document.getElementById("maintenanceMsg");
+    if(msg) msg.textContent = message || "ただいまアップデート中です。少し待ってにゃー🐾";
+    ov.classList.add("show");
+  };
 })();
 </script>
 
