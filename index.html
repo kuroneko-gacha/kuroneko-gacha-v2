@@ -2869,6 +2869,13 @@ let pendingNewName = "";
 let dailyLimit = 2;
 let dailyRemaining = 2;
 let soundEnabled = true;
+
+/* ===== Ver.1.3.1 高速化：画像先読み・図鑑キャッシュ ===== */
+const imagePreloadCache = {};
+let collectionCache = null;
+let collectionCacheUserId = "";
+let collectionCacheAt = 0;
+const COLLECTION_CACHE_MS = 1000 * 60 * 3;
 try{
   soundEnabled = localStorage.getItem("kuronekoSound") !== "off";
 }catch(e){}
@@ -3025,6 +3032,93 @@ function setDailyLimitText(text){
   if(el) el.textContent = text;
 }
 
+
+function preloadImage(url){
+  url = String(url || "").trim();
+  if(!url) return Promise.resolve(false);
+
+  if(imagePreloadCache[url]) return imagePreloadCache[url];
+
+  imagePreloadCache[url] = new Promise(function(resolve){
+    const img = new Image();
+    img.decoding = "async";
+    img.onload = function(){ resolve(true); };
+    img.onerror = function(){ resolve(false); };
+    img.src = url;
+  });
+
+  return imagePreloadCache[url];
+}
+
+function preloadImageNoWait(url){
+  try{ preloadImage(url); }catch(e){}
+}
+
+function preloadCollectionImages(cards, limit){
+  try{
+    const owned = (cards || []).filter(function(c){ return c && c.owned && c.imageUrl; });
+    const first = owned.slice(0, limit || 18);
+    first.forEach(function(c){ preloadImageNoWait(c.imageUrl); });
+
+    setTimeout(function(){
+      owned.slice(limit || 18).forEach(function(c){ preloadImageNoWait(c.imageUrl); });
+    }, 500);
+  }catch(e){}
+}
+
+function setCollectionCacheForUser(userId, res){
+  try{
+    collectionCacheUserId = String(userId || "");
+    collectionCache = res || null;
+    collectionCacheAt = Date.now();
+    sessionStorage.setItem("kuronekoCollectionCacheUserId", collectionCacheUserId);
+    sessionStorage.setItem("kuronekoCollectionCacheAt", String(collectionCacheAt));
+    sessionStorage.setItem("kuronekoCollectionCache", JSON.stringify(res || {}));
+  }catch(e){}
+}
+
+function getCollectionCacheForUser(userId){
+  userId = String(userId || "");
+  try{
+    if(collectionCache && collectionCacheUserId === userId && Date.now() - collectionCacheAt < COLLECTION_CACHE_MS){
+      return collectionCache;
+    }
+
+    const cachedUser = sessionStorage.getItem("kuronekoCollectionCacheUserId") || "";
+    const cachedAt = Number(sessionStorage.getItem("kuronekoCollectionCacheAt") || 0);
+    const cachedBody = sessionStorage.getItem("kuronekoCollectionCache") || "";
+
+    if(cachedUser === userId && cachedAt && cachedBody && Date.now() - cachedAt < COLLECTION_CACHE_MS){
+      const parsed = JSON.parse(cachedBody);
+      collectionCacheUserId = cachedUser;
+      collectionCacheAt = cachedAt;
+      collectionCache = parsed;
+      return parsed;
+    }
+  }catch(e){}
+
+  return null;
+}
+
+function clearCollectionCache(){
+  collectionCache = null;
+  collectionCacheUserId = "";
+  collectionCacheAt = 0;
+  try{
+    sessionStorage.removeItem("kuronekoCollectionCacheUserId");
+    sessionStorage.removeItem("kuronekoCollectionCacheAt");
+    sessionStorage.removeItem("kuronekoCollectionCache");
+  }catch(e){}
+}
+
+function setResultImageFast(url){
+  const img = document.getElementById("resultImg");
+  if(!img) return;
+  img.decoding = "async";
+  img.loading = "eager";
+  img.src = url || "";
+}
+
 async function drawGacha(){
   if(drawing) return;
 
@@ -3062,9 +3156,21 @@ async function drawGacha(){
       updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit));
     }
 
+    // 結果シール画像は、演出中に裏で先読みしておく。
+    // これで「演出終了 → 結果画像が白く待つ」時間を減らす。
+    const resultImageReady = preloadImage(res.imageUrl);
+
     await playGachaEffect(res);
+
+    // 画像待ちで長く止まらないよう、最大0.7秒だけ待つ。
+    await Promise.race([
+      resultImageReady,
+      new Promise(function(resolve){ setTimeout(resolve, 700); })
+    ]);
+
     drawing = false;
     setDoneStatus();
+    clearCollectionCache();
     showResult(res);
 
   }catch(e){
@@ -3338,7 +3444,7 @@ function showResult(res){
 
   const result = document.getElementById("result");
   result.className = res.secret ? "secretResult result3d" : "result3d";
-  document.getElementById("resultImg").src = res.imageUrl;
+  setResultImageFast(res.imageUrl);
   document.getElementById("resultName").textContent = res.name;
   document.getElementById("resultMsg").textContent =
     res.secret ? "🌟 SECRET SEAL GET！！" :
@@ -3368,6 +3474,16 @@ async function loadCollection(){
     return;
   }
 
+  const cached = getCollectionCacheForUser(profile.userId);
+  if(cached && cached.ok){
+    renderCollection(cached.cards || [], cached.ownedCount, cached.totalCount, true);
+    if(cached.cards) preloadCollectionImages(cached.cards, 24);
+
+    // キャッシュ表示後、裏で最新データを取り直す。
+    refreshCollectionInBackground();
+    return;
+  }
+
   showZukanOpenFx();
 
   try{
@@ -3382,11 +3498,13 @@ async function loadCollection(){
       return;
     }
 
-    renderCollection(res.cards || [], res.ownedCount, res.totalCount);
+    setCollectionCacheForUser(profile.userId, res);
+    preloadCollectionImages(res.cards || [], 24);
+    renderCollection(res.cards || [], res.ownedCount, res.totalCount, false);
 
     setTimeout(function(){
       hideZukanOpenFx();
-    }, 120);
+    }, 80);
 
   }catch(e){
     hideZukanOpenFx();
@@ -3394,7 +3512,26 @@ async function loadCollection(){
   }
 }
 
-function renderCollection(cards, ownedCount, totalCount){
+async function refreshCollectionInBackground(){
+  try{
+    const res = await jsonp({
+      action:"collection",
+      userId:profile.userId
+    });
+
+    if(res && res.ok){
+      setCollectionCacheForUser(profile.userId, res);
+      preloadCollectionImages(res.cards || [], 24);
+
+      const collection = document.getElementById("collection");
+      if(collection && collection.style.display === "block"){
+        renderCollection(res.cards || [], res.ownedCount, res.totalCount, true);
+      }
+    }
+  }catch(e){}
+}
+
+function renderCollection(cards, ownedCount, totalCount, fromCache){
   const list = document.getElementById("collectionList");
   const info = document.getElementById("collectionInfo");
 
@@ -3416,6 +3553,7 @@ function renderCollection(cards, ownedCount, totalCount){
   if(allCards.length === 0){
     list.innerHTML = "<div>まだシールがありません</div>";
   }else{
+    const frag = document.createDocumentFragment();
     allCards.forEach(function(card, index){
       const div = document.createElement("div");
       const ownedCard = !!card.owned;
@@ -3432,7 +3570,7 @@ function renderCollection(cards, ownedCount, totalCount){
         const name = escapeHtml(card.name || card.realName);
 
         div.innerHTML =
-          '<img loading="lazy" src="' + img + '">' +
+          '<img loading="lazy" decoding="async" src="' + img + '">' +
           '<div>' + name + '</div>';
 
         div.onclick = function(){
@@ -3444,19 +3582,22 @@ function renderCollection(cards, ownedCount, totalCount){
           '<div>未入手</div>';
       }
 
-      list.appendChild(div);
+      frag.appendChild(div);
     });
+    list.appendChild(frag);
   }
 
   const collection = document.getElementById("collection");
   collection.style.display = "block";
   collection.classList.remove("collectionOpening");
-  void collection.offsetWidth;
-  collection.classList.add("collectionOpening");
+  if(!fromCache){
+    void collection.offsetWidth;
+    collection.classList.add("collectionOpening");
+  }
 
   setTimeout(function(){
     afterCollectionOpenJump();
-  }, 260);
+  }, fromCache ? 60 : 220);
 }
 
 
@@ -3581,6 +3722,8 @@ function clearPendingNewCard(){
 
 function openSealZoom(imageUrl, name){
   if(!imageUrl) return;
+  preloadImageNoWait(imageUrl);
+  document.getElementById("zoomImg").decoding = "async";
   document.getElementById("zoomImg").src = imageUrl;
   document.getElementById("zoomName").textContent = name || "";
   document.getElementById("sealZoom").style.display = "flex";
@@ -5606,7 +5749,7 @@ setTimeout(v11InitSoundButton, 300);
 
 
 <!-- =========================================================
-  クロネコガチャ Ver.1.3 通常演出強化 完全版 追加コード
+  クロネコガチャ Ver.1.3.1 高速化版 通常演出強化 完全版 追加コード
   方針：Ver.1.2を壊さず、最後に読み込ませて通常演出だけ上書きする
   Code.gs変更なし
 ========================================================= -->
