@@ -1,1 +1,0 @@
-# kuroneko-gacha-v2
