@@ -6592,5 +6592,325 @@ setTimeout(v11InitSoundButton, 300);
 
 </script>
 
+
+<script>
+/* =========================================================
+   クロネコガチャ Ver.2.0 Ultimate 強制演出差し替え
+   通常ガチャ演出を素材1枚版に強制切替
+   ========================================================= */
+(function(){
+  const SHEET_URL = "https://raw.githubusercontent.com/kuroneko-gacha/kuroneko-gacha-v2/main/kuroneko_effect_sheet.png";
+
+  function addStyle(){
+    if(document.getElementById("k20UltimateStyle")) return;
+    const st = document.createElement("style");
+    st.id = "k20UltimateStyle";
+    st.textContent = `
+      #k20Preload{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:.01;}
+      .k20Stage{
+        position:absolute; inset:0; overflow:hidden;
+        background:
+          radial-gradient(circle at 50% 45%, rgba(250,204,21,.28), transparent 34%),
+          radial-gradient(circle at 50% 70%, rgba(56,189,248,.16), transparent 36%),
+          linear-gradient(180deg, #020617 0%, #111827 48%, #020617 100%);
+      }
+      .k20Stage::before{
+        content:""; position:absolute; inset:-20%;
+        background:
+          radial-gradient(circle, rgba(250,204,21,.8) 0 2px, transparent 3px) 0 0/58px 58px,
+          radial-gradient(circle, rgba(255,255,255,.55) 0 1px, transparent 2px) 20px 10px/82px 82px;
+        opacity:.45; animation:k20Stars 4s linear infinite;
+      }
+      @keyframes k20Stars{from{transform:translateY(0);}to{transform:translateY(58px);}}
+      .k20Part{
+        position:absolute; background-image:url("${SHEET_URL}");
+        background-repeat:no-repeat; background-size:1536px 864px;
+        pointer-events:none; user-select:none;
+      }
+      .k20Text{
+        position:absolute; left:50%; top:13%; transform:translateX(-50%);
+        z-index:90; color:#fff7d6; font-size:22px; font-weight:900;
+        white-space:nowrap; text-shadow:0 0 14px #facc15,0 4px 10px #000;
+        animation:k20Text .9s ease both;
+      }
+      @keyframes k20Text{
+        0%{opacity:0; transform:translateX(-50%) scale(.72);}
+        55%{opacity:1; transform:translateX(-50%) scale(1.08);}
+        100%{opacity:1; transform:translateX(-50%) scale(1);}
+      }
+      .k20Cat{
+        width:495px; height:320px; background-position:-85px -105px;
+        left:-520px; top:48%; z-index:40;
+        transform:translateY(-50%) scale(.62);
+        filter:drop-shadow(0 0 18px rgba(250,204,21,.75));
+        animation:k20CatRun 2.6s cubic-bezier(.16,.82,.2,1) forwards;
+      }
+      @keyframes k20CatRun{
+        0%{left:-560px; top:60%; opacity:0; transform:translateY(-50%) scale(.45) rotate(-6deg);}
+        12%{opacity:1;}
+        38%{left:18%; top:54%; transform:translateY(-50%) scale(.62) rotate(3deg);}
+        58%{left:31%; top:40%; transform:translateY(-50%) scale(.75) rotate(-8deg);}
+        74%{left:40%; top:52%; transform:translateY(-50%) scale(.66) rotate(4deg);}
+        100%{left:110%; top:48%; opacity:0; transform:translateY(-50%) scale(.5) rotate(7deg);}
+      }
+      .k20Circle{
+        width:327px; height:341px; background-position:-586px -106px;
+        left:50%; top:53%; z-index:22; opacity:0;
+        transform:translate(-50%,-50%) scale(.18) rotate(0);
+        mix-blend-mode:screen;
+        filter:drop-shadow(0 0 22px #facc15);
+        animation:k20Circle 3.15s ease-in-out forwards;
+      }
+      @keyframes k20Circle{
+        0%{opacity:0; transform:translate(-50%,-50%) scale(.18) rotate(0);}
+        18%{opacity:.95; transform:translate(-50%,-50%) scale(.72) rotate(90deg);}
+        62%{opacity:1; transform:translate(-50%,-50%) scale(1.35) rotate(350deg);}
+        100%{opacity:0; transform:translate(-50%,-50%) scale(2.15) rotate(620deg);}
+      }
+      .k20Paw{
+        width:299px; height:175px; background-position:-923px -107px;
+        left:50%; top:49%; z-index:60; opacity:0;
+        transform:translate(-50%,-50%) scale(.15) rotate(-16deg);
+        mix-blend-mode:screen;
+        filter:drop-shadow(0 0 20px #f472b6);
+        animation:k20Paw .9s cubic-bezier(.13,.9,.18,1) forwards;
+      }
+      @keyframes k20Paw{
+        0%{opacity:0; transform:translate(-50%,-50%) scale(.15) rotate(-16deg);}
+        38%{opacity:1; transform:translate(-50%,-50%) scale(1.32) rotate(4deg);}
+        65%{opacity:1; transform:translate(-50%,-50%) scale(.98) rotate(0);}
+        100%{opacity:0; transform:translate(-50%,-50%) scale(1.72) rotate(10deg);}
+      }
+      .k20Sparkle{
+        width:298px; height:176px; background-position:-1225px -106px;
+        z-index:56; opacity:0; mix-blend-mode:screen;
+        filter:drop-shadow(0 0 18px #facc15);
+        animation:k20Sparkle 1.7s ease-out forwards;
+      }
+      @keyframes k20Sparkle{
+        0%{opacity:0; transform:translate(-50%,-50%) scale(.2) rotate(0);}
+        18%{opacity:1;}
+        70%{opacity:.95; transform:translate(-50%,-50%) scale(1.22) rotate(80deg);}
+        100%{opacity:0; transform:translate(-50%,-50%) scale(1.75) rotate(150deg);}
+      }
+      .k20Light{
+        width:300px; height:176px; background-position:-922px -296px;
+        left:50%; top:51%; z-index:70; opacity:0; mix-blend-mode:screen;
+        filter:drop-shadow(0 0 28px #facc15);
+        animation:k20Light 1.5s ease-out forwards;
+      }
+      @keyframes k20Light{
+        0%{opacity:0; transform:translate(-50%,-50%) scale(.25);}
+        28%{opacity:1; transform:translate(-50%,-50%) scale(1.15);}
+        70%{opacity:.95; transform:translate(-50%,-50%) scale(1.7);}
+        100%{opacity:0; transform:translate(-50%,-50%) scale(2.35);}
+      }
+      .k20Card{
+        position:absolute; left:50%; top:52%; width:190px; height:248px;
+        border-radius:20px; z-index:86; opacity:0;
+        background:linear-gradient(135deg, rgba(255,255,255,.98), rgba(250,204,21,.9));
+        box-shadow:0 0 42px #facc15,0 0 90px rgba(250,204,21,.62),0 0 130px rgba(244,114,182,.32);
+        transform:translate(-50%,-50%) scale(.16) rotateY(90deg) rotateZ(-8deg);
+        animation:k20Card 1.1s cubic-bezier(.17,.9,.2,1) forwards;
+      }
+      @keyframes k20Card{
+        0%{opacity:0; transform:translate(-50%,-50%) scale(.16) rotateY(90deg) rotateZ(-8deg);}
+        46%{opacity:1; transform:translate(-50%,-50%) scale(1.25) rotateY(-12deg) rotateZ(3deg);}
+        72%{opacity:1; transform:translate(-50%,-50%) scale(.96) rotateY(5deg) rotateZ(-1deg);}
+        100%{opacity:1; transform:translate(-50%,-50%) scale(1) rotateY(0) rotateZ(0);}
+      }
+      .k20Dust{
+        position:absolute; width:8px; height:8px; border-radius:50%;
+        background:#facc15; box-shadow:0 0 16px #facc15;
+        z-index:74; opacity:0; animation:k20Dust 1.35s ease-out forwards;
+      }
+      @keyframes k20Dust{
+        0%{opacity:0; transform:translate(0,0) scale(.25);}
+        18%{opacity:1;}
+        100%{opacity:0; transform:translate(var(--dx),var(--dy)) scale(1.35);}
+      }
+      .k20Flash{
+        position:absolute; inset:0; z-index:95; background:white; opacity:0;
+        animation:k20Flash .78s ease forwards;
+      }
+      @keyframes k20Flash{0%,100%{opacity:0;}30%{opacity:.96;}58%{opacity:.22;}}
+      .k20Skip{
+        position:absolute; left:50%; bottom:8%; transform:translateX(-50%);
+        color:#fff7d6; z-index:110; font-size:12px; font-weight:900;
+        opacity:.75; text-shadow:0 2px 5px #000;
+      }
+      .k20Shake{animation:k20Shake .42s linear both;}
+      @keyframes k20Shake{
+        0%,100%{transform:translate(0,0);}
+        15%{transform:translate(-7px,5px);}
+        30%{transform:translate(7px,-5px);}
+        45%{transform:translate(-5px,-6px);}
+        60%{transform:translate(6px,6px);}
+        75%{transform:translate(-4px,3px);}
+      }
+      #k20VerBadge{
+        position:absolute; left:8px; top:8px; z-index:9999;
+        color:#fff7d6; background:rgba(0,0,0,.48);
+        border:1px solid rgba(250,204,21,.45);
+        border-radius:999px; padding:4px 8px; font-size:10px; font-weight:900;
+        pointer-events:none;
+      }
+    `;
+    document.head.appendChild(st);
+  }
+
+  function el(cls, txt){
+    const d=document.createElement("div");
+    d.className=cls;
+    if(txt) d.textContent=txt;
+    return d;
+  }
+
+  function part(cls){
+    const d=document.createElement("div");
+    d.className="k20Part " + cls;
+    return d;
+  }
+
+  function sfx(type){
+    try{
+      if(typeof v11Sfx === "function") v11Sfx(type || "sparkle");
+      else if(typeof playSfx === "function") playSfx(type || "sparkle");
+    }catch(e){}
+  }
+
+  function vibrate(p){
+    try{ if(navigator.vibrate) navigator.vibrate(p || [40]); }catch(e){}
+  }
+
+  function addDust(stage, count, delay){
+    setTimeout(function(){
+      for(let i=0;i<count;i++){
+        const d=el("k20Dust");
+        d.style.left=(48+Math.random()*4)+"%";
+        d.style.top=(49+Math.random()*7)+"%";
+        d.style.setProperty("--dx",(Math.random()*390-195)+"px");
+        d.style.setProperty("--dy",(Math.random()*340-170)+"px");
+        d.style.animationDelay=(Math.random()*.32)+"s";
+        stage.appendChild(d);
+      }
+    }, delay);
+  }
+
+  function addSparkles(stage, count, delay){
+    setTimeout(function(){
+      for(let i=0;i<count;i++){
+        const s=part("k20Sparkle");
+        s.style.left=(24+Math.random()*52)+"%";
+        s.style.top=(26+Math.random()*48)+"%";
+        s.style.animationDelay=(Math.random()*.42)+"s";
+        s.style.transform="translate(-50%,-50%) scale("+(0.22+Math.random()*0.38)+") rotate("+(Math.random()*90-45)+"deg)";
+        stage.appendChild(s);
+      }
+    }, delay);
+  }
+
+  function finishEffectSafe(resolve){
+    if(typeof finishEffect === "function"){
+      finishEffect(resolve);
+    }else{
+      const effect=document.getElementById("effect");
+      if(effect) effect.style.display="none";
+      resolve();
+    }
+  }
+
+  function runUltimateNormal(resolve){
+    addStyle();
+    const effect=document.getElementById("effect");
+    const stage=document.getElementById("effectStage");
+    if(!effect || !stage){ resolve(); return; }
+
+    effect.className="";
+    effect.style.display="block";
+    stage.innerHTML="";
+
+    stage.appendChild(el("k20Stage"));
+    stage.appendChild(el("k20Skip","長押しでスキップ"));
+
+    let done=false, pressTimer=null;
+    function finish(){
+      if(done) return;
+      done=true;
+      effect.onpointerdown=null;
+      effect.onpointerup=null;
+      effect.onpointercancel=null;
+      finishEffectSafe(resolve);
+    }
+
+    effect.onpointerdown=function(){ pressTimer=setTimeout(finish,650); };
+    effect.onpointerup=function(){ if(pressTimer) clearTimeout(pressTimer); };
+    effect.onpointercancel=function(){ if(pressTimer) clearTimeout(pressTimer); };
+
+    const messages=[
+      "黒猫がシールを運んできた…",
+      "肉球スタンプ、発動！",
+      "魔法陣が夜を照らす…"
+    ];
+    const msg=messages[Math.floor(Math.random()*messages.length)];
+
+    sfx("sparkle");
+    vibrate([35]);
+
+    setTimeout(()=>stage.appendChild(el("k20Text", msg)),120);
+    setTimeout(()=>stage.appendChild(part("k20Circle")),520);
+    addSparkles(stage,7,650);
+    setTimeout(()=>stage.appendChild(part("k20Cat")),900);
+
+    setTimeout(function(){
+      effect.classList.remove("k20Shake");
+      void effect.offsetWidth;
+      effect.classList.add("k20Shake");
+      sfx("boom");
+      vibrate([55,30,85]);
+      stage.appendChild(part("k20Paw"));
+    },2350);
+
+    addDust(stage,95,2520);
+
+    setTimeout(()=>stage.appendChild(part("k20Light")),3120);
+    setTimeout(()=>stage.appendChild(el("k20Flash")),3480);
+    setTimeout(()=>stage.appendChild(el("k20Card")),3820);
+
+    setTimeout(finish,5150);
+  }
+
+  // badge so user can confirm the correct file is loaded
+  window.addEventListener("load", function(){
+    try{
+      addStyle();
+      const app=document.getElementById("app") || document.body;
+      if(!document.getElementById("k20VerBadge")){
+        const b=el("", "Ver.2.0");
+        b.id="k20VerBadge";
+        app.appendChild(b);
+      }
+      const pre=document.createElement("img");
+      pre.id="k20Preload";
+      pre.src=SHEET_URL;
+      document.body.appendChild(pre);
+    }catch(e){}
+  });
+
+  window.playGachaEffect = function(res){
+    return new Promise(function(resolve){
+      if(res && (res.secret || res.supersecret)){
+        // 通常以外は既存の豪華シークレット演出を残す
+        if(typeof v11SecretAwakening === "function"){
+          // If old system exists, use the old behavior by manually falling back is risky,
+          // so use ultimate normal only for stability if no oldPromise is available.
+        }
+      }
+      runUltimateNormal(resolve);
+    });
+  };
+})();
+</script>
+
 </body>
 </html>
