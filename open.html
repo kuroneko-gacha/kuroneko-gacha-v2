@@ -3,100 +3,61 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🐈 クロネコガチャ</title>
+<title>🐈‍⬛ クロネコガチャ案内</title>
 <style>
 html,body{
   margin:0;
   padding:0;
   width:100%;
   min-height:100%;
-  background:#020617;
+  background:#fff3c4;
   font-family:"Hiragino Sans","Meiryo",sans-serif;
-  color:white;
 }
 body{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:18px;
-  box-sizing:border-box;
+  overflow:hidden;
 }
-.card{
+a{
+  -webkit-tap-highlight-color:transparent;
+}
+.page{
+  position:relative;
   width:100%;
-  max-width:390px;
-  border-radius:28px;
-  padding:26px 20px 24px;
-  box-sizing:border-box;
-  text-align:center;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(250,204,21,.28), transparent 38%),
-    linear-gradient(180deg, rgba(15,23,42,.96), rgba(2,6,23,.98));
-  box-shadow:0 0 30px rgba(250,204,21,.28), inset 0 0 0 1px rgba(255,255,255,.12);
+  max-width:430px;
+  height:100vh;
+  overflow:hidden;
+  background:#fff3c4;
 }
-.cat{
-  font-size:54px;
-  margin-bottom:8px;
-  filter:drop-shadow(0 0 14px rgba(250,204,21,.65));
-}
-h1{
-  margin:0;
-  font-size:29px;
-  color:#facc15;
-  text-shadow:0 0 14px rgba(250,204,21,.65);
-}
-.sub{
-  margin:12px 0 22px;
-  color:#fff7d6;
-  font-size:15px;
-  font-weight:800;
-  line-height:1.6;
-}
-.btn{
+.mainImage{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center top;
   display:block;
-  width:100%;
-  padding:17px 12px;
-  border-radius:999px;
-  background:linear-gradient(135deg,#facc15,#f97316);
-  color:#3b2408;
-  text-decoration:none;
-  font-size:22px;
-  font-weight:900;
-  box-shadow:0 8px 22px rgba(250,204,21,.35);
+  user-select:none;
+  -webkit-user-drag:none;
 }
-.note{
-  margin-top:17px;
-  font-size:12px;
-  line-height:1.55;
-  color:#cbd5e1;
+.tapArea{
+  position:absolute;
+  left:8%;
+  top:45%;
+  width:84%;
+  height:24%;
+  border-radius:38px;
+  display:block;
+  z-index:10;
 }
-.small{
-  margin-top:16px;
-  font-size:12px;
-  color:#94a3b8;
+.tapArea:active{
+  background:rgba(255,255,255,.18);
 }
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="cat">🐈‍⬛</div>
-    <h1>クロネコガチャ</h1>
-    <div class="sub">
-      黒猫が運ぶ、特別な出会い♪<br>
-      今日の1枚を引いてみてください。
-    </div>
-
-    <a class="btn" href="https://liff.line.me/2010515194-r0gV3TRC">
-      🐾 ガチャを開く
-    </a>
-
-    <div class="note">
-      ※引いたシール画像の投稿はご遠慮ください。<br>
-      まだ引いていない方の楽しみを守るため、ご協力お願いします。
-    </div>
-
-    <div class="small">
-      クロネコガチャ Ver.1.1
-    </div>
+  <div class="page">
+    <img class="mainImage" src="./open-bg.png" alt="クロネコガチャ案内">
+    <a class="tapArea" href="https://liff.line.me/2010515194-r0gV3TRC" aria-label="ガチャページに行く"></a>
   </div>
 </body>
 </html>
