@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
-<title>🐈 クロネコガチャ Ver.2.0 演出強化版</title>
+<title>🐈 クロネコガチャ Ver.2.2 猫なし光演出版</title>
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 html,body{
@@ -1980,6 +1980,11 @@ html,body{
 }
 
 </style>
+
+<style id="kuroneko-force-no-cat-v22">
+/* Ver.2.2 強制：古い猫・古い箱演出を完全非表示 */
+.cssCat,.catJump,.catBody,.catHead,.catEar,.catEye,.catTail,.catLeg,.giftBox{display:none!important;opacity:0!important;visibility:hidden!important;}
+</style>
 </head>
 <body>
 <div id="app">
@@ -2331,7 +2336,7 @@ async function drawGacha(){
     // これで「演出終了 → 結果画像が白く待つ」時間を減らす。
     const resultImageReady = preloadImage(res.imageUrl);
 
-    await playGachaEffect(res);
+    await window.kuronekoPlayGachaEffectV22(res);
 
     // 画像待ちで長く止まらないよう、最大0.7秒だけ待つ。
     await Promise.race([
@@ -5615,6 +5620,7 @@ setTimeout(v11InitSoundButton, 300);
       vib([42]);sfx('sparkle');[nDrop,nZoom,nShuffle,nTear,nRise,nGate,nCrack][Math.floor(Math.random()*7)](done);
     });
   };
+  window.kuronekoPlayGachaEffectV22 = window.playGachaEffect;
   window.kuronekoEffectVersion='Ver.2.1 光演出・カード登場強化版（猫なし）';
 })();
 </script>
