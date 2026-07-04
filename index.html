@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>🐈‍⬛ クロネコガチャ Ver.2.3</title> <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>🐈‍⬛ クロネコガチャ Ver.2.4</title> <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style> html,body{ margin:0; padding:0; width:100%; min-height:100%; background:#020617; font-family:"Hiragino Sans","Meiryo",sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent; } #app{ position:relative; width:100%; max-width:430px; height:100vh; min-height:100vh; margin:0 auto; background:#020617; overflow:hidden; } #topImg{ width:100%; height:96.4vh; display:block; object-fit:cover; object-position:center top; user-select:none; pointer-events:none; } .tap{ position:absolute; border:none; background:rgba(255,255,255,0); cursor:pointer; touch-action:manipulation; } #drawTap{ left:23%; top:46.7%; width:54%; height:17.0%; border-radius:50%; z-index:20; } #bookTap{ left:14%; top:77.8%; width:72%; height:7.0%; border-radius:22px; z-index:90; } #statusMask{ display:none; } #statusText{ position:absolute; left:15%; top:86.15%; width:70%; height:4.2%; display:flex; align-items:center; justify-content:center; text-align:center; color:#fff7d6; font-weight:800; font-size:12px; line-height:1.12; text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55); z-index:18; pointer-events:none; background:transparent; } #topSpeechText{ position:absolute; left:18.5%; top:34.0%; width:50%; height:6.8%; z-index:12; pointer-events:none; color:#3b2408; font-weight:800; text-align:center; line-height:1.13; display:flex; flex-direction:column; align-items:center; justify-content:center; text-shadow:0 1px 0 rgba(255,255,255,.88); } #topSpeechLine1{ font-size:15px; font-weight:800; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; } #topSpeechLine2{ font-size:12px; font-weight:800; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; } #pressFx{ position:absolute; left:23%; top:46.7%; width:54%; height:17.0%; border-radius:50%; display:none; background:radial-gradient(circle,rgba(255,255,255,.75),rgba(250,204,21,.35),rgba(255,255,255,0) 68%); z-index:10; pointer-events:none; animation:pressGlow .45s infinite alternate; } @keyframes pressGlow{ from{transform:scale(.94);opacity:.55;} to{transform:scale(1.07);opacity:1;} } #zukanOpenFx{ position:fixed; inset:0; z-index:160; display:none; align-items:center; justify-content:center; flex-direction:column; background:rgba(0,0,0,.82); color:#facc15; font-weight:bold; text-align:center; pointer-events:none; } #zukanOpenFx.show{ display:flex; } .zukanBookIcon{ font-size:56px; line-height:1; filter:drop-shadow(0 0 16px #facc15); animation:zukanBookPop .45s ease both; } .zukanFxText{ margin-top:12px; font-size:18px; text-shadow:0 0 12px #facc15; } @keyframes zukanBookPop{ 0%{transform:scale(.55) rotate(-8deg); opacity:0;} 60%{transform:scale(1.12) rotate(3deg); opacity:1;} 100%{transform:scale(1) rotate(0); opacity:1;} } #effect{ position:fixed; inset:0; background:rgba(0,0,0,.94); display:none; z-index:100; overflow:hidden; } #effectStage{ position:absolute; inset:0; overflow:hidden; } #effectText{ display:none; } .openFlash{ animation:openFlash .13s linear 7; } @keyframes openFlash{ 0%{background:rgba(0,0,0,.94);} 50%{background:rgba(255,244,180,.86);} 100%{background:rgba(0,0,0,.94);} } 
-/* ===== クロネコガチャ Ver.2.3 猫なし・光カード演出 ===== */
+/* ===== クロネコガチャ Ver.2.4 猫なし・光カード演出 ===== */
 #effect{
   position:fixed;
   inset:0;
@@ -95,6 +95,60 @@
 @keyframes kv23Result3D{0%{opacity:0;transform:scale(.12) rotateY(88deg) rotateZ(-10deg)}45%{opacity:1;transform:scale(1.22) rotateY(-14deg) rotateZ(4deg)}72%{opacity:1;transform:scale(.96) rotateY(7deg) rotateZ(-2deg)}100%{opacity:1;transform:scale(1) rotateY(0) rotateZ(0)}}
 
 /* 結果 */ #result{ position:fixed; inset:0; background:rgba(0,0,0,.88); display:none; align-items:center; justify-content:center; flex-direction:column; z-index:120; padding:20px; box-sizing:border-box; } #result.secretResult{ background:radial-gradient(circle,rgba(250,204,21,.35),rgba(0,0,0,.93) 65%); } #resultImg{ width:86%; max-width:360px; border-radius:18px; background:white; box-shadow:0 0 35px #facc15; animation:cardPop .7s ease; cursor:pointer; } #result.secretResult #resultImg{ box-shadow:0 0 35px #facc15,0 0 70px #f472b6,0 0 100px #60a5fa; animation:secretCardPop .9s ease; } #resultName{ margin-top:16px; color:#facc15; font-size:28px; font-weight:bold; text-shadow:0 0 12px #facc15; } #resultMsg{ margin-top:8px; color:#fff; font-size:18px; font-weight:bold; } #resultHint{ margin-top:8px; color:#fff7d6; font-size:13px; font-weight:800; text-shadow:0 2px 4px #000; } #closeResult{ margin-top:18px; padding:12px 28px; border:none; border-radius:999px; font-size:18px; font-weight:bold; background:#facc15; color:#3b2408; } @keyframes cardPop{ 0%{transform:scale(.2) rotateY(100deg);opacity:0;} 70%{transform:scale(1.08) rotateY(0deg);opacity:1;} 100%{transform:scale(1);} } @keyframes secretCardPop{ 0%{transform:scale(.1) rotate(30deg);opacity:0;} 50%{transform:scale(1.22) rotate(-6deg);opacity:1;} 100%{transform:scale(1) rotate(0);} } /* 図鑑 */ #collection{ position:fixed; inset:0; background: radial-gradient(circle at 50% 0%, rgba(250,204,21,.18), transparent 35%), linear-gradient(180deg, rgba(15,23,42,.98), rgba(2,6,23,.98)); display:none; z-index:130; overflow-y:auto; padding:18px 16px 22px; box-sizing:border-box; color:white; } #collection.collectionOpening{ animation:collectionOpenPop .28s ease both; } @keyframes collectionOpenPop{ 0%{opacity:0; transform:scale(.98);} 100%{opacity:1; transform:scale(1);} } #collection h2{ text-align:center; color:#facc15; margin:2px 0 6px; font-size:24px; letter-spacing:1px; text-shadow:0 0 12px rgba(250,204,21,.55); } #collectionInfo{ text-align:center; color:#fff7d6; font-weight:800; font-size:13px; margin:0 0 12px; text-shadow:0 2px 4px #000; line-height:1.5; } #collectionInfo .bar{ width:76%; height:8px; margin:7px auto 0; border-radius:999px; background:rgba(255,255,255,.16); overflow:hidden; } #collectionInfo .bar span{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#facc15,#f472b6,#38bdf8); } .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; align-items:start; } .cardMini{ position:relative; height:142px; padding:6px; border-radius:13px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.06)); box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 6px 14px rgba(0,0,0,.25); text-align:center; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; } .cardMini:active{ transform:scale(.96); } .cardMini::before{ content:attr(data-no); position:absolute; left:5px; top:5px; padding:2px 5px; border-radius:999px; background:rgba(0,0,0,.72); color:#facc15; font-size:9px; font-weight:900; z-index:5; } .cardMini.secretMini{ background:linear-gradient(135deg,rgba(250,204,21,.28),rgba(147,51,234,.32),rgba(56,189,248,.18)); box-shadow:0 0 16px rgba(250,204,21,.35), inset 0 0 0 1px rgba(255,255,255,.12); } .cardMini.secretMini::after{ content:"SECRET"; position:absolute; right:5px; top:5px; padding:2px 4px; border-radius:999px; background:linear-gradient(90deg,#facc15,#f472b6); color:#111827; font-size:7px; font-weight:900; z-index:3; } .cardMini img{ width:100%; height:104px; object-fit:cover; object-position:center center; border-radius:9px; display:block; background:white; box-shadow:0 0 8px rgba(0,0,0,.35); } .lockedThumb{ width:100%; height:104px; border-radius:9px; box-sizing:border-box; background: radial-gradient(circle at 50% 45%, rgba(250,204,21,.16), transparent 42%), linear-gradient(135deg,rgba(15,23,42,.96),rgba(2,6,23,.96)); display:flex; align-items:center; justify-content:center; color:#facc15; font-size:25px; font-weight:900; box-shadow:inset 0 0 0 1px rgba(250,204,21,.18); } .cardMini div:not(.lockedThumb){ height:24px; margin-top:5px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:800; line-height:1.05; color:#fff7d6; text-shadow:0 2px 4px #000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .cardMini.lockedMini{ background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03)); opacity:.72; } .cardMini.lockedMini div{ color:#a8a29e; } #closeCollection{ width:100%; margin:18px 0 6px; padding:13px; border:none; border-radius:16px; font-size:18px; font-weight:bold; background:#38bdf8; color:white; } /* 拡大表示 */ #sealZoom{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; background: radial-gradient(circle at 50% 35%, rgba(250,204,21,.22), transparent 35%), rgba(0,0,0,.94); z-index:180; padding:18px; box-sizing:border-box; } #zoomImg{ width:94%; max-width:430px; border-radius:18px; background:white; box-shadow:0 0 38px #facc15,0 0 70px rgba(250,204,21,.45); animation:zoomSealPop .38s ease both; } #zoomName{ margin-top:14px; color:#facc15; font-size:26px; font-weight:bold; text-shadow:0 0 12px #facc15; } #zoomClose{ margin-top:16px; padding:12px 30px; border:none; border-radius:999px; font-size:18px; font-weight:bold; background:#facc15; color:#3b2408; } @keyframes zoomSealPop{ 0%{transform:scale(.62) rotateY(65deg);opacity:0;filter:blur(4px);} 70%{transform:scale(1.05) rotateY(0deg);opacity:1;filter:blur(0);} 100%{transform:scale(1) rotateY(0deg);} } /* ===== Ver.8 図鑑連動・吸い込み演出 ===== */ .cardMini.focusCard{ animation:focusCardGlow 1.35s ease both; } @keyframes focusCardGlow{ 0%{transform:scale(1); box-shadow:0 0 0 rgba(250,204,21,0);} 25%{transform:scale(1.08); box-shadow:0 0 22px #facc15,0 0 45px rgba(250,204,21,.65);} 65%{transform:scale(1.03); box-shadow:0 0 18px #facc15;} 100%{transform:scale(1); box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 6px 14px rgba(0,0,0,.25);} } #collectionAbsorbFx{ position:fixed; inset:0; z-index:240; pointer-events:none; display:none; } .absorbSeal{ position:fixed; left:50%; top:50%; width:190px; max-width:52vw; border-radius:16px; background:white; box-shadow:0 0 30px #facc15,0 0 70px rgba(250,204,21,.55); transform:translate(-50%,-50%) scale(1.05); transform-origin:center center; opacity:1; animation:absorbSealMove .95s cubic-bezier(.2,.9,.25,1) forwards; } @keyframes absorbSealMove{ 0%{ opacity:1; left:50%; top:50%; transform:translate(-50%,-50%) scale(1.05) rotate(0deg); filter:brightness(1.15); } 72%{ opacity:.95; left:var(--target-left); top:var(--target-top); transform:translate(-50%,-50%) scale(.42) rotate(8deg); filter:brightness(1.35); } 100%{ opacity:0; left:var(--target-left); top:var(--target-top); transform:translate(-50%,-50%) scale(.08) rotate(12deg); filter:brightness(1.8); } } .absorbSpark{ position:fixed; width:10px; height:10px; border-radius:50%; background:#facc15; box-shadow:0 0 14px #facc15; animation:absorbSparkFly .8s ease-out forwards; } @keyframes absorbSparkFly{ 0%{opacity:1; transform:translate(0,0) scale(1);} 100%{opacity:0; transform:translate(var(--sx),var(--sy)) scale(.2);} } #collectionToast{ position:fixed; left:50%; top:12%; transform:translateX(-50%); z-index:245; display:none; padding:10px 16px; border-radius:999px; background:rgba(0,0,0,.72); color:#fff7d6; font-size:14px; font-weight:900; text-shadow:0 2px 4px #000; box-shadow:0 0 18px rgba(250,204,21,.45); pointer-events:none; } #collectionToast.show{ display:block; animation:toastPop 1.6s ease both; } @keyframes toastPop{ 0%{opacity:0; transform:translateX(-50%) scale(.8);} 18%{opacity:1; transform:translateX(-50%) scale(1.05);} 72%{opacity:1; transform:translateX(-50%) scale(1);} 100%{opacity:0; transform:translateX(-50%) scale(.96);} } /* ===== Ver.8.1 一番下メッセージ自由化 ===== */ #dailyLimitText{ position:absolute; left:16%; top:94.15%; width:68%; height:3.7%; z-index:30; display:flex; align-items:center; justify-content:center; text-align:center; color:#3b2408; font-size:14px; font-weight:900; line-height:1.05; text-shadow:0 1px 0 rgba(255,255,255,.8); pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } 
+
+
+/* ===== クロネコガチャ Ver.2.4 調整：下吹き出し・音ボタン・点滅抑制・演出差別化 ===== */
+#soundToggle{
+  left:3.2% !important;
+  right:auto !important;
+  top:2.4% !important;
+  width:62px !important;
+  height:34px !important;
+  z-index:120 !important;
+  background:rgba(2,6,23,.66) !important;
+  border:1px solid rgba(250,204,21,.48) !important;
+  backdrop-filter:blur(4px);
+}
+#dailyLimitText{
+  left:9.5% !important;
+  top:91.9% !important;
+  width:81% !important;
+  height:4.6% !important;
+  font-size:13px !important;
+  line-height:1.05 !important;
+  color:#3b2408 !important;
+  z-index:70 !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.88) !important;
+}
+#effect.kv23Mode{
+  background:
+    radial-gradient(circle at 50% 58%,rgba(250,204,21,.16),transparent 32%),
+    radial-gradient(circle at 18% 18%,rgba(56,189,248,.12),transparent 28%),
+    radial-gradient(circle at 82% 22%,rgba(244,114,182,.13),transparent 30%),
+    rgba(0,0,0,.94) !important;
+}
+#effect.kv23Secret{animation:kv24BgPulse 1.8s ease-in-out infinite alternate !important;}
+#effect.kv23Super{animation:kv24SuperBg 1.8s linear infinite !important;}
+@keyframes kv24BgPulse{from{filter:brightness(1) saturate(1)}to{filter:brightness(1.16) saturate(1.18)}}
+@keyframes kv24SuperBg{from{filter:hue-rotate(0deg) brightness(1.05)}to{filter:hue-rotate(360deg) brightness(1.16)}}
+.kv23Cutin{font-size:22px !important;text-shadow:0 2px 5px #000,0 0 12px rgba(250,204,21,.75) !important;}
+.kv23Particle{width:6px !important;height:6px !important;box-shadow:0 0 8px #facc15,0 0 14px rgba(250,204,21,.55) !important;}
+.kv23Flash{background:rgba(255,255,235,.46) !important;animation:kv24Flash .72s ease-out forwards !important;}
+@keyframes kv24Flash{0%,100%{opacity:0}24%{opacity:.48}56%{opacity:.12}}
+.kv23UltraFlash{background:radial-gradient(circle,rgba(255,255,255,.82) 0%,rgba(250,204,21,.56) 26%,rgba(244,63,94,.34) 52%,rgba(56,189,248,.20) 70%,transparent 84%) !important;animation:kv24UltraFlash 1.1s ease-out forwards !important;}
+@keyframes kv24UltraFlash{0%{opacity:0;transform:scale(.25)}30%{opacity:.72}100%{opacity:0;transform:scale(2.6)}}
+.kv23Card{box-shadow:0 0 24px rgba(255,255,255,.65),0 0 50px rgba(250,204,21,.70),0 0 76px rgba(244,114,182,.28) !important;}
+.kv24Meteor{position:absolute;left:-30%;top:22%;width:260px;height:8px;border-radius:999px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.88),rgba(250,204,21,.86));box-shadow:0 0 20px rgba(250,204,21,.75);transform:rotate(-24deg);opacity:0;animation:kv24Meteor 1.35s ease forwards;z-index:31;}
+@keyframes kv24Meteor{0%{opacity:0;left:-30%;top:18%}18%{opacity:.9}100%{opacity:0;left:110%;top:62%}}
+.kv24Orb{position:absolute;left:50%;top:52%;width:70px;height:70px;border-radius:50%;transform:translate(-50%,-50%) scale(.25);background:radial-gradient(circle,#fff7d6,rgba(250,204,21,.52),transparent 72%);box-shadow:0 0 38px rgba(250,204,21,.75);opacity:0;animation:kv24Orb 1.65s ease forwards;z-index:34;}
+@keyframes kv24Orb{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}40%{opacity:.95;transform:translate(-50%,-50%) scale(1.9)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.2)}}
+.kv24Rune{position:absolute;color:#fff7ad;font-size:24px;font-weight:900;text-shadow:0 0 10px #facc15;opacity:0;animation:kv24Rune 1.8s ease forwards;z-index:38;}
+@keyframes kv24Rune{0%{opacity:0;transform:translateY(20px) scale(.5) rotate(0deg)}35%{opacity:.9}100%{opacity:0;transform:translateY(-90px) scale(1.2) rotate(180deg)}}
+.kv24SoftBurst{position:absolute;left:50%;top:52%;width:40px;height:40px;border-radius:50%;transform:translate(-50%,-50%) scale(.2);background:rgba(255,255,255,.7);box-shadow:0 0 48px 26px rgba(250,204,21,.45),0 0 90px 42px rgba(56,189,248,.20);opacity:0;animation:kv24SoftBurst 1.1s ease-out forwards;z-index:40;}
+@keyframes kv24SoftBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}30%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) scale(5.2)}}
+.kv24Curtain{position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,23,42,.88),transparent 48%,rgba(15,23,42,.88));opacity:0;animation:kv24Curtain 1.5s ease forwards;z-index:30;}
+@keyframes kv24Curtain{0%{opacity:0;clip-path:inset(0 48% 0 48%)}35%{opacity:.95;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 50% 0 50%)}}
+
 </style>
 
 </head>
@@ -235,28 +289,130 @@ function addGate(stage,delay){ setTimeout(function(){ const g=document.createEle
 function addCrack(stage,delay){ setTimeout(function(){ const c=document.createElement("div"); c.className="kv23Crack"; stage.appendChild(c); }, delay || 0); }
 function addRainbow(stage,delay){ setTimeout(function(){ const r=document.createElement("div"); r.className="kv23Rainbow"; stage.appendChild(r); }, delay || 0); }
 function addLightning(stage,left,delay){ setTimeout(function(){ const l=document.createElement("div"); l.className="kv23Lightning"; l.style.left=left; stage.appendChild(l); }, delay || 0); }
-function playNormalCardFall(stage,done){ kv23Cutin(stage,"光のカードが降ってくる…",120); addStars(stage,44,1.5); addParticles(stage,34,260); addFlash(stage,false,1450); addCard(stage,"fall",1650); setTimeout(done,3300); }
-function playNormalZoom(stage,done){ kv23Cutin(stage,"まばゆい光が集まる…",120); addParticles(stage,58,300); addRainbow(stage,550); addFlash(stage,false,1500); addCard(stage,"zoom",1760); setTimeout(done,3450); }
-function playNormalShuffle(stage,done){ kv23Cutin(stage,"カードが高速シャッフル！",120); addStars(stage,36,1.2); for(let i=0;i<5;i++){ setTimeout(function(){ const b=document.createElement("div"); b.className="kv23ShuffleBack"; b.style.setProperty("--x",([-150,120,-90,70,-35][i])+"px"); b.style.setProperty("--r",([-28,22,-16,14,-8][i])+"deg"); stage.appendChild(b); },520+i*120); } addParticles(stage,42,260); addFlash(stage,false,1700); addCard(stage,"shuffle",1950); setTimeout(done,3700); }
-function playNormalBagTear(stage,done){ kv23Cutin(stage,"袋がビリビリ破れる…",120); addStars(stage,26,1.0); setTimeout(function(){ const b=document.createElement("div"); b.className="kv23Bag"; stage.appendChild(b); },720); setTimeout(function(){ kv23Sfx("boom"); addParticles(stage,72,330); },1600); addFlash(stage,false,1800); addCard(stage,"zoom",2050); setTimeout(done,3900); }
-function playNormalMagicRise(stage,done){ kv23Cutin(stage,"魔法陣から浮かび上がる…",120); addRing(stage,420); addStars(stage,42,1.5); addParticles(stage,42,270); addFlash(stage,false,1800); addCard(stage,"rise",2050); setTimeout(done,3900); }
-function playNormalLightGate(stage,done){ kv23Cutin(stage,"光の扉が開く…",120); addGate(stage,650); addParticles(stage,54,300); addStars(stage,34,1.1); addFlash(stage,false,1780); addCard(stage,"gate",2050); setTimeout(done,3900); }
-function playNormalScreenCrack(stage,done){ kv23Cutin(stage,"画面の奥からシール出現！",120); addStars(stage,30,1.0); addCrack(stage,950); setTimeout(function(){ kv23Sfx("boom"); addParticles(stage,66,340); },1250); addFlash(stage,false,1600); addCard(stage,"crack",1900); setTimeout(done,3700); }
-function playSecretRainbowThunder(stage,done){ kv23Cutin(stage,"SECRET RAINBOW",200); addRainbow(stage,400); addLightning(stage,"32%",820); addLightning(stage,"64%",980); addStars(stage,80,2.0); setTimeout(function(){kv23Sfx("boom");addParticles(stage,115,420);},1900); addFlash(stage,true,2200); addCard(stage,"gate",2850); setTimeout(done,5200); }
-function playSecretTimeBreak(stage,done){ kv23Cutin(stage,"……時間が止まった",250); setTimeout(function(){ const t=document.createElement("div"); t.className="kv23TimeStop"; stage.appendChild(t); },650); addStars(stage,64,1.8); addCrack(stage,2300); setTimeout(function(){kv23Sfx("boom");addParticles(stage,120,440);},2500); addFlash(stage,true,2850); addCard(stage,"crack",3450); setTimeout(done,5800); }
-function playSecretGateBurst(stage,done){ kv23Cutin(stage,"SECRET GATE OPEN",200); addGate(stage,520); addRing(stage,800); addRainbow(stage,1100); addLightning(stage,"48%",1600); addStars(stage,88,2.2); setTimeout(function(){addParticles(stage,130,460);},2300); addFlash(stage,true,2650); addCard(stage,"rise",3350); setTimeout(done,5900); }
+function playNormalCardFall(stage,done){
+  kv23Cutin(stage,"上空から光のカードが落ちてくる…",120);
+  addMeteor(stage,520);
+  addStars(stage,18,1.2);
+  addParticles(stage,18,180);
+  addSoftBurst(stage,1450);
+  addCard(stage,"fall",1680);
+  setTimeout(done,3350);
+}
+function playNormalZoom(stage,done){
+  kv23Cutin(stage,"小さな光が一気にふくらむ…",120);
+  addOrb(stage,520);
+  addParticles(stage,22,190);
+  addSoftBurst(stage,1280);
+  addCard(stage,"zoom",1600);
+  setTimeout(done,3250);
+}
+function playNormalShuffle(stage,done){
+  kv23Cutin(stage,"カードが左右にシャッフル！",120);
+  for(let i=0;i<6;i++){
+    setTimeout(function(){
+      const b=document.createElement("div");
+      b.className="kv23ShuffleBack";
+      b.style.setProperty("--x",([-170,135,-110,82,-52,24][i])+"px");
+      b.style.setProperty("--r",([-30,24,-18,14,-10,6][i])+"deg");
+      stage.appendChild(b);
+    },420+i*110);
+  }
+  addParticles(stage,16,170);
+  addCard(stage,"shuffle",1750);
+  setTimeout(done,3400);
+}
+function playNormalBagTear(stage,done){
+  kv23Cutin(stage,"袋がビリビリ破れていく…",120);
+  setTimeout(function(){ const b=document.createElement("div"); b.className="kv23Bag"; stage.appendChild(b); },620);
+  setTimeout(function(){ kv23Sfx("boom"); addParticles(stage,34,230); addSoftBurst(stage,0); },1500);
+  addCard(stage,"zoom",1980);
+  setTimeout(done,3700);
+}
+function playNormalMagicRise(stage,done){
+  kv23Cutin(stage,"魔法陣からゆっくり浮上…",120);
+  addRing(stage,420);
+  addRunes(stage,680);
+  addStars(stage,16,1.4);
+  addParticles(stage,18,180);
+  addCard(stage,"rise",2050);
+  setTimeout(done,3850);
+}
+function playNormalLightGate(stage,done){
+  kv23Cutin(stage,"光の扉が静かに開く…",120);
+  addCurtain(stage,360);
+  addGate(stage,740);
+  addParticles(stage,22,190);
+  addSoftBurst(stage,1500);
+  addCard(stage,"gate",2050);
+  setTimeout(done,3900);
+}
+function playNormalScreenCrack(stage,done){
+  kv23Cutin(stage,"画面の奥からシールが割り込む！",120);
+  addCrack(stage,820);
+  setTimeout(function(){ kv23Sfx("boom"); addParticles(stage,30,230); },1200);
+  addCard(stage,"crack",1820);
+  setTimeout(done,3550);
+}
+function playSecretRainbowThunder(stage,done){
+  kv23Cutin(stage,"SECRET RAINBOW",200);
+  addRainbow(stage,420);
+  addLightning(stage,"32%",960);
+  addLightning(stage,"64%",1200);
+  addStars(stage,40,2.0);
+  setTimeout(function(){kv23Sfx("boom");addParticles(stage,58,310);addSoftBurst(stage,0);},1850);
+  addFlash(stage,true,2350);
+  addCard(stage,"gate",3000);
+  setTimeout(done,5200);
+}
+function playSecretTimeBreak(stage,done){
+  kv23Cutin(stage,"……時間が止まった",250);
+  setTimeout(function(){ const t=document.createElement("div"); t.className="kv23TimeStop"; stage.appendChild(t); },650);
+  addStars(stage,34,1.8);
+  addCrack(stage,2250);
+  setTimeout(function(){kv23Sfx("boom");addParticles(stage,62,330);},2500);
+  addFlash(stage,true,3050);
+  addCard(stage,"crack",3500);
+  setTimeout(done,5800);
+}
+function playSecretGateBurst(stage,done){
+  kv23Cutin(stage,"SECRET GATE OPEN",200);
+  addGate(stage,520);
+  addRing(stage,880);
+  addRainbow(stage,1300);
+  addLightning(stage,"48%",1750);
+  addStars(stage,44,2.2);
+  setTimeout(function(){addParticles(stage,66,340);addSoftBurst(stage,0);},2350);
+  addFlash(stage,true,2950);
+  addCard(stage,"rise",3450);
+  setTimeout(done,5900);
+}
 function playSuperSecret900(stage,done){
   const title=document.createElement("div"); title.className="kv23SuperTitle"; title.textContent="SUPER SECRET 900"; stage.appendChild(title);
-  addRainbow(stage,250); addRing(stage,450); addGate(stage,850);
-  addLightning(stage,"24%",900); addLightning(stage,"48%",1050); addLightning(stage,"72%",1200);
-  addStars(stage,130,2.6);
+  addRainbow(stage,250); addRing(stage,500); addGate(stage,920); addCurtain(stage,1100);
+  addLightning(stage,"26%",1150); addLightning(stage,"52%",1380); addLightning(stage,"74%",1600);
+  addStars(stage,72,2.6);
   setTimeout(function(){addCrack(stage,0);},2350);
-  setTimeout(function(){kv23Sfx("boom");addParticles(stage,190,560);},2600);
-  addFlash(stage,true,3100);
-  addCard(stage,"zoom",3900);
-  setTimeout(function(){addFlash(stage,true,0);},4550);
+  setTimeout(function(){kv23Sfx("boom");addParticles(stage,96,420);addSoftBurst(stage,0);},2650);
+  addFlash(stage,true,3350);
+  addCard(stage,"zoom",4000);
+  setTimeout(function(){addSoftBurst(stage,0);},4650);
   setTimeout(done,7200);
 }
+function addMeteor(stage,delay){ setTimeout(function(){ const m=document.createElement("div"); m.className="kv24Meteor"; stage.appendChild(m); }, delay || 0); }
+function addOrb(stage,delay){ setTimeout(function(){ const o=document.createElement("div"); o.className="kv24Orb"; stage.appendChild(o); }, delay || 0); }
+function addSoftBurst(stage,delay){ setTimeout(function(){ const b=document.createElement("div"); b.className="kv24SoftBurst"; stage.appendChild(b); }, delay || 0); }
+function addCurtain(stage,delay){ setTimeout(function(){ const c=document.createElement("div"); c.className="kv24Curtain"; stage.appendChild(c); }, delay || 0); }
+function addRunes(stage,delay){ setTimeout(function(){
+  const marks=["✦","◇","✧","✶","◆","✹"];
+  for(let i=0;i<marks.length;i++){
+    const r=document.createElement("div"); r.className="kv24Rune"; r.textContent=marks[i];
+    const angle=(Math.PI*2/marks.length)*i;
+    r.style.left=(50+Math.cos(angle)*28)+"%";
+    r.style.top=(53+Math.sin(angle)*19)+"%";
+    r.style.animationDelay=(i*.08)+"s";
+    stage.appendChild(r);
+  }
+}, delay || 0); }
 function finishEffect(done){ const effect=document.getElementById("effect"); if(effect) effect.classList.add("openFlash"); setTimeout(function(){ hideEffect(); done(); },760); }
 function hideEffect(){ const effect=document.getElementById("effect"); if(effect){ effect.style.display="none"; effect.className=""; } const stage=document.getElementById("effectStage"); if(stage) stage.innerHTML=""; }
 
