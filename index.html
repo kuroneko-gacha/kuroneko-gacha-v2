@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>🐈‍⬛ クロネコガチャ Ver.2.5</title> <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>🐈‍⬛ クロネコガチャ Ver.3.0</title> <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style> html,body{ margin:0; padding:0; width:100%; min-height:100%; background:#020617; font-family:"Hiragino Sans","Meiryo",sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent; } #app{ position:relative; width:100%; max-width:430px; height:100vh; min-height:100vh; margin:0 auto; background:#020617; overflow:hidden; } #topImg{ width:100%; height:96.4vh; display:block; object-fit:cover; object-position:center top; user-select:none; pointer-events:none; } .tap{ position:absolute; border:none; background:rgba(255,255,255,0); cursor:pointer; touch-action:manipulation; } #drawTap{ left:23%; top:46.7%; width:54%; height:17.0%; border-radius:50%; z-index:20; } #bookTap{ left:14%; top:77.8%; width:72%; height:7.0%; border-radius:22px; z-index:90; } #statusMask{ display:none; } #statusText{ position:absolute; left:15%; top:86.15%; width:70%; height:4.2%; display:flex; align-items:center; justify-content:center; text-align:center; color:#fff7d6; font-weight:800; font-size:12px; line-height:1.12; text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55); z-index:18; pointer-events:none; background:transparent; } #topSpeechText{ position:absolute; left:18.5%; top:34.0%; width:50%; height:6.8%; z-index:12; pointer-events:none; color:#3b2408; font-weight:800; text-align:center; line-height:1.13; display:flex; flex-direction:column; align-items:center; justify-content:center; text-shadow:0 1px 0 rgba(255,255,255,.88); } #topSpeechLine1{ font-size:15px; font-weight:800; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; } #topSpeechLine2{ font-size:12px; font-weight:800; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; } #pressFx{ position:absolute; left:23%; top:46.7%; width:54%; height:17.0%; border-radius:50%; display:none; background:radial-gradient(circle,rgba(255,255,255,.75),rgba(250,204,21,.35),rgba(255,255,255,0) 68%); z-index:10; pointer-events:none; animation:pressGlow .45s infinite alternate; } @keyframes pressGlow{ from{transform:scale(.94);opacity:.55;} to{transform:scale(1.07);opacity:1;} } #zukanOpenFx{ position:fixed; inset:0; z-index:160; display:none; align-items:center; justify-content:center; flex-direction:column; background:rgba(0,0,0,.82); color:#facc15; font-weight:bold; text-align:center; pointer-events:none; } #zukanOpenFx.show{ display:flex; } .zukanBookIcon{ font-size:56px; line-height:1; filter:drop-shadow(0 0 16px #facc15); animation:zukanBookPop .45s ease both; } .zukanFxText{ margin-top:12px; font-size:18px; text-shadow:0 0 12px #facc15; } @keyframes zukanBookPop{ 0%{transform:scale(.55) rotate(-8deg); opacity:0;} 60%{transform:scale(1.12) rotate(3deg); opacity:1;} 100%{transform:scale(1) rotate(0); opacity:1;} } #effect{ position:fixed; inset:0; background:rgba(0,0,0,.94); display:none; z-index:100; overflow:hidden; } #effectStage{ position:absolute; inset:0; overflow:hidden; } #effectText{ display:none; } .openFlash{ animation:openFlash .13s linear 7; } @keyframes openFlash{ 0%{background:rgba(0,0,0,.94);} 50%{background:rgba(255,244,180,.86);} 100%{background:rgba(0,0,0,.94);} } 
 /* ===== クロネコガチャ Ver.2.5 猫なし・光カード演出 ===== */
@@ -567,6 +567,162 @@ function showResult(res){ lastDrawnCardId = String(res.id || ""); lastDrawnImage
 .kv25Clock{position:absolute;left:50%;top:52%;width:210px;height:210px;border-radius:50%;border:5px solid rgba(255,247,173,.75);transform:translate(-50%,-50%) scale(.2);box-shadow:0 0 28px rgba(250,204,21,.58),inset 0 0 25px rgba(250,204,21,.26);animation:kv25Clock 2.2s ease forwards;z-index:41}.kv25Clock:before,.kv25Clock:after{content:"";position:absolute;left:50%;top:50%;width:4px;height:70px;background:#fff7ad;transform-origin:bottom center;box-shadow:0 0 10px #facc15}.kv25Clock:before{transform:translate(-50%,-100%) rotate(40deg)}.kv25Clock:after{height:50px;transform:translate(-50%,-100%) rotate(125deg)}@keyframes kv25Clock{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}50%{opacity:.95;transform:translate(-50%,-50%) scale(1.1) rotate(160deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(160deg)}}
 .kv25SuperCore{position:absolute;left:50%;top:52%;width:70px;height:70px;border-radius:50%;transform:translate(-50%,-50%) scale(.12);background:radial-gradient(circle,#fff,#facc15,rgba(244,63,94,.35),transparent 75%);box-shadow:0 0 50px rgba(255,255,255,.75),0 0 90px rgba(250,204,21,.70),0 0 130px rgba(56,189,248,.35);animation:kv25SuperCore 3.6s ease forwards;z-index:33}@keyframes kv25SuperCore{25%{opacity:.98;transform:translate(-50%,-50%) scale(2)}70%{opacity:.8;transform:translate(-50%,-50%) scale(4)}100%{opacity:0;transform:translate(-50%,-50%) scale(6)}}
 @keyframes kv25Fade{0%{opacity:0}30%{opacity:.9}100%{opacity:0}}
+
+
+/* =========================================================
+   クロネコガチャ Ver.3.0 FINAL OVERRIDE
+   目的：既存GAS・図鑑・画面土台を維持し、演出だけ映画級に強化
+   ========================================================= */
+#effect.kv25Effect::before,
+#effect.kv25Secret::before,
+#effect.kv25Super::before{
+  content:"";
+  position:absolute;
+  inset:-18%;
+  z-index:1;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 52%,rgba(255,255,255,.12),transparent 20%),
+    linear-gradient(115deg,transparent 0%,rgba(255,255,255,.08) 42%,transparent 58%);
+  animation:kv30CameraAura 3.4s ease-in-out infinite alternate;
+}
+#effect.kv25Effect::after,
+#effect.kv25Secret::after,
+#effect.kv25Super::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.045) 0 1px,transparent 1px 5px),
+    radial-gradient(circle at 50% 50%,transparent 42%,rgba(0,0,0,.34) 100%);
+  mix-blend-mode:screen;
+  opacity:.48;
+}
+#effect.kv25Effect{animation:kv30StageBreath 3.2s ease-in-out infinite alternate !important;}
+#effect.kv25Secret{animation:kv30SecretStage 2.6s ease-in-out infinite alternate !important;}
+#effect.kv25Super{animation:kv30SuperStage 1.9s ease-in-out infinite alternate !important;}
+#effectStage{z-index:5;perspective:1200px !important;}
+.kv25Cutin{
+  top:13.2% !important;
+  font-size:23px !important;
+  letter-spacing:.07em !important;
+  color:#fff9c8 !important;
+  text-shadow:0 3px 6px #000,0 0 18px rgba(250,204,21,.9),0 0 40px rgba(244,114,182,.34) !important;
+  animation:kv30Cutin 1.65s cubic-bezier(.16,.9,.22,1) forwards !important;
+}
+.kv25Skip{bottom:18px !important;opacity:.66;}
+.kv25Card{
+  width:188px !important;
+  height:254px !important;
+  border-radius:22px !important;
+  background:
+    linear-gradient(115deg,rgba(255,255,255,.96),rgba(250,204,21,.82) 42%,rgba(255,255,255,.94) 58%,rgba(56,189,248,.36)) !important;
+  box-shadow:0 0 28px rgba(255,255,255,.78),0 0 68px rgba(250,204,21,.88),0 0 120px rgba(244,114,182,.35) !important;
+  overflow:hidden;
+}
+.kv25Card::before{
+  content:"";
+  position:absolute;
+  inset:-40%;
+  background:linear-gradient(110deg,transparent 36%,rgba(255,255,255,.92) 49%,transparent 62%);
+  transform:translateX(-70%) rotate(8deg);
+  animation:kv30CardShine 1.15s .38s ease-out forwards;
+}
+.kv25Card::after{
+  content:"KURONEKO";
+  position:absolute;
+  left:13px;right:13px;bottom:13px;height:30px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:999px;
+  color:rgba(59,36,8,.76);
+  font-size:12px;font-weight:900;letter-spacing:.18em;
+  background:rgba(255,255,255,.36);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);
+}
+.kv25Card.secretSpin,.kv25Card.super{
+  background:conic-gradient(from 0deg,#fff,#facc15,#fb7185,#38bdf8,#a855f7,#fff) !important;
+}
+.kv25Card.super{
+  width:208px !important;
+  height:280px !important;
+  box-shadow:0 0 40px #fff,0 0 90px #facc15,0 0 145px rgba(251,113,133,.62),0 0 190px rgba(56,189,248,.45) !important;
+}
+.kv25Particle{filter:drop-shadow(0 0 8px rgba(250,204,21,.86));}
+.kv25Flash.super{animation:kv30SuperFlash 1.25s ease-out forwards !important;}
+.kv25Flash.secret{animation:kv30SecretFlash 1.05s ease-out forwards !important;}
+#result.result3d #resultImg{animation:kv30ResultImpact .95s cubic-bezier(.13,1.1,.18,1) both !important;}
+#result.secretResult #resultName{animation:kv30NameGlow 1.3s ease-in-out infinite alternate;}
+@keyframes kv30CameraAura{from{transform:scale(1) rotate(0deg);filter:hue-rotate(0deg)}to{transform:scale(1.06) rotate(3deg);filter:hue-rotate(12deg)}}
+@keyframes kv30StageBreath{from{filter:brightness(1) saturate(1)}to{filter:brightness(1.13) saturate(1.14)}}
+@keyframes kv30SecretStage{from{filter:brightness(1.08) saturate(1.1) hue-rotate(0deg)}to{filter:brightness(1.28) saturate(1.35) hue-rotate(20deg)}}
+@keyframes kv30SuperStage{from{filter:brightness(1.12) saturate(1.25) hue-rotate(0deg)}to{filter:brightness(1.38) saturate(1.65) hue-rotate(55deg)}}
+@keyframes kv30Cutin{0%{opacity:0;transform:translateX(-50%) translateY(28px) scale(.72);filter:blur(6px)}24%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.12);filter:blur(0)}78%{opacity:1;transform:translateX(-50%) scale(1)}100%{opacity:.92;transform:translateX(-50%) scale(.98)}}
+@keyframes kv30CardShine{0%{transform:translateX(-90%) rotate(8deg);opacity:0}22%{opacity:.95}100%{transform:translateX(90%) rotate(8deg);opacity:0}}
+@keyframes kv30SecretFlash{0%,100%{opacity:0;transform:scale(.8)}25%{opacity:.78;transform:scale(1)}55%{opacity:.24;transform:scale(1.35)}}
+@keyframes kv30SuperFlash{0%{opacity:0;transform:scale(.35)}22%{opacity:.96;transform:scale(1)}48%{opacity:.42;transform:scale(1.8)}100%{opacity:0;transform:scale(3)}}
+@keyframes kv30ResultImpact{0%{opacity:0;transform:scale(.18) rotateY(95deg) rotateZ(-14deg);filter:blur(8px) brightness(1.8)}44%{opacity:1;transform:scale(1.22) rotateY(-16deg) rotateZ(4deg);filter:blur(0) brightness(1.18)}72%{transform:scale(.96) rotateY(7deg) rotateZ(-2deg)}100%{opacity:1;transform:scale(1) rotateY(0) rotateZ(0)}}
+@keyframes kv30NameGlow{from{text-shadow:0 0 12px #facc15}to{text-shadow:0 0 18px #facc15,0 0 36px #f472b6}}
 </style>
+
+
+
+<script>
+/* =========================================================
+   クロネコガチャ Ver.3.0 FINAL PATCH
+   既存関数を壊さず、超シークレット表示と演出文言だけ安全上書き
+   ========================================================= */
+(function(){
+  function isSuperResult(res){
+    return !!(res && (res.supersecret || String(res.type || "").toLowerCase() === "supersecret" || /^9\d\d/.test(String(res.id || ""))));
+  }
+  const oldShowResult = window.showResult;
+  if(typeof oldShowResult === "function"){
+    window.showResult = function(res){
+      oldShowResult.call(this,res);
+      try{
+        const result = document.getElementById("result");
+        const msg = document.getElementById("resultMsg");
+        if(isSuperResult(res)){
+          if(result) result.className = "secretResult result3d superResult";
+          if(msg) msg.textContent = "👑 SUPER SECRET SEAL GET！！";
+          if(typeof window.kuronekoShowSuperSecretFx === "function"){
+            setTimeout(function(){ window.kuronekoShowSuperSecretFx(); }, 380);
+          }
+        }
+      }catch(e){}
+    };
+  }
+  const normalTexts = [
+    "天空から光のカードが降臨",
+    "一点の光が限界まで加速",
+    "運命のカードが高速シャッフル",
+    "封印袋、覚醒して解放",
+    "魔法陣からシールが浮上",
+    "黄金の扉が開門",
+    "画面を突き破って出現"
+  ];
+  const oldCutin = window.kv25Cutin;
+  if(typeof oldCutin === "function"){
+    window.kv25Cutin = function(stage,text,delay){
+      const map = {
+        "上から光のカードが降ってくる":normalTexts[0],
+        "小さな光が一気に近づく":normalTexts[1],
+        "カードが高速シャッフル":normalTexts[2],
+        "封印袋がビリビリ破れる":normalTexts[3],
+        "魔法陣から静かに浮上":normalTexts[4],
+        "光の扉がゆっくり開く":normalTexts[5],
+        "画面の奥から割り込む":normalTexts[6],
+        "SECRET PRISM STORM":"虹色秘宝、解放",
+        "時間停止、そして崩壊":"時が止まり、世界が割れる",
+        "SECRET GATE OPEN":"禁断の扉、開門",
+        "SUPER SECRET 900":"超特別枠、降臨"
+      };
+      oldCutin(stage,map[text] || text,delay);
+    };
+  }
+})();
+</script>
 
 </body> </html>
