@@ -1,322 +1,572 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>🐈‍⬛ クロネコガチャ Ver.3.0</title>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-<style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{margin:0;padding:0;width:100%;min-height:100%;background:#020617;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;overflow-x:hidden;}
-body{min-height:100svh;background:radial-gradient(circle at 50% 0%,#17345a 0%,#07111f 42%,#020617 100%);}
-button{font-family:inherit;cursor:pointer;}
-#app{position:relative;width:100%;max-width:520px;margin:0 auto;min-height:100svh;padding:16px 16px 28px;overflow:hidden;}
-#app:before{content:"";position:absolute;inset:-20%;background:radial-gradient(circle at 20% 18%,rgba(250,204,21,.13),transparent 22%),radial-gradient(circle at 84% 35%,rgba(56,189,248,.12),transparent 24%),radial-gradient(circle at 50% 85%,rgba(244,114,182,.09),transparent 26%);pointer-events:none;animation:bgFloat 8s ease-in-out infinite alternate;}
-@keyframes bgFloat{from{transform:translateY(-8px)}to{transform:translateY(10px)}}
-#soundToggle{position:fixed;left:14px;top:calc(env(safe-area-inset-top) + 14px);z-index:50;border:1px solid rgba(250,204,21,.35);border-radius:999px;padding:10px 14px;background:rgba(2,6,23,.72);backdrop-filter:blur(10px);color:#facc15;font-size:16px;font-weight:900;box-shadow:0 0 18px rgba(250,204,21,.22);}
-.header{position:relative;text-align:center;padding-top:58px;}
-.logo{font-size:54px;filter:drop-shadow(0 0 14px rgba(250,204,21,.45));animation:catBob 2.4s ease-in-out infinite;}
-@keyframes catBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-h1{margin:8px 0 4px;font-size:30px;line-height:1.1;color:#f8fafc;text-shadow:0 0 16px rgba(250,204,21,.35);letter-spacing:.02em;}
-.ver{display:inline-block;margin-top:4px;padding:4px 12px;border-radius:999px;background:linear-gradient(135deg,rgba(250,204,21,.22),rgba(56,189,248,.16));color:#fde68a;font-size:13px;font-weight:900;border:1px solid rgba(250,204,21,.22);}
-#topSpeechText{position:relative;margin:22px auto 14px;width:min(94%,390px);padding:17px 15px;border-radius:22px;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.12);box-shadow:0 14px 36px rgba(0,0,0,.32),inset 0 0 0 1px rgba(250,204,21,.08);text-align:center;}
-#topSpeechLine1{font-size:20px;font-weight:900;color:#facc15;text-shadow:0 0 10px rgba(250,204,21,.45);}
-#topSpeechLine2{margin-top:6px;font-size:14px;font-weight:800;color:#fff7d6;line-height:1.45;}
-.mainCard{position:relative;margin:18px auto 0;width:min(94%,390px);padding:22px 16px 18px;border-radius:30px;background:linear-gradient(180deg,rgba(15,23,42,.86),rgba(2,6,23,.88));border:1px solid rgba(255,255,255,.12);box-shadow:0 20px 50px rgba(0,0,0,.42),0 0 30px rgba(56,189,248,.10);overflow:hidden;}
-.mainCard:before{content:"";position:absolute;inset:-80px;background:conic-gradient(from 0deg,transparent,rgba(250,204,21,.13),transparent,rgba(56,189,248,.12),transparent);animation:spin 7s linear infinite;opacity:.75;}
-.mainCard>*{position:relative;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.gachaMachine{width:210px;height:210px;margin:0 auto 16px;position:relative;border-radius:50%;background:radial-gradient(circle at 50% 40%,#fef3c7 0 16%,#facc15 17% 31%,#b45309 32% 36%,#111827 37% 100%);box-shadow:0 0 0 10px rgba(250,204,21,.12),0 0 40px rgba(250,204,21,.28),inset 0 -16px 28px rgba(0,0,0,.45);}
-.gachaMachine:before{content:"?";position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:22px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#38bdf8,#1d4ed8);color:#fff;font-size:45px;font-weight:900;box-shadow:0 0 22px rgba(56,189,248,.75);}
-.gachaMachine:after{content:"🐾";position:absolute;left:50%;bottom:18px;transform:translateX(-50%);font-size:30px;filter:drop-shadow(0 0 8px rgba(250,204,21,.55));}
-#statusText{min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:16px;font-weight:900;color:#fff7d6;line-height:1.45;text-shadow:0 0 10px rgba(250,204,21,.3);}
-.actionRow{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px;}
-#drawBtn,#collectionBtn{width:100%;border:0;border-radius:999px;padding:17px 12px;font-size:21px;font-weight:1000;box-shadow:0 12px 26px rgba(0,0,0,.32);}
-#drawBtn{background:linear-gradient(135deg,#facc15,#fb923c,#f97316);color:#3b2408;animation:drawPulse 1.8s ease-in-out infinite;}
-#collectionBtn{background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;}
-@keyframes drawPulse{0%,100%{transform:scale(1);box-shadow:0 12px 26px rgba(0,0,0,.32),0 0 0 rgba(250,204,21,0)}50%{transform:scale(1.025);box-shadow:0 16px 30px rgba(0,0,0,.36),0 0 24px rgba(250,204,21,.35)}}
-#drawBtn:disabled{opacity:.55;animation:none;}
-.notice{margin:16px auto 0;width:min(94%,390px);font-size:12px;line-height:1.55;color:#cbd5e1;text-align:center;opacity:.92;}
-#pressFx{display:none;position:fixed;inset:0;z-index:95;background:rgba(2,6,23,.42);pointer-events:none;}
-#pressFx:after{content:"抽選中…";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:24px;font-weight:1000;color:#facc15;text-shadow:0 0 18px #facc15;}
-#effect{position:fixed;inset:0;z-index:100;display:none;background:radial-gradient(circle at 50% 45%,#172554 0%,#020617 58%,#000 100%);overflow:hidden;touch-action:none;}
-#effectStage{position:absolute;inset:0;overflow:hidden;}
-.skipHint{position:absolute;right:14px;top:calc(env(safe-area-inset-top) + 14px);z-index:6;padding:8px 12px;border-radius:999px;background:rgba(15,23,42,.65);border:1px solid rgba(255,255,255,.14);font-size:12px;font-weight:900;color:#cbd5e1;}
-.fxText{position:absolute;left:0;right:0;top:20%;z-index:4;text-align:center;font-size:21px;font-weight:1000;color:#fde68a;text-shadow:0 0 15px rgba(250,204,21,.75),0 3px 0 rgba(0,0,0,.45);animation:textPop .62s ease both;}
-@keyframes textPop{from{opacity:0;transform:translateY(18px) scale(.88)}to{opacity:1;transform:none}}
-.gachaBall{position:absolute;left:50%;top:-120px;width:112px;height:112px;margin-left:-56px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff7ed 0 9%,#fde68a 10% 23%,#f97316 24% 52%,#7c2d12 53% 100%);box-shadow:0 0 30px rgba(250,204,21,.55),inset 0 -14px 24px rgba(0,0,0,.36);animation:ballDrop 1.9s cubic-bezier(.2,.82,.22,1) forwards;}
-.gachaBall:after{content:"🐾";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:34px;filter:drop-shadow(0 0 8px rgba(255,255,255,.6));}
-@keyframes ballDrop{0%{top:-120px;transform:scale(.8) rotate(0deg)}54%{top:52%;transform:scale(1) rotate(460deg)}70%{top:43%;transform:scale(1.05,.92) rotate(530deg)}84%{top:50%;transform:scale(.96,1.05) rotate(600deg)}100%{top:48%;transform:scale(1) rotate(650deg)}}
-.impactRing{position:absolute;left:50%;top:56%;width:24px;height:24px;border:3px solid rgba(250,204,21,.8);border-radius:50%;transform:translate(-50%,-50%);animation:ring 1.0s ease-out forwards;}
-@keyframes ring{to{width:420px;height:420px;opacity:0;border-width:1px}}
-.particle{position:absolute;width:7px;height:7px;border-radius:50%;background:#facc15;box-shadow:0 0 14px #facc15;animation:particle 1.4s ease-out forwards;}
-@keyframes particle{to{transform:translate(var(--x),var(--y)) scale(.2);opacity:0}}
-.flash{position:absolute;inset:0;background:#fff;opacity:0;animation:flash .62s ease-out forwards;}
-@keyframes flash{0%{opacity:0}32%{opacity:.86}100%{opacity:0}}
-.cardSilhouette{position:absolute;left:50%;top:50%;width:174px;height:236px;margin:-118px 0 0 -87px;border-radius:18px;background:linear-gradient(135deg,#020617,#111827);border:2px solid rgba(250,204,21,.7);box-shadow:0 0 26px rgba(250,204,21,.55);animation:sil 1.2s ease-in-out infinite alternate;}
-.cardSilhouette:before{content:"?";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:82px;font-weight:1000;color:#facc15;text-shadow:0 0 18px #facc15;}
-@keyframes sil{from{filter:brightness(.7);transform:scale(.96) rotateY(-9deg)}to{filter:brightness(1.18);transform:scale(1.02) rotateY(9deg)}}
-.cardBurst{position:absolute;left:50%;top:50%;width:190px;height:258px;margin:-129px 0 0 -95px;border-radius:20px;background:linear-gradient(135deg,#fff7ed,#facc15 38%,#fb923c 64%,#7c2d12);box-shadow:0 0 38px rgba(250,204,21,.85),0 0 90px rgba(249,115,22,.42);animation:burst .98s cubic-bezier(.2,1.35,.25,1) forwards;}
-.cardBurst:before{content:"NEW SEAL";position:absolute;left:10px;right:10px;top:22px;text-align:center;font-size:22px;font-weight:1000;color:#3b2408;}
-.cardBurst:after{content:"🐈‍⬛";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:70px;filter:drop-shadow(0 0 12px rgba(255,255,255,.75));}
-@keyframes burst{0%{opacity:0;transform:scale(.2) rotateY(760deg)}65%{opacity:1;transform:scale(1.18) rotateY(0deg)}100%{opacity:1;transform:scale(1) rotateY(0deg)}}
-.secretMode{background:radial-gradient(circle at 50% 38%,#581c87 0%,#111827 45%,#000 100%)!important;}
-.secretMode .gachaBall{background:conic-gradient(from 0deg,#facc15,#f472b6,#38bdf8,#a78bfa,#facc15);box-shadow:0 0 44px rgba(244,114,182,.85),0 0 90px rgba(56,189,248,.38);}
-.secretTitle{position:absolute;left:0;right:0;top:31%;text-align:center;font-size:48px;font-weight:1000;letter-spacing:.08em;color:#fff;text-shadow:0 0 18px #facc15,0 0 36px #f472b6;animation:secretTitle .9s ease both;}
-@keyframes secretTitle{from{opacity:0;transform:scale(.45);filter:blur(10px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
-.rainbowAura{position:absolute;left:50%;top:50%;width:330px;height:330px;margin:-165px 0 0 -165px;border-radius:50%;background:conic-gradient(#facc15,#f472b6,#38bdf8,#22c55e,#facc15);filter:blur(22px);opacity:.55;animation:spin 1.4s linear infinite;}
-#result{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;flex-direction:column;padding:22px;background:radial-gradient(circle at 50% 30%,rgba(250,204,21,.20),rgba(2,6,23,.96) 62%,#000 100%);text-align:center;}
-#resultImg{width:min(88vw,390px);max-height:62svh;object-fit:contain;border-radius:20px;background:white;box-shadow:0 0 34px rgba(250,204,21,.82),0 0 80px rgba(250,204,21,.32);animation:resultPop .38s ease both;}
-@keyframes resultPop{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
-#resultName{margin-top:16px;font-size:28px;font-weight:1000;color:#facc15;text-shadow:0 0 14px rgba(250,204,21,.75);}
-#resultMsg{margin-top:8px;font-size:15px;font-weight:800;color:#fff7d6;line-height:1.5;}
-#closeResult,#closeCollection,#zoomClose{margin-top:18px;border:0;border-radius:999px;padding:13px 30px;background:linear-gradient(135deg,#facc15,#fb923c);color:#3b2408;font-size:17px;font-weight:1000;box-shadow:0 10px 24px rgba(0,0,0,.32);}
-#collection{position:fixed;inset:0;z-index:110;display:none;overflow:auto;padding:calc(env(safe-area-inset-top) + 18px) 14px 26px;background:linear-gradient(180deg,#020617,#0f172a);}
-#collection h2{text-align:center;color:#facc15;text-shadow:0 0 12px rgba(250,204,21,.55);}
-#collectionInfo{text-align:center;color:#fff7d6;font-weight:900;margin:-4px 0 12px;}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:560px;margin:0 auto;}
-.cardMini{border-radius:14px;background:rgba(15,23,42,.78);border:1px solid rgba(255,255,255,.10);padding:7px;text-align:center;min-height:164px;box-shadow:0 8px 22px rgba(0,0,0,.24);}
-.cardMini.owned{border-color:rgba(250,204,21,.38);}
-.cardMini.secretMini{background:linear-gradient(135deg,rgba(250,204,21,.18),rgba(147,51,234,.24));box-shadow:0 0 18px rgba(250,204,21,.24);}
-.cardMini img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;background:white;}
-.cardMini .unknown{width:100%;aspect-ratio:3/4;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#111827;color:#93c5fd;font-size:34px;font-weight:1000;}
-.cardMiniName{margin-top:5px;font-size:12px;font-weight:900;color:#fff;line-height:1.25;word-break:break-word;}
-.cardMiniDate{margin-top:2px;font-size:10px;color:#cbd5e1;}
-.cardMini img.kuroRetryImg{object-fit:contain;background:radial-gradient(circle at 50% 45%,rgba(250,204,21,.16),transparent 42%),linear-gradient(135deg,rgba(15,23,42,.96),rgba(2,6,23,.96));}
-#sealZoom{position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,.92);padding:18px;}
-#zoomImg{width:min(92vw,430px);max-height:72svh;object-fit:contain;border-radius:18px;background:white;box-shadow:0 0 38px #facc15,0 0 70px rgba(250,204,21,.45);}
-#zoomName{margin-top:14px;color:#facc15;font-size:25px;font-weight:1000;text-shadow:0 0 12px #facc15;text-align:center;}
-#maintenanceOverlay{position:fixed;inset:0;z-index:500;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.88);color:white;text-align:center;}
-#maintenanceOverlay.show{display:flex;}
-.maintenanceBox{width:min(92%,380px);padding:24px 18px;border-radius:24px;background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(2,6,23,.98));box-shadow:0 0 28px rgba(250,204,21,.35),inset 0 0 0 1px rgba(255,255,255,.12);}
-.maintenanceTitle{color:#facc15;font-size:24px;font-weight:1000;margin-bottom:12px;text-shadow:0 0 12px rgba(250,204,21,.65);}
-.maintenanceMsg{color:#fff7d6;font-size:15px;font-weight:800;line-height:1.6;}
-@media (max-width:380px){h1{font-size:26px}.gachaMachine{width:185px;height:185px}.grid{gap:8px}.cardMini{padding:6px;min-height:150px}}
-</style>
-</head>
-<body>
-<button id="soundToggle" onclick="toggleSound()">🔊 ON</button>
-<div id="app">
-  <div class="header">
-    <div class="logo">🐈‍⬛</div>
-    <h1>クロネコガチャ</h1>
-    <div class="ver">Ver.3.0 完全修正版</div>
-  </div>
-  <div id="topSpeechText">
-    <div id="topSpeechLine1">クロネコガチャへようこそ！</div>
-    <div id="topSpeechLine2">今日も素敵な出会いがあるよ♪</div>
-  </div>
-  <div class="mainCard">
-    <div class="gachaMachine"></div>
-    <div id="statusText">✨ ガチャを読み込み中...</div>
-    <div class="actionRow">
-      <button id="drawBtn" onclick="drawGacha()">🐾 ガチャを引く</button>
-      <button id="collectionBtn" onclick="loadCollection()">📚 シール図鑑を見る</button>
-    </div>
-  </div>
-  <div class="notice">※引いたシール画像の投稿は控えてください。まだ引いていない方の楽しみを守るため、ご協力お願いします。</div>
-</div>
-<div id="pressFx"></div>
-<div id="effect"><div id="effectStage"></div></div>
-<div id="result">
-  <img id="resultImg" alt="獲得シール">
-  <div id="resultName"></div>
-  <div id="resultMsg"></div>
-  <button id="closeResult" onclick="closeResult()">閉じる</button>
-</div>
-<div id="collection">
-  <h2>📚 シール図鑑</h2>
-  <div id="collectionInfo"></div>
-  <div id="collectionList" class="grid"></div>
-  <button id="closeCollection" onclick="closeCollection()">図鑑を閉じる</button>
-</div>
-<div id="sealZoom" onclick="closeSealZoom()">
-  <img id="zoomImg" onclick="event.stopPropagation()" alt="拡大シール">
-  <div id="zoomName"></div>
-  <button id="zoomClose" onclick="closeSealZoom()">閉じる</button>
-</div>
-<script>
-const LIFF_ID = "2010515194-r0gV3TRC";
-const API_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDYS8GkkBLTA_WIz-mgurf_O-hd3ugpYRbb0e-14Fs7Ctk5/exec";
-let profile = { userId:"", displayName:"" };
-let drawing = false;
-let soundEnabled = true;
-try{ soundEnabled = localStorage.getItem("kuronekoSound") !== "off"; }catch(e){}
 
-window.addEventListener("load", initApp);
-function initApp(){
-  initSoundButton();
-  setTopSpeech();
-  initLiff();
+<html lang="ja"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"> <title>🐈‍⬛ クロネコガチャ Ver.2.5</title> <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+<style> html,body{ margin:0; padding:0; width:100%; min-height:100%; background:#020617; font-family:"Hiragino Sans","Meiryo",sans-serif; overflow:hidden; -webkit-tap-highlight-color:transparent; } #app{ position:relative; width:100%; max-width:430px; height:100vh; min-height:100vh; margin:0 auto; background:#020617; overflow:hidden; } #topImg{ width:100%; height:96.4vh; display:block; object-fit:cover; object-position:center top; user-select:none; pointer-events:none; } .tap{ position:absolute; border:none; background:rgba(255,255,255,0); cursor:pointer; touch-action:manipulation; } #drawTap{ left:23%; top:46.7%; width:54%; height:17.0%; border-radius:50%; z-index:20; } #bookTap{ left:14%; top:77.8%; width:72%; height:7.0%; border-radius:22px; z-index:90; } #statusMask{ display:none; } #statusText{ position:absolute; left:15%; top:86.15%; width:70%; height:4.2%; display:flex; align-items:center; justify-content:center; text-align:center; color:#fff7d6; font-weight:800; font-size:12px; line-height:1.12; text-shadow:0 2px 4px #000,0 0 8px rgba(250,204,21,.55); z-index:18; pointer-events:none; background:transparent; } #topSpeechText{ position:absolute; left:18.5%; top:34.0%; width:50%; height:6.8%; z-index:12; pointer-events:none; color:#3b2408; font-weight:800; text-align:center; line-height:1.13; display:flex; flex-direction:column; align-items:center; justify-content:center; text-shadow:0 1px 0 rgba(255,255,255,.88); } #topSpeechLine1{ font-size:15px; font-weight:800; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; } #topSpeechLine2{ font-size:12px; font-weight:800; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; } #pressFx{ position:absolute; left:23%; top:46.7%; width:54%; height:17.0%; border-radius:50%; display:none; background:radial-gradient(circle,rgba(255,255,255,.75),rgba(250,204,21,.35),rgba(255,255,255,0) 68%); z-index:10; pointer-events:none; animation:pressGlow .45s infinite alternate; } @keyframes pressGlow{ from{transform:scale(.94);opacity:.55;} to{transform:scale(1.07);opacity:1;} } #zukanOpenFx{ position:fixed; inset:0; z-index:160; display:none; align-items:center; justify-content:center; flex-direction:column; background:rgba(0,0,0,.82); color:#facc15; font-weight:bold; text-align:center; pointer-events:none; } #zukanOpenFx.show{ display:flex; } .zukanBookIcon{ font-size:56px; line-height:1; filter:drop-shadow(0 0 16px #facc15); animation:zukanBookPop .45s ease both; } .zukanFxText{ margin-top:12px; font-size:18px; text-shadow:0 0 12px #facc15; } @keyframes zukanBookPop{ 0%{transform:scale(.55) rotate(-8deg); opacity:0;} 60%{transform:scale(1.12) rotate(3deg); opacity:1;} 100%{transform:scale(1) rotate(0); opacity:1;} } #effect{ position:fixed; inset:0; background:rgba(0,0,0,.94); display:none; z-index:100; overflow:hidden; } #effectStage{ position:absolute; inset:0; overflow:hidden; } #effectText{ display:none; } .openFlash{ animation:openFlash .13s linear 7; } @keyframes openFlash{ 0%{background:rgba(0,0,0,.94);} 50%{background:rgba(255,244,180,.86);} 100%{background:rgba(0,0,0,.94);} } 
+/* ===== クロネコガチャ Ver.2.5 猫なし・光カード演出 ===== */
+#effect{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.94);
+  display:none;
+  z-index:100;
+  overflow:hidden;
+  touch-action:none;
 }
-async function initLiff(){
+#effectStage{position:absolute;inset:0;overflow:hidden;perspective:900px;}
+#effectText{display:none;}
+#effect.kv23Mode{
+  background:
+    radial-gradient(circle at 50% 58%,rgba(250,204,21,.24),transparent 30%),
+    radial-gradient(circle at 18% 18%,rgba(56,189,248,.20),transparent 28%),
+    radial-gradient(circle at 82% 22%,rgba(244,114,182,.22),transparent 30%),
+    rgba(0,0,0,.96);
+}
+#effect.kv23Secret{
+  background:
+    radial-gradient(circle at 50% 52%,rgba(250,204,21,.32),transparent 30%),
+    radial-gradient(circle at 20% 20%,rgba(168,85,247,.34),transparent 34%),
+    radial-gradient(circle at 80% 16%,rgba(244,63,94,.30),transparent 34%),
+    #020617;
+  animation:kv23BgPulse 1.2s ease-in-out infinite alternate;
+}
+#effect.kv23Super{
+  background:
+    conic-gradient(from 0deg at 50% 52%,rgba(250,204,21,.28),rgba(244,114,182,.25),rgba(56,189,248,.25),rgba(168,85,247,.30),rgba(250,204,21,.28)),
+    radial-gradient(circle at 50% 52%,rgba(255,255,255,.22),transparent 34%),
+    #020617;
+  animation:kv23SuperBg 1.0s linear infinite;
+}
+@keyframes kv23BgPulse{from{filter:brightness(1) saturate(1)}to{filter:brightness(1.35) saturate(1.45)}}
+@keyframes kv23SuperBg{from{filter:hue-rotate(0deg) brightness(1.15)}to{filter:hue-rotate(360deg) brightness(1.35)}}
+.kv23Skip{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);color:rgba(255,255,255,.82);font-size:12px;font-weight:900;text-shadow:0 2px 5px #000;z-index:90;}
+.kv23Cutin{position:absolute;left:50%;top:15%;width:94%;transform:translateX(-50%);text-align:center;color:#fff7d6;font-size:24px;font-weight:900;letter-spacing:.05em;text-shadow:0 2px 5px #000,0 0 18px #facc15,0 0 36px rgba(250,204,21,.75);opacity:0;animation:kv23Cutin 1.45s ease forwards;z-index:70;}
+@keyframes kv23Cutin{0%{opacity:0;transform:translateX(-50%) translateY(22px) scale(.82)}22%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.08)}80%{opacity:1}100%{opacity:.95;transform:translateX(-50%) scale(1)}}
+.kv23Particle{position:absolute;width:8px;height:8px;border-radius:50%;background:#facc15;box-shadow:0 0 12px #facc15,0 0 24px rgba(250,204,21,.9);animation:kv23Particle 1.55s ease-out forwards;z-index:35;}
+@keyframes kv23Particle{0%{opacity:0;transform:translate(0,0) scale(.2)}18%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.55)}}
+.kv23Star{position:absolute;width:12px;height:12px;background:#fff7ad;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);filter:drop-shadow(0 0 12px #facc15);opacity:0;animation:kv23StarFall 2.45s linear forwards;z-index:32;}
+@keyframes kv23StarFall{0%{opacity:0;transform:translateY(-22vh) scale(.35) rotate(0)}18%{opacity:1}100%{opacity:0;transform:translateY(120vh) scale(1.4) rotate(420deg)}}
+.kv23Flash{position:absolute;inset:0;background:rgba(255,255,235,.94);opacity:0;animation:kv23Flash .58s ease-out forwards;z-index:80;}
+@keyframes kv23Flash{0%,100%{opacity:0}20%{opacity:1}48%{opacity:.25}}
+.kv23UltraFlash{position:absolute;inset:0;background:radial-gradient(circle,#fff 0%,#facc15 24%,rgba(244,63,94,.88) 48%,rgba(56,189,248,.45) 68%,transparent 82%);opacity:0;animation:kv23UltraFlash 1.05s ease-out forwards;z-index:85;}
+@keyframes kv23UltraFlash{0%{opacity:0;transform:scale(.25)}25%{opacity:1}100%{opacity:0;transform:scale(2.8)}}
+.kv23Card{position:absolute;left:50%;top:52%;width:176px;height:238px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(250,204,21,.88),rgba(255,255,255,.94));box-shadow:0 0 32px rgba(255,255,255,.9),0 0 72px rgba(250,204,21,.96),0 0 120px rgba(244,114,182,.48);z-index:60;}
+.kv23Card::after{content:"";position:absolute;inset:12px;border-radius:12px;border:2px solid rgba(255,255,255,.65);box-shadow:inset 0 0 18px rgba(255,255,255,.35)}
+.kv23Card.fall{animation:kv23CardFall 1.15s cubic-bezier(.18,1.25,.24,1) forwards;}
+@keyframes kv23CardFall{0%{opacity:0;transform:translate(-50%,-160vh) rotateZ(-18deg) rotateY(70deg)}58%{opacity:1;transform:translate(-50%,-50%) rotateZ(6deg) rotateY(-8deg) scale(1.12)}100%{opacity:.98;transform:translate(-50%,-50%) rotateZ(0) rotateY(0) scale(1)}}
+.kv23Card.zoom{animation:kv23CardZoom 1.05s cubic-bezier(.15,1.2,.2,1) forwards;}
+@keyframes kv23CardZoom{0%{opacity:0;transform:translate(-50%,-50%) scale(.08) rotateZ(22deg);filter:blur(10px)}62%{opacity:1;transform:translate(-50%,-50%) scale(1.22) rotateZ(-5deg);filter:blur(0)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1) rotateZ(0)}}
+.kv23Card.shuffle{animation:kv23CardShuffle 1.25s ease-out forwards;}
+@keyframes kv23CardShuffle{0%{opacity:0;transform:translate(-50%,-50%) translateX(-150px) scale(.75) rotateZ(-28deg)}20%{opacity:1;transform:translate(-50%,-50%) translateX(120px) scale(.9) rotateZ(18deg)}42%{transform:translate(-50%,-50%) translateX(-90px) scale(1.04) rotateZ(-12deg)}68%{transform:translate(-50%,-50%) translateX(45px) scale(1.12) rotateZ(8deg)}100%{opacity:.98;transform:translate(-50%,-50%) translateX(0) scale(1) rotateZ(0)}}
+.kv23Card.rise{animation:kv23CardRise 1.2s cubic-bezier(.18,1.1,.22,1) forwards;}
+@keyframes kv23CardRise{0%{opacity:0;transform:translate(-50%,75vh) scale(.58) rotateX(68deg)}60%{opacity:1;transform:translate(-50%,-54%) scale(1.13) rotateX(-8deg)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1) rotateX(0)}}
+.kv23Card.gate{animation:kv23CardGate 1.25s ease-out forwards;}
+@keyframes kv23CardGate{0%{opacity:0;transform:translate(-50%,-50%) scale(.18) rotateY(88deg)}54%{opacity:1;transform:translate(-50%,-50%) scale(1.18) rotateY(-14deg)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1) rotateY(0)}}
+.kv23Card.crack{animation:kv23CardCrack 1.05s cubic-bezier(.16,1.3,.2,1) forwards;}
+@keyframes kv23CardCrack{0%{opacity:0;transform:translate(-50%,-50%) scale(.18) rotateZ(-12deg)}48%{opacity:1;transform:translate(-50%,-50%) scale(1.26) rotateZ(5deg)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1) rotateZ(0)}}
+.kv23Ring{position:absolute;left:50%;top:54%;width:110px;height:110px;border:6px solid #facc15;border-radius:50%;transform:translate(-50%,-50%) scale(.12);box-shadow:0 0 28px #facc15,inset 0 0 24px #facc15;animation:kv23Ring 2.55s ease-out forwards;z-index:28;}
+.kv23Ring::before,.kv23Ring::after{content:"";position:absolute;inset:-32px;border:3px dashed rgba(250,204,21,.9);border-radius:50%}.kv23Ring::after{inset:-62px;border-style:solid;opacity:.45}
+@keyframes kv23Ring{0%{opacity:0;transform:translate(-50%,-50%) scale(.12) rotate(0)}22%{opacity:1}76%{opacity:1;transform:translate(-50%,-50%) scale(2.55) rotate(360deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.45) rotate(520deg)}}
+.kv23Gate{position:absolute;left:50%;top:52%;width:250px;height:320px;transform:translate(-50%,-50%);z-index:42;}
+.kv23Gate::before,.kv23Gate::after{content:"";position:absolute;top:0;width:50%;height:100%;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(250,204,21,.65),rgba(56,189,248,.42));box-shadow:0 0 38px #facc15;animation:kv23GateOpen 1.4s ease forwards;}.kv23Gate::before{left:0;border-radius:22px 0 0 22px;transform-origin:left center}.kv23Gate::after{right:0;border-radius:0 22px 22px 0;transform-origin:right center}
+@keyframes kv23GateOpen{0%{opacity:0;transform:scaleX(.05)}25%{opacity:1;transform:scaleX(1)}100%{opacity:.2;transform:scaleX(.08)}}
+.kv23Crack{position:absolute;inset:0;opacity:0;background:linear-gradient(115deg,transparent 49%,rgba(255,255,255,.95) 50%,transparent 51%),linear-gradient(45deg,transparent 49.5%,rgba(250,204,21,.95) 50%,transparent 50.5%),linear-gradient(160deg,transparent 49.5%,rgba(56,189,248,.75) 50%,transparent 50.5%),linear-gradient(20deg,transparent 49.5%,rgba(244,114,182,.75) 50%,transparent 50.5%);filter:drop-shadow(0 0 14px #facc15);animation:kv23Crack .95s ease-out forwards;z-index:76;}
+@keyframes kv23Crack{0%{opacity:0;transform:scale(.65)}28%{opacity:1}100%{opacity:0;transform:scale(1.35)}}
+.kv23Bag{position:absolute;left:50%;top:52%;width:190px;height:245px;transform:translate(-50%,-50%);z-index:55;filter:drop-shadow(0 0 24px rgba(250,204,21,.65));}
+.kv23Bag::before,.kv23Bag::after{content:"";position:absolute;top:0;width:50%;height:100%;background:linear-gradient(135deg,#fff7d6,#facc15,#f97316);box-shadow:inset 0 0 0 2px rgba(255,255,255,.45);animation:kv23BagTear 1.45s ease forwards;}.kv23Bag::before{left:0;border-radius:18px 0 0 18px;clip-path:polygon(0 0,100% 0,86% 16%,100% 30%,82% 45%,100% 62%,84% 78%,100% 100%,0 100%)}.kv23Bag::after{right:0;border-radius:0 18px 18px 0;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,16% 78%,0 62%,18% 45%,0 30%,14% 16%)}
+@keyframes kv23BagTear{0%,35%{opacity:1;transform:translateX(0) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translateX(var(--tearX,0)) rotate(var(--tearR,0deg))}}
+.kv23Bag::before{--tearX:-85px;--tearR:-20deg}.kv23Bag::after{--tearX:85px;--tearR:20deg}
+.kv23ShuffleBack{position:absolute;left:50%;top:52%;width:140px;height:196px;border-radius:16px;background:linear-gradient(135deg,#1e293b,#facc15);box-shadow:0 0 28px rgba(250,204,21,.7);z-index:46;opacity:0;animation:kv23BackShuffle 1.05s ease forwards;}
+@keyframes kv23BackShuffle{0%{opacity:0;transform:translate(-50%,-50%) translateX(var(--x)) rotate(var(--r)) scale(.8)}25%,75%{opacity:.92}100%{opacity:0;transform:translate(-50%,-50%) translateX(0) rotate(0) scale(.55)}}
+.kv23Lightning{position:absolute;top:2%;width:36px;height:340px;background:#fef08a;clip-path:polygon(45% 0,82% 0,58% 38%,90% 38%,34% 100%,48% 53%,18% 53%);filter:drop-shadow(0 0 20px #facc15);opacity:0;animation:kv23Lightning 2.2s ease forwards;z-index:50;}
+@keyframes kv23Lightning{0%,20%,42%,100%{opacity:0}25%,34%,52%,62%{opacity:1}}
+.kv23Rainbow{position:absolute;left:50%;top:52%;width:130px;height:130px;border-radius:50%;transform:translate(-50%,-50%) scale(.18);background:conic-gradient(#f00,#fb0,#ff0,#0f0,#0ff,#00f,#a0f,#f0a,#f00);filter:blur(4px);opacity:0;animation:kv23Rainbow 2.6s ease forwards;z-index:25;}
+@keyframes kv23Rainbow{0%{opacity:0;transform:translate(-50%,-50%) scale(.18) rotate(0)}30%{opacity:.95;transform:translate(-50%,-50%) scale(1.25) rotate(180deg)}86%{opacity:.8;transform:translate(-50%,-50%) scale(3.1) rotate(660deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(4) rotate(760deg)}}
+.kv23TimeStop{position:absolute;left:50%;top:52%;width:230px;height:230px;border-radius:50%;transform:translate(-50%,-50%) scale(.4);border:5px solid rgba(255,255,255,.92);box-shadow:0 0 40px #fff,0 0 90px rgba(56,189,248,.75);opacity:0;animation:kv23TimeStop 2.4s ease forwards;z-index:38;}
+.kv23TimeStop::before,.kv23TimeStop::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:86px;background:#fff;transform-origin:bottom center;box-shadow:0 0 12px #fff}.kv23TimeStop::before{transform:translate(-50%,-100%) rotate(0deg)}.kv23TimeStop::after{height:60px;transform:translate(-50%,-100%) rotate(90deg)}
+@keyframes kv23TimeStop{0%{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(0)}35%{opacity:1}75%{opacity:1;transform:translate(-50%,-50%) scale(1.2) rotate(360deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.7) rotate(540deg)}}
+.kv23SuperTitle{position:absolute;left:50%;top:15%;transform:translateX(-50%);color:#fff;font-size:28px;font-weight:900;letter-spacing:.08em;white-space:nowrap;text-shadow:0 0 10px #fff,0 0 25px #facc15,0 0 45px #f472b6;opacity:0;animation:kv23SuperTitle 4.2s ease forwards;z-index:88;}
+@keyframes kv23SuperTitle{0%{opacity:0;transform:translateX(-50%) scale(.45)}18%{opacity:1;transform:translateX(-50%) scale(1.18)}78%{opacity:1}100%{opacity:0;transform:translateX(-50%) scale(1.35)}}
+.openFlash{animation:kv23OpenFlash .13s linear 7;}
+@keyframes kv23OpenFlash{0%{background:rgba(0,0,0,.94)}50%{background:rgba(255,244,180,.86)}100%{background:rgba(0,0,0,.94)}}
+#soundToggle{position:absolute;right:3.5%;top:87.4%;width:58px;height:34px;border-radius:999px;border:1px solid rgba(250,204,21,.55);background:rgba(0,0,0,.62);color:#fff7d6;font-size:12px;font-weight:900;z-index:80;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(250,204,21,.22)}
+#soundToggle:active{transform:scale(.96)}
+#result.result3d #resultImg{animation:kv23Result3D .92s cubic-bezier(.16,.92,.24,1) both}
+@keyframes kv23Result3D{0%{opacity:0;transform:scale(.12) rotateY(88deg) rotateZ(-10deg)}45%{opacity:1;transform:scale(1.22) rotateY(-14deg) rotateZ(4deg)}72%{opacity:1;transform:scale(.96) rotateY(7deg) rotateZ(-2deg)}100%{opacity:1;transform:scale(1) rotateY(0) rotateZ(0)}}
+
+/* 結果 */ #result{ position:fixed; inset:0; background:rgba(0,0,0,.88); display:none; align-items:center; justify-content:center; flex-direction:column; z-index:120; padding:20px; box-sizing:border-box; } #result.secretResult{ background:radial-gradient(circle,rgba(250,204,21,.35),rgba(0,0,0,.93) 65%); } #resultImg{ width:86%; max-width:360px; border-radius:18px; background:white; box-shadow:0 0 35px #facc15; animation:cardPop .7s ease; cursor:pointer; } #result.secretResult #resultImg{ box-shadow:0 0 35px #facc15,0 0 70px #f472b6,0 0 100px #60a5fa; animation:secretCardPop .9s ease; } #resultName{ margin-top:16px; color:#facc15; font-size:28px; font-weight:bold; text-shadow:0 0 12px #facc15; } #resultMsg{ margin-top:8px; color:#fff; font-size:18px; font-weight:bold; } #resultHint{ margin-top:8px; color:#fff7d6; font-size:13px; font-weight:800; text-shadow:0 2px 4px #000; } #closeResult{ margin-top:18px; padding:12px 28px; border:none; border-radius:999px; font-size:18px; font-weight:bold; background:#facc15; color:#3b2408; } @keyframes cardPop{ 0%{transform:scale(.2) rotateY(100deg);opacity:0;} 70%{transform:scale(1.08) rotateY(0deg);opacity:1;} 100%{transform:scale(1);} } @keyframes secretCardPop{ 0%{transform:scale(.1) rotate(30deg);opacity:0;} 50%{transform:scale(1.22) rotate(-6deg);opacity:1;} 100%{transform:scale(1) rotate(0);} } /* 図鑑 */ #collection{ position:fixed; inset:0; background: radial-gradient(circle at 50% 0%, rgba(250,204,21,.18), transparent 35%), linear-gradient(180deg, rgba(15,23,42,.98), rgba(2,6,23,.98)); display:none; z-index:130; overflow-y:auto; padding:18px 16px 22px; box-sizing:border-box; color:white; } #collection.collectionOpening{ animation:collectionOpenPop .28s ease both; } @keyframes collectionOpenPop{ 0%{opacity:0; transform:scale(.98);} 100%{opacity:1; transform:scale(1);} } #collection h2{ text-align:center; color:#facc15; margin:2px 0 6px; font-size:24px; letter-spacing:1px; text-shadow:0 0 12px rgba(250,204,21,.55); } #collectionInfo{ text-align:center; color:#fff7d6; font-weight:800; font-size:13px; margin:0 0 12px; text-shadow:0 2px 4px #000; line-height:1.5; } #collectionInfo .bar{ width:76%; height:8px; margin:7px auto 0; border-radius:999px; background:rgba(255,255,255,.16); overflow:hidden; } #collectionInfo .bar span{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg,#facc15,#f472b6,#38bdf8); } .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; align-items:start; } .cardMini{ position:relative; height:142px; padding:6px; border-radius:13px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.06)); box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 6px 14px rgba(0,0,0,.25); text-align:center; cursor:pointer; transition:transform .18s ease, box-shadow .18s ease; } .cardMini:active{ transform:scale(.96); } .cardMini::before{ content:attr(data-no); position:absolute; left:5px; top:5px; padding:2px 5px; border-radius:999px; background:rgba(0,0,0,.72); color:#facc15; font-size:9px; font-weight:900; z-index:5; } .cardMini.secretMini{ background:linear-gradient(135deg,rgba(250,204,21,.28),rgba(147,51,234,.32),rgba(56,189,248,.18)); box-shadow:0 0 16px rgba(250,204,21,.35), inset 0 0 0 1px rgba(255,255,255,.12); } .cardMini.secretMini::after{ content:"SECRET"; position:absolute; right:5px; top:5px; padding:2px 4px; border-radius:999px; background:linear-gradient(90deg,#facc15,#f472b6); color:#111827; font-size:7px; font-weight:900; z-index:3; } .cardMini img{ width:100%; height:104px; object-fit:cover; object-position:center center; border-radius:9px; display:block; background:white; box-shadow:0 0 8px rgba(0,0,0,.35); } .lockedThumb{ width:100%; height:104px; border-radius:9px; box-sizing:border-box; background: radial-gradient(circle at 50% 45%, rgba(250,204,21,.16), transparent 42%), linear-gradient(135deg,rgba(15,23,42,.96),rgba(2,6,23,.96)); display:flex; align-items:center; justify-content:center; color:#facc15; font-size:25px; font-weight:900; box-shadow:inset 0 0 0 1px rgba(250,204,21,.18); } .cardMini div:not(.lockedThumb){ height:24px; margin-top:5px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:11px; font-weight:800; line-height:1.05; color:#fff7d6; text-shadow:0 2px 4px #000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .cardMini.lockedMini{ background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.03)); opacity:.72; } .cardMini.lockedMini div{ color:#a8a29e; } #closeCollection{ width:100%; margin:18px 0 6px; padding:13px; border:none; border-radius:16px; font-size:18px; font-weight:bold; background:#38bdf8; color:white; } /* 拡大表示 */ #sealZoom{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; flex-direction:column; background: radial-gradient(circle at 50% 35%, rgba(250,204,21,.22), transparent 35%), rgba(0,0,0,.94); z-index:180; padding:18px; box-sizing:border-box; } #zoomImg{ width:94%; max-width:430px; border-radius:18px; background:white; box-shadow:0 0 38px #facc15,0 0 70px rgba(250,204,21,.45); animation:zoomSealPop .38s ease both; } #zoomName{ margin-top:14px; color:#facc15; font-size:26px; font-weight:bold; text-shadow:0 0 12px #facc15; } #zoomClose{ margin-top:16px; padding:12px 30px; border:none; border-radius:999px; font-size:18px; font-weight:bold; background:#facc15; color:#3b2408; } @keyframes zoomSealPop{ 0%{transform:scale(.62) rotateY(65deg);opacity:0;filter:blur(4px);} 70%{transform:scale(1.05) rotateY(0deg);opacity:1;filter:blur(0);} 100%{transform:scale(1) rotateY(0deg);} } /* ===== Ver.8 図鑑連動・吸い込み演出 ===== */ .cardMini.focusCard{ animation:focusCardGlow 1.35s ease both; } @keyframes focusCardGlow{ 0%{transform:scale(1); box-shadow:0 0 0 rgba(250,204,21,0);} 25%{transform:scale(1.08); box-shadow:0 0 22px #facc15,0 0 45px rgba(250,204,21,.65);} 65%{transform:scale(1.03); box-shadow:0 0 18px #facc15;} 100%{transform:scale(1); box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),0 6px 14px rgba(0,0,0,.25);} } #collectionAbsorbFx{ position:fixed; inset:0; z-index:240; pointer-events:none; display:none; } .absorbSeal{ position:fixed; left:50%; top:50%; width:190px; max-width:52vw; border-radius:16px; background:white; box-shadow:0 0 30px #facc15,0 0 70px rgba(250,204,21,.55); transform:translate(-50%,-50%) scale(1.05); transform-origin:center center; opacity:1; animation:absorbSealMove .95s cubic-bezier(.2,.9,.25,1) forwards; } @keyframes absorbSealMove{ 0%{ opacity:1; left:50%; top:50%; transform:translate(-50%,-50%) scale(1.05) rotate(0deg); filter:brightness(1.15); } 72%{ opacity:.95; left:var(--target-left); top:var(--target-top); transform:translate(-50%,-50%) scale(.42) rotate(8deg); filter:brightness(1.35); } 100%{ opacity:0; left:var(--target-left); top:var(--target-top); transform:translate(-50%,-50%) scale(.08) rotate(12deg); filter:brightness(1.8); } } .absorbSpark{ position:fixed; width:10px; height:10px; border-radius:50%; background:#facc15; box-shadow:0 0 14px #facc15; animation:absorbSparkFly .8s ease-out forwards; } @keyframes absorbSparkFly{ 0%{opacity:1; transform:translate(0,0) scale(1);} 100%{opacity:0; transform:translate(var(--sx),var(--sy)) scale(.2);} } #collectionToast{ position:fixed; left:50%; top:12%; transform:translateX(-50%); z-index:245; display:none; padding:10px 16px; border-radius:999px; background:rgba(0,0,0,.72); color:#fff7d6; font-size:14px; font-weight:900; text-shadow:0 2px 4px #000; box-shadow:0 0 18px rgba(250,204,21,.45); pointer-events:none; } #collectionToast.show{ display:block; animation:toastPop 1.6s ease both; } @keyframes toastPop{ 0%{opacity:0; transform:translateX(-50%) scale(.8);} 18%{opacity:1; transform:translateX(-50%) scale(1.05);} 72%{opacity:1; transform:translateX(-50%) scale(1);} 100%{opacity:0; transform:translateX(-50%) scale(.96);} } /* ===== Ver.8.1 一番下メッセージ自由化 ===== */ #dailyLimitText{ position:absolute; left:16%; top:94.15%; width:68%; height:3.7%; z-index:30; display:flex; align-items:center; justify-content:center; text-align:center; color:#3b2408; font-size:14px; font-weight:900; line-height:1.05; text-shadow:0 1px 0 rgba(255,255,255,.8); pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } 
+
+
+/* ===== クロネコガチャ Ver.2.5 調整：下吹き出し・音ボタン・点滅抑制・演出差別化 ===== */
+#soundToggle{
+  left:3.2% !important;
+  right:auto !important;
+  top:2.4% !important;
+  width:62px !important;
+  height:34px !important;
+  z-index:120 !important;
+  background:rgba(2,6,23,.66) !important;
+  border:1px solid rgba(250,204,21,.48) !important;
+  backdrop-filter:blur(4px);
+}
+#dailyLimitText{
+  left:9.5% !important;
+  top:91.9% !important;
+  width:81% !important;
+  height:4.6% !important;
+  font-size:13px !important;
+  line-height:1.05 !important;
+  color:#3b2408 !important;
+  z-index:70 !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.88) !important;
+}
+#effect.kv23Mode{
+  background:
+    radial-gradient(circle at 50% 58%,rgba(250,204,21,.16),transparent 32%),
+    radial-gradient(circle at 18% 18%,rgba(56,189,248,.12),transparent 28%),
+    radial-gradient(circle at 82% 22%,rgba(244,114,182,.13),transparent 30%),
+    rgba(0,0,0,.94) !important;
+}
+#effect.kv23Secret{animation:kv24BgPulse 1.8s ease-in-out infinite alternate !important;}
+#effect.kv23Super{animation:kv24SuperBg 1.8s linear infinite !important;}
+@keyframes kv24BgPulse{from{filter:brightness(1) saturate(1)}to{filter:brightness(1.16) saturate(1.18)}}
+@keyframes kv24SuperBg{from{filter:hue-rotate(0deg) brightness(1.05)}to{filter:hue-rotate(360deg) brightness(1.16)}}
+.kv23Cutin{font-size:22px !important;text-shadow:0 2px 5px #000,0 0 12px rgba(250,204,21,.75) !important;}
+.kv23Particle{width:6px !important;height:6px !important;box-shadow:0 0 8px #facc15,0 0 14px rgba(250,204,21,.55) !important;}
+.kv23Flash{background:rgba(255,255,235,.46) !important;animation:kv24Flash .72s ease-out forwards !important;}
+@keyframes kv24Flash{0%,100%{opacity:0}24%{opacity:.48}56%{opacity:.12}}
+.kv23UltraFlash{background:radial-gradient(circle,rgba(255,255,255,.82) 0%,rgba(250,204,21,.56) 26%,rgba(244,63,94,.34) 52%,rgba(56,189,248,.20) 70%,transparent 84%) !important;animation:kv24UltraFlash 1.1s ease-out forwards !important;}
+@keyframes kv24UltraFlash{0%{opacity:0;transform:scale(.25)}30%{opacity:.72}100%{opacity:0;transform:scale(2.6)}}
+.kv23Card{box-shadow:0 0 24px rgba(255,255,255,.65),0 0 50px rgba(250,204,21,.70),0 0 76px rgba(244,114,182,.28) !important;}
+.kv24Meteor{position:absolute;left:-30%;top:22%;width:260px;height:8px;border-radius:999px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.88),rgba(250,204,21,.86));box-shadow:0 0 20px rgba(250,204,21,.75);transform:rotate(-24deg);opacity:0;animation:kv24Meteor 1.35s ease forwards;z-index:31;}
+@keyframes kv24Meteor{0%{opacity:0;left:-30%;top:18%}18%{opacity:.9}100%{opacity:0;left:110%;top:62%}}
+.kv24Orb{position:absolute;left:50%;top:52%;width:70px;height:70px;border-radius:50%;transform:translate(-50%,-50%) scale(.25);background:radial-gradient(circle,#fff7d6,rgba(250,204,21,.52),transparent 72%);box-shadow:0 0 38px rgba(250,204,21,.75);opacity:0;animation:kv24Orb 1.65s ease forwards;z-index:34;}
+@keyframes kv24Orb{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}40%{opacity:.95;transform:translate(-50%,-50%) scale(1.9)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.2)}}
+.kv24Rune{position:absolute;color:#fff7ad;font-size:24px;font-weight:900;text-shadow:0 0 10px #facc15;opacity:0;animation:kv24Rune 1.8s ease forwards;z-index:38;}
+@keyframes kv24Rune{0%{opacity:0;transform:translateY(20px) scale(.5) rotate(0deg)}35%{opacity:.9}100%{opacity:0;transform:translateY(-90px) scale(1.2) rotate(180deg)}}
+.kv24SoftBurst{position:absolute;left:50%;top:52%;width:40px;height:40px;border-radius:50%;transform:translate(-50%,-50%) scale(.2);background:rgba(255,255,255,.7);box-shadow:0 0 48px 26px rgba(250,204,21,.45),0 0 90px 42px rgba(56,189,248,.20);opacity:0;animation:kv24SoftBurst 1.1s ease-out forwards;z-index:40;}
+@keyframes kv24SoftBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.15)}30%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) scale(5.2)}}
+.kv24Curtain{position:absolute;inset:0;background:linear-gradient(90deg,rgba(15,23,42,.88),transparent 48%,rgba(15,23,42,.88));opacity:0;animation:kv24Curtain 1.5s ease forwards;z-index:30;}
+@keyframes kv24Curtain{0%{opacity:0;clip-path:inset(0 48% 0 48%)}35%{opacity:.95;clip-path:inset(0 0 0 0)}100%{opacity:0;clip-path:inset(0 50% 0 50%)}}
+
+</style>
+
+</head>
+
+<body> <div id="app"> <img id="topImg" src="https://github.com/kuroneko-gacha/kuroneko-gacha-v2/blob/main/%E3%82%AF%E3%83%AD%E3%83%8D%E3%82%B3%E3%82%AC%E3%83%81%E3%83%A3%E7%94%BB%E5%83%8F.png?raw=true&v=60">
+
+<div id="topSpeechText"> <div id="topSpeechLine1">今日の運試し！</div> <div id="topSpeechLine2">何が出るかな♪</div> </div>
+
+<div id="statusMask"></div> <div id="statusText">✨ 今日も素敵な出会いがありますように</div> <div id="dailyLimitText">🎁 あと2回引けるにゃー♪</div> <div id="pressFx"></div>
+
+<button id="drawTap" class="tap" onclick="drawGacha()" aria-label="ガチャを引く"></button>
+<button id="soundToggle" onclick="toggleSound()" aria-label="効果音切替">🔊 ON</button>
+<button id="bookTap" class="tap" onclick="loadCollection()" aria-label="図鑑を見る"></button>
+
+</div>
+
+<div id="zukanOpenFx"> <div class="zukanBookIcon">📖</div> <div class="zukanFxText">図鑑を開いています…</div> </div>
+
+<div id="effect"> <div id="effectStage"></div> <div id="effectText"></div> </div>
+
+<div id="result"> <img id="resultImg" onclick="openSealZoom(this.src, document.getElementById('resultName').textContent)"> <div id="resultName"></div> <div id="resultMsg"></div> <div id="resultHint">タップで拡大</div> <button id="closeResult" onclick="closeResult()">閉じる</button> </div>
+
+<div id="collection"> <h2>📚 シール図鑑</h2> <div id="collectionInfo"></div> <div id="collectionList" class="grid"></div> <button id="closeCollection" onclick="closeCollection()">図鑑を閉じる</button> </div>
+
+<div id="collectionAbsorbFx"></div> <div id="collectionToast"></div>
+
+<div id="sealZoom" onclick="closeSealZoom()"> <img id="zoomImg" onclick="event.stopPropagation()"> <div id="zoomName"></div> <button id="zoomClose" onclick="closeSealZoom()">閉じる</button> </div>
+
+<script> const LIFF_ID = "2010515194-r0gV3TRC"; const API_URL = "https://script.google.com/macros/s/AKfycbxQ32wEkjNf0TG1DBK_MYDYS8GkkBLTA_WIz-mgurf_O-hd3ugpYRbb0e-14Fs7Ctk5/exec"; let profile = { userId:"", displayName:"" }; let drawing = false; let lastDrawnCardId = ""; let lastDrawnImageUrl = ""; let lastDrawnName = ""; let pendingNewCardId = ""; let pendingNewImageUrl = ""; let pendingNewName = ""; let dailyLimit = 2; let dailyRemaining = 2; let soundEnabled = true; try{ soundEnabled = localStorage.getItem("kuronekoSound") !== "off"; }catch(e){} try{ lastDrawnCardId = sessionStorage.getItem("lastDrawnCardId") || ""; lastDrawnImageUrl = sessionStorage.getItem("lastDrawnImageUrl") || ""; lastDrawnName = sessionStorage.getItem("lastDrawnName") || ""; pendingNewCardId = sessionStorage.getItem("pendingNewCardId") || ""; pendingNewImageUrl = sessionStorage.getItem("pendingNewImageUrl") || ""; pendingNewName = sessionStorage.getItem("pendingNewName") || ""; }catch(e){} window.onload = async function(){ setTopSpeech(); try{ await liff.init({ liffId: LIFF_ID }); if(!liff.isLoggedIn()){ liff.login(); return; } const p = await liff.getProfile(); profile.userId = p.userId; profile.displayName = p.displayName; console.log("LINE名取得成功:", profile.displayName); setReadyStatus(); refreshDailyStatus(); }catch(e){ console.error(e); alert("LINE名の取得に失敗しました。LINE内から開いてください。"); } }; function setTopSpeech(){ const line1 = document.getElementById("topSpeechLine1"); const line2 = document.getElementById("topSpeechLine2"); if(!line1 || !line2) return; const messages = [ ["今日の運試し！", "何が出るかな♪"], ["黒猫がお届け♪", "ワクワクの1枚"], ["シークレットの予感…", "出たらラッキー♪"], ["図鑑コンプへ！", "少しずつ集めよう"], ["今日もまったり♪", "楽しんでいこう"], ["素敵な出会いを", "黒猫が運ぶよ♪"] ]; const m = messages[Math.floor(Math.random() * messages.length)]; line1.textContent = m[0]; line2.textContent = m[1]; } function setReadyStatus(){ const messages = [ "🌙 黒猫があなたを待っています", "✨ シークレットの気配…？", "🐾 今日も仲間を増やそう！", "🎁 新しい出会いが待ってるにゃ♪", "⭐ 図鑑コンプリートを目指そう！", "💎 レアな一枚が眠っているかも…", "🍀 幸運チャージ中…", "🐈 今日の運試し、いってみよう！" ]; setStatus(messages[Math.floor(Math.random() * messages.length)]); } function setDoneStatus(){ setStatus("✅ 本日は受け取り済みです"); } function setStatus(text){ const el = document.getElementById("statusText"); if(el) el.textContent = text; } function showPressFx(){ const el = document.getElementById("pressFx"); if(el) el.style.display = "block"; } function hidePressFx(){ const el = document.getElementById("pressFx"); if(el) el.style.display = "none"; } function jsonp(params){ return new Promise((resolve,reject)=>{ const cb = "cb_" + Date.now() + "_" + Math.floor(Math.random()*9999); params.callback = cb; const url = API_URL + "?" + new URLSearchParams(params).toString(); const s = document.createElement("script"); const timer = setTimeout(function(){ delete window[cb]; if(s && s.parentNode) s.remove(); reject(new Error("通信タイムアウト")); }, 15000); window[cb] = function(data){ clearTimeout(timer); delete window[cb]; s.remove(); resolve(data); }; s.onerror = function(){ clearTimeout(timer); delete window[cb]; s.remove(); reject(new Error("通信失敗")); }; s.src = url; document.body.appendChild(s); }); } async function refreshDailyStatus(){ if(!profile.userId) return; try{ const res = await jsonp({ action:"status", userId:profile.userId }); if(res && res.ok){ updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || 2)); } }catch(e){ setDailyLimitText("🎁 あと2回引けるにゃー♪"); } } function updateDailyLimitText(remaining, limit){ dailyLimit = limit || 2; dailyRemaining = remaining; if(remaining <= 0){ setDailyLimitText("🐾 今日はもう引いてるにゃー"); }else{ setDailyLimitText("🎁 あと" + remaining + "回引けるにゃー♪"); } } function setDailyLimitText(text){ const el = document.getElementById("dailyLimitText"); if(el) el.textContent = text; } async function drawGacha(){ if(drawing) return; if(!profile.userId){ alert("LINE名を確認中です。少し待ってから押してください。"); return; } drawing = true; setStatus("⏳ 抽選中..."); showPressFx(); try{ const res = await jsonp({ action:"draw", userId:profile.userId, displayName:profile.displayName }); hidePressFx(); if(!res || res.ok === false){ drawing = false; if(res && typeof res.remaining !== "undefined"){ updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit)); }else{ setDailyLimitText("🐾 今日はもう引いてるにゃー"); } setDoneStatus(); alert(res && res.message ? res.message : "今日はもう引いてるにゃー🐾"); return; } if(typeof res.remaining !== "undefined"){ updateDailyLimitText(Number(res.remaining || 0), Number(res.dailyLimit || dailyLimit)); } await playGachaEffect(res); drawing = false; setDoneStatus(); showResult(res); }catch(e){ drawing = false; hidePressFx(); hideEffect(); setStatus("⚠ 通信エラー"); alert("通信エラーが出ました。少し待ってからもう一度試してください。"); } } 
+function playGachaEffect(res){
+  return new Promise(function(resolve){
+    const effect = document.getElementById("effect");
+    const stage = document.getElementById("effectStage");
+    if(!effect || !stage){ resolve(); return; }
+
+    const isSuper = !!(res && (res.supersecret || String(res.type || "").toLowerCase() === "supersecret" || /^9\d\d/.test(String(res.id || ""))));
+    const isSecret = !!(res && res.secret);
+
+    effect.className = isSuper ? "kv25Effect kv25Super" : (isSecret ? "kv25Effect kv25Secret" : "kv25Effect");
+    stage.innerHTML = "";
+    effect.style.display = "block";
+
+    kv25Skip(stage);
+
+    let finished = false;
+    let pressTimer = null;
+    function done(){
+      if(finished) return;
+      finished = true;
+      effect.onpointerdown = null;
+      effect.onpointerup = null;
+      effect.onpointercancel = null;
+      finishEffect(resolve);
+    }
+    effect.onpointerdown = function(){ pressTimer = setTimeout(done, 650); };
+    effect.onpointerup = function(){ if(pressTimer) clearTimeout(pressTimer); };
+    effect.onpointercancel = function(){ if(pressTimer) clearTimeout(pressTimer); };
+
+    if(isSuper){
+      kv25Sfx("super");
+      kv25Vibrate([90,35,130,45,180,60,230]);
+      kv25Super900(stage, done);
+      return;
+    }
+
+    if(isSecret){
+      kv25Sfx("secret");
+      kv25Vibrate([70,35,110,40,150]);
+      const n = Math.floor(Math.random()*3);
+      if(n === 0) kv25SecretPrismStorm(stage, done);
+      if(n === 1) kv25SecretClockShatter(stage, done);
+      if(n === 2) kv25SecretRoyalGate(stage, done);
+      return;
+    }
+
+    kv25Sfx("sparkle");
+    kv25Vibrate([25]);
+    const n = Math.floor(Math.random()*7);
+    if(n === 0) kv25NormalDrop(stage, done);
+    if(n === 1) kv25NormalZoom(stage, done);
+    if(n === 2) kv25NormalShuffle(stage, done);
+    if(n === 3) kv25NormalTear(stage, done);
+    if(n === 4) kv25NormalMagicRise(stage, done);
+    if(n === 5) kv25NormalGate(stage, done);
+    if(n === 6) kv25NormalCrack(stage, done);
+  });
+}
+
+function kv25Skip(stage){
+  const h=document.createElement("div");
+  h.className="kv25Skip";
+  h.textContent="長押しでスキップ";
+  stage.appendChild(h);
+}
+function kv25Cutin(stage,text,delay){
+  setTimeout(function(){
+    const e=document.createElement("div");
+    e.className="kv25Cutin";
+    e.textContent=text;
+    stage.appendChild(e);
+  },delay||0);
+}
+function kv25Vibrate(pattern){ try{ if(navigator.vibrate) navigator.vibrate(pattern || [25]); }catch(e){} }
+function kv25Sfx(type){
   try{
-    if(typeof liff === "undefined") throw new Error("LIFF SDKが読み込めませんでした");
-    await liff.init({ liffId: LIFF_ID });
-    if(!liff.isLoggedIn()){ liff.login(); return; }
-    const p = await liff.getProfile();
-    profile.userId = p.userId || "";
-    profile.displayName = p.displayName || "ゲスト";
-    setReadyStatus();
-  }catch(e){
-    console.error(e);
-    setStatus("⚠️ LINE内から開くとガチャが使えます");
-  }
-}
-function setTopSpeech(){
-  const messages = [
-    ["クロネコガチャへようこそ！","今日も素敵な出会いがあるよ♪"],
-    ["今日の運試し、してみる？","クロネコがシールを運ぶよ♪"],
-    ["本日のガチャ開催中！","図鑑コンプリートを目指そう♪"],
-    ["どのシールに出会えるかな？","ワクワクしながら引いてみよう♪"],
-    ["シークレットの気配…？","出たらかなりラッキー♪"]
-  ];
-  const m = messages[Math.floor(Math.random()*messages.length)];
-  const l1 = document.getElementById("topSpeechLine1");
-  const l2 = document.getElementById("topSpeechLine2");
-  if(l1) l1.textContent = m[0];
-  if(l2) l2.textContent = m[1];
-}
-function setStatus(text){ const el=document.getElementById("statusText"); if(el) el.textContent=text; }
-function setReadyStatus(){ setStatus("✨ " + (profile.displayName || "ゲスト") + "さん、今日のガチャを引けます"); }
-function setDoneStatus(){ setStatus("✅ " + (profile.displayName || "ゲスト") + "さん、本日分は受け取り済みです"); }
-function showPressFx(){ const el=document.getElementById("pressFx"); if(el) el.style.display="block"; }
-function hidePressFx(){ const el=document.getElementById("pressFx"); if(el) el.style.display="none"; }
-function initSoundButton(){ const b=document.getElementById("soundToggle"); if(b) b.textContent = soundEnabled ? "🔊 ON" : "🔇 OFF"; }
-function toggleSound(){ soundEnabled=!soundEnabled; try{localStorage.setItem("kuronekoSound",soundEnabled?"on":"off");}catch(e){} initSoundButton(); if(soundEnabled) playSfx("sparkle"); }
-function playSfx(type){
-  if(!soundEnabled) return;
-  try{
-    const C=window.AudioContext||window.webkitAudioContext; if(!C) return;
-    const ctx=new C(), gain=ctx.createGain(), osc=ctx.createOscillator();
-    gain.connect(ctx.destination); osc.connect(gain);
-    let f=660,d=.12,w="sine";
-    if(type==="boom"){f=92;d=.22;w="sawtooth";} if(type==="secret"){f=1240;d=.28;w="square";} if(type==="paw"){f=210;d=.08;w="triangle";} if(type==="sparkle"){f=980;d=.15;w="sine";}
-    osc.type=w; osc.frequency.setValueAtTime(f,ctx.currentTime);
-    gain.gain.setValueAtTime(.0001,ctx.currentTime); gain.gain.exponentialRampToValueAtTime(.12,ctx.currentTime+.02); gain.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+d);
-    osc.start(); osc.stop(ctx.currentTime+d+.03); setTimeout(()=>{try{ctx.close()}catch(e){}},450);
+    if(typeof soundEnabled !== "undefined" && !soundEnabled) return;
+    const A = window.AudioContext || window.webkitAudioContext;
+    if(!A) return;
+    const c = new A();
+    const master = c.createGain();
+    master.gain.setValueAtTime(0.0001,c.currentTime);
+    master.gain.exponentialRampToValueAtTime(type === "super" ? .19 : .14,c.currentTime+.02);
+    master.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+1.05);
+    master.connect(c.destination);
+    function tone(f,s,d,w,v){
+      const o=c.createOscillator(); const g=c.createGain();
+      o.type=w||"sine"; o.frequency.setValueAtTime(f,c.currentTime+s);
+      g.gain.setValueAtTime(.0001,c.currentTime+s);
+      g.gain.exponentialRampToValueAtTime(v||.08,c.currentTime+s+.018);
+      g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+s+d);
+      o.connect(g); g.connect(master); o.start(c.currentTime+s); o.stop(c.currentTime+s+d+.04);
+    }
+    if(type === "super"){
+      tone(392,0,.16,"sine",.09); tone(784,.09,.18,"sine",.10); tone(1176,.2,.22,"sine",.10); tone(64,.45,.36,"sawtooth",.12);
+    }else if(type === "secret"){
+      tone(520,0,.15,"sine",.08); tone(880,.1,.18,"sine",.09); tone(1320,.24,.18,"sine",.08); tone(86,.43,.28,"triangle",.10);
+    }else if(type === "boom"){
+      tone(70,0,.22,"sawtooth",.11); tone(120,.05,.18,"triangle",.08);
+    }else{
+      tone(760,0,.09,"sine",.055); tone(1120,.08,.11,"sine",.065); tone(1480,.17,.10,"sine",.055);
+    }
+    setTimeout(function(){try{c.close();}catch(e){}},1200);
   }catch(e){}
 }
-function vib(p){ try{ if(navigator.vibrate) navigator.vibrate(p||[40]); }catch(e){} }
-function jsonp(params){
-  return new Promise((resolve,reject)=>{
-    const cb="cb_"+Date.now()+"_"+Math.floor(Math.random()*99999);
-    params.callback=cb;
-    const s=document.createElement("script");
-    const timer=setTimeout(()=>{cleanup(); reject(new Error("通信タイムアウト"));},15000);
-    function cleanup(){clearTimeout(timer); try{delete window[cb];}catch(e){window[cb]=undefined;} if(s.parentNode) s.parentNode.removeChild(s);}
-    window[cb]=function(data){cleanup(); resolve(data);};
-    s.onerror=function(){cleanup(); reject(new Error("通信失敗"));};
-    s.src=API_URL+"?"+new URLSearchParams(params).toString();
-    document.body.appendChild(s);
-  });
+function kv25Node(stage,cls,delay,html){
+  setTimeout(function(){
+    const e=document.createElement("div");
+    e.className=cls;
+    if(html) e.innerHTML=html;
+    stage.appendChild(e);
+  },delay||0);
 }
-function normalizeCard(res){
-  const c = (res && (res.card || res.result || res.data)) || res || {};
-  return {
-    name: c.name || c.cardName || c.realName || res.cardName || res.name || "シール",
-    imageUrl: c.imageUrl || c.image || c.url || res.imageUrl || res.image || "",
-    joinDate: c.joinDate || res.joinDate || "",
-    secret: !!(c.secret || res.secret || c.type === "secret" || res.type === "secret")
-  };
+function kv25Card(stage,mode,delay){ kv25Node(stage,"kv25Card "+mode,delay); }
+function kv25Flash(stage,mode,delay){ kv25Node(stage,"kv25Flash "+(mode||""),delay); }
+function kv25Particles(stage,count,delay,power,shape){
+  setTimeout(function(){
+    for(let i=0;i<count;i++){
+      const p=document.createElement("div");
+      p.className="kv25Particle "+(shape||"");
+      p.style.left=(46+Math.random()*8)+"%";
+      p.style.top=(48+Math.random()*10)+"%";
+      const r=power||190;
+      p.style.setProperty("--dx",(Math.random()*r*2-r)+"px");
+      p.style.setProperty("--dy",(Math.random()*r*2-r)+"px");
+      p.style.animationDelay=(Math.random()*.35)+"s";
+      stage.appendChild(p);
+    }
+  },delay||0);
 }
-async function drawGacha(){
-  if(drawing) return;
-  if(!profile.userId){ alert("LINE名を確認中です。少し待ってから押してください。"); return; }
-  drawing=true; const btn=document.getElementById("drawBtn"); if(btn) btn.disabled=true;
-  setStatus("⏳ 抽選中..."); showPressFx(); playSfx("paw"); vib([25]);
-  try{
-    const res=await jsonp({action:"draw",userId:profile.userId,displayName:profile.displayName});
-    hidePressFx();
-    if(!res || !res.ok){ alert((res && res.message) || "ガチャに失敗しました"); if(res && /本日|今日|回数|済/.test(String(res.message||""))) setDoneStatus(); return; }
-    await playGachaEffect(res);
-    showResult(res);
-    setDoneStatus();
-  }catch(e){ console.error(e); hidePressFx(); alert("通信に失敗しました。少し時間を置いて再度お試しください。"); }
-  finally{ drawing=false; if(btn) btn.disabled=false; }
+function kv25Stars(stage,count,delay){
+  setTimeout(function(){
+    for(let i=0;i<count;i++){
+      const s=document.createElement("div");
+      s.className="kv25Star";
+      s.style.left=(Math.random()*100)+"%";
+      s.style.top=(-8-Math.random()*25)+"%";
+      s.style.animationDelay=(Math.random()*1.4)+"s";
+      stage.appendChild(s);
+    }
+  },delay||0);
 }
-function playGachaEffect(res){
-  return new Promise(resolve=>{
-    const card=normalizeCard(res), secret=card.secret;
-    const effect=document.getElementById("effect"), stage=document.getElementById("effectStage");
-    if(!effect || !stage){ resolve(); return; }
-    effect.className=secret?"secretMode":""; stage.innerHTML=""; effect.style.display="block";
-    stage.appendChild(el("div","skipHint","長押しでスキップ"));
-    let done=false, pressTimer=null, timers=[];
-    function later(fn,ms){ const t=setTimeout(()=>{ if(!done) fn(); },ms); timers.push(t); }
-    function finish(){ if(done) return; done=true; timers.forEach(clearTimeout); effect.onpointerdown=null; effect.onpointerup=null; effect.onpointercancel=null; effect.style.display="none"; stage.innerHTML=""; resolve(); }
-    effect.onpointerdown=()=>{ pressTimer=setTimeout(finish,650); };
-    effect.onpointerup=()=>{ if(pressTimer) clearTimeout(pressTimer); };
-    effect.onpointercancel=()=>{ if(pressTimer) clearTimeout(pressTimer); };
-    if(secret){ playSfx("secret"); vib([70,35,100,35,140]); }
-    else{ playSfx("sparkle"); vib([35]); }
-    later(()=>stage.appendChild(el("div","fxText", secret?"空気が変わった…":"今日のシールを召喚中…")),80);
-    later(()=>stage.appendChild(el("div","gachaBall")),460);
-    later(()=>{stage.appendChild(el("div","impactRing")); playSfx("boom"); vib(secret?[80,30,120]:[45]);},2050);
-    later(()=>particles(stage, secret?74:42),2130);
-    later(()=>stage.appendChild(el("div","cardSilhouette")),2600);
-    if(secret) later(()=>stage.appendChild(el("div","secretTitle","SECRET")),2950);
-    if(secret) later(()=>stage.appendChild(el("div","rainbowAura")),3350);
-    later(()=>stage.appendChild(el("div","flash")),3600);
-    later(()=>{stage.appendChild(el("div","cardBurst")); playSfx(secret?"secret":"sparkle");},3920);
-    later(finish, secret?5350:4850);
-  });
+
+function kv25NormalDrop(stage,done){
+  kv25Cutin(stage,"上から光のカードが降ってくる",120);
+  kv25Node(stage,"kv25SkyLine",420);
+  kv25Stars(stage,12,460);
+  kv25Node(stage,"kv25FallingSeal",860);
+  kv25Particles(stage,14,1280,150,"round");
+  kv25Card(stage,"drop",1650);
+  setTimeout(done,3300);
 }
-function el(tag,cls,txt){ const e=document.createElement(tag); if(cls)e.className=cls; if(txt)e.textContent=txt; return e; }
-function particles(stage,n){
-  for(let i=0;i<n;i++){
-    const p=el("div","particle"); p.style.left="50%"; p.style.top="54%";
-    const a=Math.random()*Math.PI*2, r=80+Math.random()*230;
-    p.style.setProperty("--x",Math.cos(a)*r+"px"); p.style.setProperty("--y",Math.sin(a)*r+"px");
-    p.style.animationDelay=(Math.random()*.18)+"s"; stage.appendChild(p);
+function kv25NormalZoom(stage,done){
+  kv25Cutin(stage,"小さな光が一気に近づく",120);
+  kv25Node(stage,"kv25OrbZoom",520);
+  kv25Node(stage,"kv25FocusRing",860);
+  kv25Particles(stage,16,1180,160,"round");
+  kv25Card(stage,"zoom",1550);
+  setTimeout(done,3200);
+}
+function kv25NormalShuffle(stage,done){
+  kv25Cutin(stage,"カードが高速シャッフル",120);
+  for(let i=0;i<5;i++){
+    setTimeout(function(){
+      const b=document.createElement("div");
+      b.className="kv25BackCard";
+      b.style.setProperty("--x",[-135,90,-72,44,0][i]+"px");
+      b.style.setProperty("--r",[-22,18,-12,8,0][i]+"deg");
+      stage.appendChild(b);
+    },520+i*120);
   }
+  kv25Node(stage,"kv25ShuffleLine",1180);
+  kv25Particles(stage,12,1400,140,"square");
+  kv25Card(stage,"shuffle",1780);
+  setTimeout(done,3400);
 }
-function showResult(res){
-  const card=normalizeCard(res), box=document.getElementById("result"), img=document.getElementById("resultImg"), name=document.getElementById("resultName"), msg=document.getElementById("resultMsg");
-  if(img){ img.src=card.imageUrl || ""; img.style.display=card.imageUrl?"block":"none"; }
-  if(name) name.textContent=(card.secret?"✨ SECRET ✨ ":"")+card.name;
-  if(msg) msg.textContent=card.joinDate ? "入団日：" + card.joinDate : "図鑑に登録されました";
-  if(box) box.style.display="flex";
+function kv25NormalTear(stage,done){
+  kv25Cutin(stage,"封印袋がビリビリ破れる",120);
+  kv25Node(stage,"kv25PaperBag",620,'<span></span><b></b>');
+  kv25Node(stage,"kv25TearLine",1150);
+  setTimeout(function(){ kv25Sfx("boom"); },1420);
+  kv25Particles(stage,24,1450,205,"paper");
+  kv25Card(stage,"tear",1880);
+  setTimeout(done,3650);
 }
-function closeResult(){ const box=document.getElementById("result"); if(box) box.style.display="none"; }
-async function loadCollection(){
-  if(!profile.userId){ alert("LINE名を確認中です。少し待ってから押してください。"); return; }
-  setStatus("📚 図鑑を読み込み中..."); playSfx("sparkle");
-  try{
-    const data=await jsonp({action:"collection",userId:profile.userId,displayName:profile.displayName});
-    if(!data || !data.ok){ alert((data && data.message) || "図鑑の取得に失敗しました"); return; }
-    renderCollection(data);
-    document.getElementById("collection").style.display="block";
-    setReadyStatus();
-  }catch(e){ console.error(e); alert("図鑑の通信に失敗しました"); }
+function kv25NormalMagicRise(stage,done){
+  kv25Cutin(stage,"魔法陣から静かに浮上",120);
+  kv25Node(stage,"kv25MagicCircle",420);
+  kv25Node(stage,"kv25RuneCircle",780,'<i>✦</i><i>◇</i><i>✧</i><i>◆</i><i>✶</i><i>✹</i>');
+  kv25Particles(stage,14,1150,160,"round");
+  kv25Card(stage,"rise",2000);
+  setTimeout(done,3850);
 }
-function renderCollection(data){
-  const list=document.getElementById("collectionList"), info=document.getElementById("collectionInfo");
-  if(!list) return; list.innerHTML="";
-  const cards=(data.cards||[]).slice().sort((a,b)=>Number(a.sortNo||999999)-Number(b.sortNo||999999));
-  const owned=Number(data.ownedCount||cards.filter(c=>c.owned).length||0), total=Number(data.totalCount||cards.length||0);
-  if(info) info.textContent="通常図鑑 収集率 " + (total?Math.floor(owned/total*100):0) + "%（"+owned+"/"+total+"）";
-  cards.forEach(c=>{
-    const ownedFlag=!!(c.owned || c.imageUrl);
-    const item=el("div","cardMini " + (ownedFlag?"owned ":"") + ((c.secret||c.type==="secret")?"secretMini":""));
-    if(ownedFlag && c.imageUrl){
-      const im=document.createElement("img"); im.src=c.imageUrl; im.alt=c.name||c.realName||"シール"; im.onerror=function(){this.classList.add("kuroRetryImg");}; im.onclick=function(ev){ev.stopPropagation(); openSealZoom(c.imageUrl,c.name||c.realName||"シール");}; item.appendChild(im);
-    }else{ item.appendChild(el("div","unknown","?")); }
-    item.appendChild(el("div","cardMiniName", ownedFlag?(c.name||c.realName||"シール"):"？？？"));
-    if(c.joinDate) item.appendChild(el("div","cardMiniDate",c.joinDate));
-    list.appendChild(item);
-  });
+function kv25NormalGate(stage,done){
+  kv25Cutin(stage,"光の扉がゆっくり開く",120);
+  kv25Node(stage,"kv25Door",560,'<span></span><span></span>');
+  kv25Node(stage,"kv25DoorLight",1180);
+  kv25Particles(stage,18,1450,170,"round");
+  kv25Card(stage,"gate",2050);
+  setTimeout(done,3850);
 }
-function closeCollection(){ const c=document.getElementById("collection"); if(c) c.style.display="none"; }
-function openSealZoom(src,name){ const z=document.getElementById("sealZoom"), im=document.getElementById("zoomImg"), nm=document.getElementById("zoomName"); if(im) im.src=src; if(nm) nm.textContent=name||"シール"; if(z) z.style.display="flex"; }
-function closeSealZoom(){ const z=document.getElementById("sealZoom"); if(z) z.style.display="none"; }
-function ensureMaintenanceOverlay(){
-  let ov=document.getElementById("maintenanceOverlay"); if(ov) return ov;
-  ov=document.createElement("div"); ov.id="maintenanceOverlay";
-  ov.innerHTML='<div class="maintenanceBox"><div class="maintenanceTitle">🛠 メンテナンス中</div><div class="maintenanceMsg" id="maintenanceMsg">ただいまアップデート中です。少し待ってにゃー🐾</div></div>';
-  document.body.appendChild(ov); return ov;
+function kv25NormalCrack(stage,done){
+  kv25Cutin(stage,"画面の奥から割り込む",120);
+  kv25Node(stage,"kv25GlassCrack",720);
+  setTimeout(function(){ kv25Sfx("boom"); },980);
+  kv25Particles(stage,22,1120,210,"shard");
+  kv25Flash(stage,"soft",1280);
+  kv25Card(stage,"crack",1720);
+  setTimeout(done,3500);
 }
-window.kuronekoShowMaintenance=function(message){ const ov=ensureMaintenanceOverlay(); const msg=document.getElementById("maintenanceMsg"); if(msg) msg.textContent=message||"ただいまアップデート中です。少し待ってにゃー🐾"; ov.classList.add("show"); };
-</script>
-</body>
-</html>
+
+function kv25SecretPrismStorm(stage,done){
+  kv25Cutin(stage,"SECRET PRISM STORM",180);
+  kv25Node(stage,"kv25Prism",480);
+  kv25Node(stage,"kv25RainbowWave",760);
+  kv25Node(stage,"kv25Lightning l1",1180);
+  kv25Node(stage,"kv25Lightning l2",1420);
+  kv25Particles(stage,36,1800,260,"round");
+  kv25Flash(stage,"secret",2150);
+  kv25Card(stage,"secretSpin",2850);
+  setTimeout(done,5050);
+}
+function kv25SecretClockShatter(stage,done){
+  kv25Cutin(stage,"時間停止、そして崩壊",220);
+  kv25Node(stage,"kv25Clock",620);
+  kv25Node(stage,"kv25GlassCrack secret",1850);
+  kv25Particles(stage,40,2200,285,"shard");
+  kv25Flash(stage,"secret",2650);
+  kv25Card(stage,"crack",3250);
+  setTimeout(done,5600);
+}
+function kv25SecretRoyalGate(stage,done){
+  kv25Cutin(stage,"SECRET GATE OPEN",180);
+  kv25Node(stage,"kv25RoyalGate",520,'<span></span><span></span>');
+  kv25Node(stage,"kv25MagicCircle big",980);
+  kv25Node(stage,"kv25DoorLight strong",1600);
+  kv25Particles(stage,44,2050,290,"round");
+  kv25Flash(stage,"secret",2550);
+  kv25Card(stage,"gate",3250);
+  setTimeout(done,5750);
+}
+function kv25Super900(stage,done){
+  kv25Cutin(stage,"SUPER SECRET 900",160);
+  kv25Node(stage,"kv25SuperCore",360);
+  kv25Node(stage,"kv25RoyalGate super",820,'<span></span><span></span>');
+  kv25Node(stage,"kv25RainbowWave super",1200);
+  kv25Node(stage,"kv25Lightning l1",1350);
+  kv25Node(stage,"kv25Lightning l2",1580);
+  kv25Node(stage,"kv25Lightning l3",1810);
+  kv25Node(stage,"kv25GlassCrack super",2350);
+  kv25Particles(stage,70,2600,390,"round");
+  kv25Flash(stage,"super",3250);
+  kv25Card(stage,"super",4050);
+  setTimeout(done,7050);
+}
+
+function finishEffect(done){
+  const effect=document.getElementById("effect");
+  if(effect) effect.classList.add("openFlash");
+  setTimeout(function(){ hideEffect(); done(); },680);
+}
+function hideEffect(){
+  const effect=document.getElementById("effect");
+  if(effect){ effect.style.display="none"; effect.className=""; }
+  const stage=document.getElementById("effectStage");
+  if(stage) stage.innerHTML="";
+}
+function showResult(res){ lastDrawnCardId = String(res.id || ""); lastDrawnImageUrl = String(res.imageUrl || ""); lastDrawnName = String(res.name || ""); try{ sessionStorage.setItem("lastDrawnCardId", lastDrawnCardId); sessionStorage.setItem("lastDrawnImageUrl", lastDrawnImageUrl); sessionStorage.setItem("lastDrawnName", lastDrawnName); if(res.isNew){ pendingNewCardId = lastDrawnCardId; pendingNewImageUrl = lastDrawnImageUrl; pendingNewName = lastDrawnName; sessionStorage.setItem("pendingNewCardId", pendingNewCardId); sessionStorage.setItem("pendingNewImageUrl", pendingNewImageUrl); sessionStorage.setItem("pendingNewName", pendingNewName); } }catch(e){} const result = document.getElementById("result"); result.className = res.secret ? "secretResult result3d" : "result3d"; document.getElementById("resultImg").src = res.imageUrl; document.getElementById("resultName").textContent = res.name; document.getElementById("resultMsg").textContent = res.secret ? "🌟 SECRET SEAL GET！！" : res.isNew ? "🎉 NEW SEAL GET！！" : "また会えたね！"; result.style.display = "flex"; } function closeResult(){ document.getElementById("result").style.display = "none"; } function showZukanOpenFx(){ const fx = document.getElementById("zukanOpenFx"); if(!fx) return; fx.classList.add("show"); } function hideZukanOpenFx(){ const fx = document.getElementById("zukanOpenFx"); if(!fx) return; fx.classList.remove("show"); } async function loadCollection(){ if(!profile.userId){ alert("LINE名を確認中です。少し待ってから押してください。"); return; } showZukanOpenFx(); try{ const res = await jsonp({ action:"collection", userId:profile.userId }); if(!res || res.ok === false){ hideZukanOpenFx(); alert(res && res.message ? res.message : "図鑑を読み込めませんでした。"); return; } renderCollection(res.cards || [], res.ownedCount, res.totalCount); setTimeout(function(){ hideZukanOpenFx(); }, 120); }catch(e){ hideZukanOpenFx(); alert("図鑑の通信エラーが出ました。"); } } function renderCollection(cards, ownedCount, totalCount){ const list = document.getElementById("collectionList"); const info = document.getElementById("collectionInfo"); list.innerHTML = ""; const allCards = (cards || []).slice().sort(function(a,b){ return Number(a.sortNo || 999999) - Number(b.sortNo || 999999); }); const total = Number(totalCount || allCards.length || 0); const owned = Number(ownedCount || allCards.filter(function(c){ return !!c.owned; }).length || 0); const percent = total ? Math.round((owned / total) * 100) : 0; info.innerHTML = "入手済み " + owned + " / " + total + "枚　｜　" + percent + "%<br>" + "入団日順アルバム" + '<div class="bar"><span style="width:' + percent + '%"></span></div>'; if(allCards.length === 0){ list.innerHTML = "<div>まだシールがありません</div>"; }else{ allCards.forEach(function(card, index){ const div = document.createElement("div"); const ownedCard = !!card.owned; div.className = (card.secret ? "cardMini secretMini" : "cardMini") + (ownedCard ? "" : " lockedMini"); div.setAttribute("data-no", "No." + String(index + 1).padStart(3, "0")); div.setAttribute("data-card-id", String(card.id || "")); if(ownedCard){ const img = escapeHtml(card.imageUrl); const name = escapeHtml(card.name || card.realName); div.innerHTML = '<img loading="lazy" src="' + img + '">' + '<div>' + name + '</div>'; div.onclick = function(){ openSealZoom(card.imageUrl, card.name || card.realName); }; }else{ div.innerHTML = '<div class="lockedThumb">？？？</div>' + '<div>未入手</div>'; } list.appendChild(div); }); } const collection = document.getElementById("collection"); collection.style.display = "block"; collection.classList.remove("collectionOpening"); void collection.offsetWidth; collection.classList.add("collectionOpening"); setTimeout(function(){ afterCollectionOpenJump(); }, 260); } function afterCollectionOpenJump(){ const targetId = pendingNewCardId || lastDrawnCardId; if(!targetId) return; const card = findCollectionCardById(targetId); if(!card) return; scrollCollectionToCard(card, function(){ if(pendingNewCardId && pendingNewImageUrl){ showCollectionToast("新しいシールを図鑑に登録中…"); playAbsorbIntoCollection(card, pendingNewImageUrl, function(){ focusCollectionCard(card); clearPendingNewCard(); }); }else{ focusCollectionCard(card); } }); } function findCollectionCardById(cardId){ const nodes = document.querySelectorAll("#collectionList [data-card-id]"); for(let i=0;i<nodes.length;i++){ if(String(nodes[i].getAttribute("data-card-id")) === String(cardId)){ return nodes[i]; } } return null; } function scrollCollectionToCard(card, callback){ const collection = document.getElementById("collection"); if(!collection || !card){ if(callback) callback(); return; } const desired = card.offsetTop - (collection.clientHeight / 2) + (card.clientHeight / 2); collection.scrollTo({ top: Math.max(0, desired), behavior: "smooth" }); setTimeout(function(){ if(callback) callback(); }, 650); } function focusCollectionCard(card){ if(!card) return; card.classList.remove("focusCard"); void card.offsetWidth; card.classList.add("focusCard"); } function playAbsorbIntoCollection(card, imageUrl, callback){ const layer = document.getElementById("collectionAbsorbFx"); if(!layer || !card || !imageUrl){ if(callback) callback(); return; } const rect = card.getBoundingClientRect(); const tx = rect.left + rect.width / 2; const ty = rect.top + rect.height / 2; layer.innerHTML = ""; layer.style.display = "block"; const img = document.createElement("img"); img.className = "absorbSeal"; img.src = imageUrl; img.style.setProperty("--target-left", tx + "px"); img.style.setProperty("--target-top", ty + "px"); layer.appendChild(img); for(let i=0;i<22;i++){ const sp = document.createElement("div"); sp.className = "absorbSpark"; sp.style.left = tx + "px"; sp.style.top = ty + "px"; sp.style.setProperty("--sx", (Math.random()*140 - 70) + "px"); sp.style.setProperty("--sy", (Math.random()*140 - 70) + "px"); sp.style.animationDelay = (Math.random()*0.22) + "s"; layer.appendChild(sp); } setTimeout(function(){ layer.style.display = "none"; layer.innerHTML = ""; if(callback) callback(); }, 1050); } function showCollectionToast(text){ const toast = document.getElementById("collectionToast"); if(!toast) return; toast.textContent = text; toast.classList.remove("show"); void toast.offsetWidth; toast.classList.add("show"); } function clearPendingNewCard(){ pendingNewCardId = ""; pendingNewImageUrl = ""; pendingNewName = ""; try{ sessionStorage.removeItem("pendingNewCardId"); sessionStorage.removeItem("pendingNewImageUrl"); sessionStorage.removeItem("pendingNewName"); }catch(e){} } function openSealZoom(imageUrl, name){ if(!imageUrl) return; document.getElementById("zoomImg").src = imageUrl; document.getElementById("zoomName").textContent = name || ""; document.getElementById("sealZoom").style.display = "flex"; } function closeSealZoom(){ document.getElementById("sealZoom").style.display = "none"; } function closeCollection(){ const collection = document.getElementById("collection"); collection.style.display = "none"; collection.classList.remove("collectionOpening"); } function escapeHtml(str){ return String(str || "") .replace(/&/g,"&amp;") .replace(/</g,"&lt;") .replace(/>/g,"&gt;") .replace(/"/g,"&quot;") .replace(/'/g,"&#039;"); }  </script>
+
+<!-- ===== Ver.12 Ultimate 追加パッチ：軽量化・表示強化 ===== -->
+
+<script> /* ===== Ver.12.1 表示文修正：受け取り済み表示の矛盾対策 ===== */ (function(){ function setKuronekoStatusFixed(status){ const statusText = document.getElementById("statusText"); const dailyLimitText = document.getElementById("dailyLimitText"); const remaining = Number(status && status.remaining !== undefined ? status.remaining : 0); const dailyLimit = Number(status && status.dailyLimit !== undefined ? status.dailyLimit : 1); const usedCount = Math.max(0, dailyLimit - remaining); if(statusText){ if(remaining > 0){ statusText.textContent = "今日も黒猫が待ってるにゃ♪"; }else{ statusText.textContent = "本日のガチャは終了です"; } } if(dailyLimitText){ if(remaining > 0){ dailyLimitText.textContent = "🎁 あと" + remaining + "回引けるにゃー♪"; }else{ dailyLimitText.textContent = "また明日8時に来てにゃー♪"; } } } window.kuronekoFixDailyStatusText = setKuronekoStatusFixed; const oldUpdateDailyStatus = window.updateDailyStatus; if(typeof oldUpdateDailyStatus === "function"){ window.updateDailyStatus = function(status){ try{ oldUpdateDailyStatus(status); }catch(e){} setKuronekoStatusFixed(status); }; } const oldRenderStatus = window.renderStatus; if(typeof oldRenderStatus === "function"){ window.renderStatus = function(status){ try{ oldRenderStatus(status); }catch(e){} setKuronekoStatusFixed(status); }; } const oldSetStatus = window.setStatus; if(typeof oldSetStatus === "function"){ window.setStatus = function(message){ oldSetStatus(message); const dailyLimitText = document.getElementById("dailyLimitText"); if(dailyLimitText && /あと\d+回引ける/.test(dailyLimitText.textContent)){ const statusText = document.getElementById("statusText"); if(statusText && /受け取り済み|受取済み/.test(statusText.textContent)){ statusText.textContent = "今日も黒猫が待ってるにゃ♪"; } } }; } document.addEventListener("DOMContentLoaded", function(){ setTimeout(function(){ const statusText = document.getElementById("statusText"); const dailyLimitText = document.getElementById("dailyLimitText"); if(statusText && dailyLimitText){ const m = dailyLimitText.textContent.match(/あと(\d+)回引ける/); if(m && Number(m[1]) > 0 && /受け取り済み|受取済み/.test(statusText.textContent)){ statusText.textContent = "今日も黒猫が待ってるにゃ♪"; } } }, 800); }); })(); </script>
+
+<style> /* ===== クロネコガチャ 安全追加：にゃー音だけ ===== */ </style>
+
+<style> /* ===== クロネコガチャ 安全追加：ガチャ券だけ ===== */ #kuronekoTicketFx{ position:fixed; inset:0; z-index:260; display:none; pointer-events:none; overflow:hidden; background:rgba(0,0,0,.18); } #kuronekoTicketFx.show{ display:block; } .kuronekoTicketPaper{ position:absolute; left:50%; top:-110px; width:150px; height:72px; transform:translateX(-50%); border-radius:16px; background:linear-gradient(135deg,#fff7ad,#facc15 45%,#f97316); border:3px solid rgba(255,255,255,.85); box-shadow:0 0 24px #facc15,0 0 60px rgba(250,204,21,.45); animation:kuronekoTicketFall 2.8s cubic-bezier(.16,.84,.28,1) forwards; } .kuronekoTicketPaper::before{ content:"🎫"; position:absolute; left:12px; top:13px; font-size:32px; } .kuronekoTicketPaper::after{ content:"もう1回"; position:absolute; right:12px; top:20px; color:#3b2408; font-size:21px; font-weight:900; text-shadow:0 1px 0 rgba(255,255,255,.75); } @keyframes kuronekoTicketFall{ 0%{top:-110px; transform:translateX(-50%) rotate(-18deg) scale(.9); opacity:0;} 14%{opacity:1;} 38%{top:24%; transform:translateX(-62%) rotate(16deg) scale(1.06);} 62%{top:42%; transform:translateX(-38%) rotate(-10deg) scale(1.02);} 100%{top:52%; transform:translateX(-50%) rotate(0deg) scale(1); opacity:1;} } .kuronekoTicketMessage{ position:absolute; left:50%; top:66%; width:min(86%,360px); transform:translateX(-50%); padding:16px 14px; border-radius:22px; background:rgba(0,0,0,.82); color:#fff7d6; text-align:center; font-weight:900; box-shadow:0 0 24px rgba(250,204,21,.45); text-shadow:0 2px 4px #000; opacity:0; animation:kuronekoTicketMsg 2.6s .55s ease forwards; } .kuronekoTicketMessage .big{ display:block; color:#facc15; font-size:24px; margin-bottom:5px; text-shadow:0 0 12px #facc15; } .kuronekoTicketMessage .small{ display:block; font-size:15px; } @keyframes kuronekoTicketMsg{ 0%{opacity:0; transform:translateX(-50%) scale(.82);} 16%,82%{opacity:1; transform:translateX(-50%) scale(1);} 100%{opacity:0; transform:translateX(-50%) scale(.96);} } </style>
+
+<script> /* ===== クロネコガチャ 安全追加：ガチャ券だけ ===== */ (function(){ function ensureTicketLayer(){ let fx = document.getElementById("kuronekoTicketFx"); if(fx) return fx; fx = document.createElement("div"); fx.id = "kuronekoTicketFx"; fx.innerHTML = '<div class="kuronekoTicketPaper"></div>' + '<div class="kuronekoTicketMessage">' + '<span class="big">🎫 ガチャ券GET！</span>' + '<span class="small">黒猫からのおまけにゃ♪<br>もう1回引けるにゃー！</span>' + '</div>'; document.body.appendChild(fx); return fx; } function showTicketFx(){ const fx = ensureTicketLayer(); fx.classList.remove("show"); void fx.offsetWidth; fx.classList.add("show"); try{ if(navigator.vibrate) navigator.vibrate([60,40,90,40,120]); }catch(e){} if(typeof window.kuronekoMeow === "function"){ window.kuronekoMeow("start"); } setTimeout(function(){ fx.classList.remove("show"); }, 3400); } window.kuronekoShowTicketFx = showTicketFx; document.addEventListener("DOMContentLoaded", ensureTicketLayer); const oldShowResult = window.showResult; if(typeof oldShowResult === "function"){ window.showResult = function(res){ const ret = oldShowResult.apply(this, arguments); try{ if(res && res.bonusTicket){ setTimeout(showTicketFx, 900); if(typeof updateDailyLimitText === "function"){ setTimeout(function(){ updateDailyLimitText( Number(res.remaining || 0), Number(res.dailyLimit || 2), Number(res.bonusTickets || 0) ); }, 1200); } } }catch(e){} return ret; }; } })(); </script>
+
+<style> /* ===== クロネコガチャ 安全追加：図鑑画像リトライ・超シークレット表示・超演出 ===== */ /* 画像読み込み失敗時の白い四角を目立たなくする */ .cardMini img.kuroImgRetrying{ background: radial-gradient(circle at 50% 45%, rgba(250,204,21,.16), transparent 42%), linear-gradient(135deg,rgba(15,23,42,.96),rgba(2,6,23,.96)); object-fit:contain; } /* 900番台・超シークレットの図鑑表現 */ .cardMini.superSecretMini{ background: radial-gradient(circle at 50% 20%, rgba(250,204,21,.42), transparent 35%), linear-gradient(135deg,rgba(250,204,21,.30),rgba(168,85,247,.38),rgba(2,6,23,.88)); box-shadow: 0 0 20px rgba(250,204,21,.55), 0 0 36px rgba(168,85,247,.28), inset 0 0 0 1px rgba(255,255,255,.16); } .cardMini.superSecretMini::after{ content:"SUPER"; position:absolute; right:5px; top:5px; padding:2px 5px; border-radius:999px; background:linear-gradient(90deg,#facc15,#fb7185,#a855f7); color:#111827; font-size:7px; font-weight:900; z-index:6; box-shadow:0 0 12px rgba(250,204,21,.75); } .cardMini.superSecretMini .lockedThumb{ background: radial-gradient(circle at 50% 45%, rgba(250,204,21,.35), transparent 42%), linear-gradient(135deg,rgba(24,0,40,.96),rgba(2,6,23,.96)); color:#facc15; text-shadow:0 0 12px #facc15; } #superSecretFx{ position:fixed; inset:0; z-index:300; display:none; pointer-events:none; overflow:hidden; background:radial-gradient(circle at 50% 50%, rgba(250,204,21,.16), rgba(0,0,0,.98) 58%); } #superSecretFx.show{ display:block; animation:ssBgPulse 7.8s ease forwards; } @keyframes ssBgPulse{ 0%{filter:brightness(.7);} 20%{filter:brightness(1.2);} 45%{filter:brightness(.85);} 72%{filter:brightness(1.35);} 100%{filter:brightness(1);} } .ssEyes{ position:absolute; left:50%; top:23%; width:210px; height:70px; transform:translateX(-50%); opacity:0; animation:ssEyes 4.8s .45s ease forwards; } .ssEyes::before, .ssEyes::after{ content:""; position:absolute; top:15px; width:58px; height:34px; border-radius:50%; background:radial-gradient(circle,#fff7ad,#facc15 45%,#78350f 70%); box-shadow:0 0 28px #facc15,0 0 60px rgba(250,204,21,.7); } .ssEyes::before{left:25px;} .ssEyes::after{right:25px;} @keyframes ssEyes{ 0%{opacity:0; transform:translateX(-50%) scale(.5);} 18%{opacity:1; transform:translateX(-50%) scale(1);} 68%{opacity:1; transform:translateX(-50%) scale(1.08);} 100%{opacity:0; transform:translateX(-50%) scale(1.3);} } .ssLightning{ position:absolute; left:50%; top:0; width:34px; height:360px; transform:translateX(-50%); background:#fef08a; clip-path:polygon(46% 0,86% 0,56% 40%,91% 40%,28% 100%,45% 55%,10% 55%); filter:drop-shadow(0 0 24px #facc15); opacity:0; animation:ssLightning 5.6s .9s ease forwards; } @keyframes ssLightning{ 0%,15%,28%,44%,100%{opacity:0;} 18%,24%,48%,58%{opacity:1;} } .ssTitle{ position:absolute; left:50%; top:39%; transform:translateX(-50%); color:#fff7ad; font-size:28px; font-weight:900; letter-spacing:2px; white-space:nowrap; text-shadow:0 0 14px #facc15,0 0 34px #fb7185,0 0 54px #a855f7; opacity:0; animation:ssTitle 4.8s 1.45s ease forwards; } @keyframes ssTitle{ 0%{opacity:0; transform:translateX(-50%) scale(.6);} 20%{opacity:1; transform:translateX(-50%) scale(1.18);} 72%{opacity:1; transform:translateX(-50%) scale(1);} 100%{opacity:0; transform:translateX(-50%) scale(1.3);} } .ssPrize{ position:absolute; left:50%; top:54%; width:min(88%,380px); transform:translateX(-50%); padding:18px 14px; border-radius:24px; background:linear-gradient(135deg,rgba(250,204,21,.94),rgba(251,113,133,.92),rgba(168,85,247,.9)); color:#111827; text-align:center; font-weight:900; box-shadow:0 0 30px #facc15,0 0 70px rgba(168,85,247,.5); opacity:0; animation:ssPrize 4.7s 2.05s ease forwards; } .ssPrize .big{ display:block; font-size:25px; margin-bottom:7px; } .ssPrize .small{ display:block; font-size:17px; } @keyframes ssPrize{ 0%{opacity:0; transform:translateX(-50%) scale(.55) rotate(-5deg);} 24%{opacity:1; transform:translateX(-50%) scale(1.12) rotate(2deg);} 75%{opacity:1; transform:translateX(-50%) scale(1) rotate(0);} 100%{opacity:0; transform:translateX(-50%) scale(1.18);} } .ssFlash{ position:absolute; inset:0; background:white; opacity:0; animation:ssFlash 6.2s 1.1s ease forwards; } @keyframes ssFlash{ 0%,18%,31%,100%{opacity:0;} 20%{opacity:.85;} 34%{opacity:.55;} } </style>
+
+<script> /* ===== クロネコガチャ 安全追加：図鑑画像リトライ・超シークレット表示・超演出 ===== */ (function(){ function isSuperSecretCardElement(card){ if(!card) return false; const no = card.getAttribute("data-no") || ""; if(/^No\.?0?9\d\d/i.test(no)) return true; if(/^No\.?900/i.test(no)) return true; const txt = card.textContent || ""; if(/SUPER|超シークレット|supersecret/i.test(txt)) return true; const img = card.querySelector("img"); if(img && /\/900_|900_/.test(img.src || "")) return true; return false; } function markSuperSecretCards(){ const cards = document.querySelectorAll(".cardMini"); cards.forEach(function(card){ if(isSuperSecretCardElement(card)){ card.classList.add("superSecretMini"); } }); } function fixBrokenImages(){ const imgs = document.querySelectorAll(".cardMini img:not([data-kuro-retry-ready])"); imgs.forEach(function(img){ img.dataset.kuroRetryReady = "1"; img.addEventListener("error", function(){ const retryCount = Number(img.dataset.kuroRetryCount || 0); if(retryCount >= 3) { img.classList.add("kuroImgRetrying"); return; } img.dataset.kuroRetryCount = String(retryCount + 1); img.classList.add("kuroImgRetrying"); const baseSrc = (img.src || "").split("?")[0]; const delay = 450 + retryCount * 700; setTimeout(function(){ img.src = baseSrc + "?retry=" + Date.now(); }, delay); }); img.addEventListener("load", function(){ img.classList.remove("kuroImgRetrying"); }); }); } function ensureSuperSecretFx(){ let fx = document.getElementById("superSecretFx"); if(fx) return fx; fx = document.createElement("div"); fx.id = "superSecretFx"; fx.innerHTML = '<div class="ssFlash"></div>' + '<div class="ssLightning"></div>' + '<div class="ssEyes"></div>' + '<div class="ssTitle">SUPER SECRET</div>' + '<div class="ssPrize"><span class="big">🎁 Amazonギフト券1000円</span><span class="small">黒猫からの超特別賞にゃ！！</span></div>'; document.body.appendChild(fx); return fx; } function showSuperSecretFx(){ const fx = ensureSuperSecretFx(); fx.classList.remove("show"); void fx.offsetWidth; fx.classList.add("show"); try{ if(navigator.vibrate) navigator.vibrate([100,50,160,60,220,80,260]); }catch(e){} if(typeof window.kuronekoMeow === "function"){ window.kuronekoMeow("secret"); } setTimeout(function(){ fx.classList.remove("show"); }, 7600); } window.kuronekoShowSuperSecretFx = showSuperSecretFx; document.addEventListener("DOMContentLoaded", function(){ ensureSuperSecretFx(); fixBrokenImages(); markSuperSecretCards(); const mo = new MutationObserver(function(){ fixBrokenImages(); markSuperSecretCards(); }); mo.observe(document.body, { childList:true, subtree:true }); }); })(); </script>
+
+<style> /* ===== クロネコガチャ 完成版：通常図鑑とSPECIAL分離 ===== */ #specialCollectionArea{ margin-top:18px; padding-top:16px; border-top:1px solid rgba(250,204,21,.35); } .specialTitle{ text-align:center; color:#facc15; font-size:20px; font-weight:900; letter-spacing:1px; text-shadow:0 0 12px rgba(250,204,21,.75); margin:0 0 5px; } .specialSub{ text-align:center; color:#fff7d6; font-size:12px; font-weight:800; margin:0 0 12px; opacity:.95; } .specialGrid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; align-items:start; } .cardMini.specialExcluded{ display:none !important; } .cardMini.specialMini{ position:relative; height:154px; padding:6px; border-radius:15px; box-sizing:border-box; overflow:hidden; background: radial-gradient(circle at 50% 20%, rgba(250,204,21,.35), transparent 38%), linear-gradient(135deg,rgba(250,204,21,.22),rgba(168,85,247,.35),rgba(2,6,23,.9)); box-shadow: 0 0 20px rgba(250,204,21,.48), 0 0 36px rgba(168,85,247,.22), inset 0 0 0 1px rgba(255,255,255,.13); text-align:center; cursor:pointer; } .cardMini.specialMini::before{ content:attr(data-no); position:absolute; left:5px; top:5px; padding:2px 5px; border-radius:999px; background:rgba(0,0,0,.75); color:#facc15; font-size:9px; font-weight:900; z-index:5; } .cardMini.specialMini::after{ content:"SPECIAL"; position:absolute; right:5px; top:5px; padding:2px 5px; border-radius:999px; background:linear-gradient(90deg,#facc15,#fb7185,#a855f7); color:#111827; font-size:7px; font-weight:900; z-index:6; box-shadow:0 0 12px rgba(250,204,21,.75); } .cardMini.specialMini img{ width:100%; height:112px; object-fit:cover; object-position:center center; border-radius:9px; display:block; background:white; box-shadow:0 0 10px rgba(0,0,0,.4); } .cardMini.specialMini .lockedThumb{ width:100%; height:112px; border-radius:9px; box-sizing:border-box; background: radial-gradient(circle at 50% 45%, rgba(250,204,21,.35), transparent 42%), linear-gradient(135deg,rgba(24,0,40,.96),rgba(2,6,23,.96)); display:flex; align-items:center; justify-content:center; color:#facc15; font-size:25px; font-weight:900; text-shadow:0 0 12px #facc15; box-shadow:inset 0 0 0 1px rgba(250,204,21,.25); } .cardMini.specialMini .specialName{ height:26px; margin-top:6px; display:flex; align-items:center; justify-content:center; color:#fff7d6; font-size:11px; font-weight:900; line-height:1.05; text-shadow:0 2px 4px #000; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .cardMini.specialMini.soldOut .lockedThumb::after{ content:"GET済"; position:absolute; left:50%; top:48%; transform:translate(-50%,-50%) rotate(-10deg); padding:5px 10px; border-radius:999px; background:rgba(0,0,0,.78); color:#facc15; font-size:13px; font-weight:900; box-shadow:0 0 14px rgba(250,204,21,.65); } </style>
+
+<script> /* ===== クロネコガチャ 完成版：通常図鑑とSPECIAL分離 ===== */ (function(){ let lastCollectionData = null; function isSpecialCardData(c){ if(!c) return false; if(c.supersecret) return true; if(String(c.type || "").toLowerCase() === "supersecret") return true; if(/^900/i.test(String(c.id || ""))) return true; return false; } function makeSpecialCard(c, index){ const div = document.createElement("div"); div.className = "cardMini specialMini" + (c.soldOut ? " soldOut" : ""); div.setAttribute("data-no", "No.EX" + String(index + 1).padStart(2,"0")); const owned = !!c.owned; if(owned && c.imageUrl){ const img = document.createElement("img"); img.src = c.imageUrl; img.alt = c.realName || c.name || "SPECIAL"; img.addEventListener("click", function(){ if(typeof openSealZoom === "function"){ openSealZoom(c.imageUrl, c.realName || c.name || "SPECIAL"); } }); div.appendChild(img); }else{ const locked = document.createElement("div"); locked.className = "lockedThumb"; locked.textContent = "???"; div.appendChild(locked); } const name = document.createElement("div"); name.className = "specialName"; if(owned){ name.textContent = c.realName || c.name || "SPECIAL"; }else if(c.soldOut){ name.textContent = "現在入手不可"; }else{ name.textContent = "SPECIAL"; } div.appendChild(name); return div; } function renderSpecialArea(data){ const collection = document.getElementById("collection"); const grid = document.getElementById("collectionGrid") || document.querySelector("#collection .grid"); if(!collection || !grid || !data) return; let special = data.specialCards || []; if(!special.length && data.cards && data.cards.length){ special = data.cards.filter(isSpecialCardData); } const old = document.getElementById("specialCollectionArea"); if(old) old.remove(); /* 通常グリッド内に紛れた900番台を非表示 */ const minis = grid.querySelectorAll(".cardMini"); minis.forEach(function(card){ const no = card.getAttribute("data-no") || ""; const txt = card.textContent || ""; const img = card.querySelector("img"); if(/^No\.?0?9\d\d/i.test(no) || /SUPER|超シークレット|supersecret/i.test(txt) || (img && /\/900_|900_/.test(img.src || ""))){ card.classList.add("specialExcluded"); } }); if(!special.length) return; const area = document.createElement("div"); area.id = "specialCollectionArea"; const title = document.createElement("div"); title.className = "specialTitle"; title.textContent = "SPECIAL"; area.appendChild(title); const sub = document.createElement("div"); sub.className = "specialSub"; sub.textContent = "通常コンプリート対象外の特別枠"; area.appendChild(sub); const sgrid = document.createElement("div"); sgrid.className = "specialGrid"; special.forEach(function(c, i){ sgrid.appendChild(makeSpecialCard(c, i)); }); area.appendChild(sgrid); const closeBtn = document.getElementById("closeCollection"); if(closeBtn && closeBtn.parentNode === collection){ collection.insertBefore(area, closeBtn); }else{ collection.appendChild(area); } } const oldRenderCollection = window.renderCollection; if(typeof oldRenderCollection === "function"){ window.renderCollection = function(data){ lastCollectionData = data; const ret = oldRenderCollection.apply(this, arguments); setTimeout(function(){ renderSpecialArea(data); }, 50); return ret; }; } const oldOpenCollection = window.openCollection; if(typeof oldOpenCollection === "function"){ window.openCollection = function(){ const ret = oldOpenCollection.apply(this, arguments); setTimeout(function(){ if(lastCollectionData) renderSpecialArea(lastCollectionData); }, 300); return ret; }; } document.addEventListener("DOMContentLoaded", function(){ const mo = new MutationObserver(function(){ if(lastCollectionData) renderSpecialArea(lastCollectionData); }); mo.observe(document.body,{childList:true,subtree:true}); }); })(); </script>
+
+<style> /* ===== クロネコガチャ Ver.1.1 安定版：図鑑sortNo固定・画像リトライ ===== */ .cardMini img.kuroRetryImg{ background: radial-gradient(circle at 50% 45%, rgba(250,204,21,.16), transparent 42%), linear-gradient(135deg,rgba(15,23,42,.96),rgba(2,6,23,.96)); object-fit:contain; } #collectionInfo .kuroPercent{ display:block; margin-top:3px; color:#facc15; font-size:13px; font-weight:900; text-shadow:0 0 8px rgba(250,204,21,.5); } </style>
+
+<script> /* ===== クロネコガチャ Ver.1.1 安定版：図鑑sortNo固定・画像リトライ ===== */ (function(){ let kuroLastCollectionData = null; function sortCollectionData(data){ if(!data || !Array.isArray(data.cards)) return data; data.cards.sort(function(a,b){ const sa = Number(a.sortNo || 999999); const sb = Number(b.sortNo || 999999); if(sa !== sb) return sa - sb; return String(a.id || "").localeCompare(String(b.id || "")); }); if(Array.isArray(data.specialCards)){ data.specialCards.sort(function(a,b){ const sa = Number(a.sortNo || 999999); const sb = Number(b.sortNo || 999999); if(sa !== sb) return sa - sb; return String(a.id || "").localeCompare(String(b.id || "")); }); } return data; } const oldRenderCollection = window.renderCollection; if(typeof oldRenderCollection === "function"){ window.renderCollection = function(data){ kuroLastCollectionData = sortCollectionData(data); const ret = oldRenderCollection.call(this, kuroLastCollectionData); setTimeout(function(){ applyImageRetry(); fixCollectionPercent(kuroLastCollectionData); },80); return ret; }; } function applyImageRetry(){ const imgs = document.querySelectorAll(".cardMini img:not([data-kuro-img-ready])"); imgs.forEach(function(img){ img.dataset.kuroImgReady = "1"; img.addEventListener("error", function(){ const count = Number(img.dataset.kuroRetryCount || 0); if(count >= 3){ img.classList.add("kuroRetryImg"); return; } img.dataset.kuroRetryCount = String(count + 1); img.classList.add("kuroRetryImg"); const base = String(img.src || "").split("?")[0]; setTimeout(function(){ img.src = base + "?retry=" + Date.now(); }, 500 + count * 800); }); img.addEventListener("load", function(){ img.classList.remove("kuroRetryImg"); }); }); } function fixCollectionPercent(data){ const info = document.getElementById("collectionInfo"); if(!info || !data) return; const owned = Number(data.ownedCount || 0); const total = Number(data.totalCount || 0); if(!total) return; let p = info.querySelector(".kuroPercent"); if(!p){ p = document.createElement("span"); p.className = "kuroPercent"; info.appendChild(p); } const percent = Math.floor((owned / total) * 100); p.textContent = "通常図鑑 収集率 " + percent + "%"; } document.addEventListener("DOMContentLoaded", function(){ applyImageRetry(); const mo = new MutationObserver(function(){ applyImageRetry(); if(kuroLastCollectionData) fixCollectionPercent(kuroLastCollectionData); }); mo.observe(document.body,{ childList:true, subtree:true }); }); })(); </script>
+
+<style> /* ===== クロネコガチャ Ver.1.2 管理人機能：メンテナンス表示 ===== */ #maintenanceOverlay{ position:fixed; inset:0; z-index:500; display:none; align-items:center; justify-content:center; padding:20px; box-sizing:border-box; background:rgba(0,0,0,.88); color:white; text-align:center; } #maintenanceOverlay.show{ display:flex; } .maintenanceBox{ width:min(92%,380px); padding:24px 18px; border-radius:24px; background:linear-gradient(180deg,rgba(15,23,42,.98),rgba(2,6,23,.98)); box-shadow:0 0 28px rgba(250,204,21,.35), inset 0 0 0 1px rgba(255,255,255,.12); } .maintenanceTitle{ color:#facc15; font-size:24px; font-weight:900; margin-bottom:12px; text-shadow:0 0 12px rgba(250,204,21,.65); } .maintenanceMsg{ color:#fff7d6; font-size:15px; font-weight:800; line-height:1.6; } </style>
+
+<script> /* ===== クロネコガチャ Ver.1.2 管理人機能：メンテナンス表示 ===== */ (function(){ function ensureMaintenanceOverlay(){ let ov = document.getElementById("maintenanceOverlay"); if(ov) return ov; ov = document.createElement("div"); ov.id = "maintenanceOverlay"; ov.innerHTML = '<div class="maintenanceBox">' + '<div class="maintenanceTitle">🛠 メンテナンス中</div>' + '<div class="maintenanceMsg" id="maintenanceMsg">ただいまアップデート中です。少し待ってにゃー🐾</div>' + '</div>'; document.body.appendChild(ov); return ov; } window.kuronekoShowMaintenance = function(message){ const ov = ensureMaintenanceOverlay(); const msg = document.getElementById("maintenanceMsg"); if(msg) msg.textContent = message || "ただいまアップデート中です。少し待ってにゃー🐾"; ov.classList.add("show"); }; })(); </script>
+
+
+<style>
+/* ===== Ver.2.5 最終上書き：配置修正・点滅抑制・演出差別化 ===== */
+#soundToggle{
+  position:absolute !important;
+  left:3.4% !important;
+  right:auto !important;
+  top:2.0% !important;
+  width:64px !important;
+  height:34px !important;
+  z-index:250 !important;
+  border-radius:999px !important;
+  background:rgba(2,6,23,.72) !important;
+  border:1px solid rgba(250,204,21,.55) !important;
+  color:#fff7d6 !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-shadow:0 0 10px rgba(250,204,21,.22) !important;
+}
+#dailyLimitText{
+  left:7.5% !important;
+  top:91.1% !important;
+  width:85% !important;
+  height:4.4% !important;
+  color:#3b2408 !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  line-height:1.05 !important;
+  z-index:90 !important;
+  text-shadow:0 1px 0 rgba(255,255,255,.9) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+}
+#effect.kv25Effect{
+  background:
+    radial-gradient(circle at 50% 54%,rgba(250,204,21,.15),transparent 33%),
+    radial-gradient(circle at 15% 16%,rgba(56,189,248,.10),transparent 28%),
+    radial-gradient(circle at 86% 22%,rgba(244,114,182,.10),transparent 30%),
+    rgba(0,0,0,.94) !important;
+}
+#effect.kv25Secret{
+  background:
+    radial-gradient(circle at 50% 52%,rgba(250,204,21,.24),transparent 34%),
+    radial-gradient(circle at 18% 18%,rgba(168,85,247,.17),transparent 30%),
+    radial-gradient(circle at 82% 20%,rgba(56,189,248,.16),transparent 31%),
+    rgba(0,0,0,.96) !important;
+}
+#effect.kv25Super{
+  background:
+    radial-gradient(circle at 50% 52%,rgba(255,255,255,.18),transparent 20%),
+    radial-gradient(circle at 50% 52%,rgba(250,204,21,.28),transparent 38%),
+    radial-gradient(circle at 18% 16%,rgba(244,63,94,.18),transparent 30%),
+    radial-gradient(circle at 84% 20%,rgba(56,189,248,.18),transparent 31%),
+    rgba(0,0,0,.98) !important;
+}
+.kv25Skip{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);color:rgba(255,255,255,.72);font-size:13px;font-weight:900;text-shadow:0 2px 5px #000;z-index:80;}
+.kv25Cutin{position:absolute;left:50%;top:16%;width:94%;transform:translateX(-50%);text-align:center;color:#fff7d6;font-size:22px;font-weight:900;letter-spacing:.03em;text-shadow:0 2px 5px #000,0 0 12px rgba(250,204,21,.72);opacity:0;animation:kv25Cutin 1.25s ease forwards;z-index:70;}
+@keyframes kv25Cutin{0%{opacity:0;transform:translateX(-50%) translateY(15px) scale(.92)}24%{opacity:1;transform:translateX(-50%) translateY(0) scale(1.04)}100%{opacity:.94;transform:translateX(-50%) scale(1)}}
+.kv25Particle{position:absolute;width:7px;height:7px;border-radius:50%;background:#facc15;box-shadow:0 0 8px #facc15,0 0 14px rgba(250,204,21,.48);animation:kv25Particle 1.25s ease-out forwards;z-index:50;}
+.kv25Particle.square{border-radius:2px;background:#fff7ad}.kv25Particle.paper{width:12px;height:7px;border-radius:2px;background:#fef3c7}.kv25Particle.shard{width:14px;height:4px;border-radius:1px;background:#e0f2fe;box-shadow:0 0 9px #bae6fd;}
+@keyframes kv25Particle{0%{opacity:0;transform:translate(0,0) scale(.25) rotate(0)}20%{opacity:.95}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.15) rotate(280deg)}}
+.kv25Star{position:absolute;width:9px;height:9px;background:#fff7ad;clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);box-shadow:0 0 10px rgba(250,204,21,.75);animation:kv25Star 2.2s linear forwards;z-index:35;}
+@keyframes kv25Star{0%{opacity:0;transform:translateY(-12vh) scale(.4) rotate(0)}18%{opacity:.85}100%{opacity:0;transform:translateY(110vh) scale(1.15) rotate(220deg)}}
+.kv25Flash{position:absolute;inset:0;background:rgba(255,255,240,.42);opacity:0;animation:kv25Flash .78s ease-out forwards;z-index:65;}.kv25Flash.secret{background:radial-gradient(circle,rgba(255,255,255,.70),rgba(250,204,21,.42),rgba(168,85,247,.22),transparent 78%)}.kv25Flash.super{background:radial-gradient(circle,rgba(255,255,255,.80),rgba(250,204,21,.55),rgba(244,63,94,.28),rgba(56,189,248,.22),transparent 82%)}
+@keyframes kv25Flash{0%,100%{opacity:0}28%{opacity:.58}58%{opacity:.16}}
+.kv25Card{position:absolute;left:50%;top:53%;width:174px;height:232px;border-radius:18px;background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(250,204,21,.86),rgba(255,255,255,.94));box-shadow:0 0 24px rgba(255,255,255,.62),0 0 50px rgba(250,204,21,.70),0 0 76px rgba(244,114,182,.24);opacity:0;z-index:62;}
+.kv25Card.drop{animation:kv25CardDrop 1.25s cubic-bezier(.18,1.2,.25,1) forwards}.kv25Card.zoom{animation:kv25CardZoom 1.05s ease-out forwards}.kv25Card.shuffle{animation:kv25CardShuffle 1.2s ease-out forwards}.kv25Card.tear{animation:kv25CardTear 1.15s ease-out forwards}.kv25Card.rise{animation:kv25CardRise 1.3s ease-out forwards}.kv25Card.gate{animation:kv25CardGate 1.2s ease-out forwards}.kv25Card.crack{animation:kv25CardCrack 1.1s ease-out forwards}.kv25Card.secretSpin{animation:kv25CardSecretSpin 1.4s ease-out forwards}.kv25Card.super{animation:kv25CardSuper 1.65s ease-out forwards;box-shadow:0 0 35px #fff,0 0 78px rgba(250,204,21,.85),0 0 120px rgba(244,63,94,.35),0 0 150px rgba(56,189,248,.30)}
+@keyframes kv25CardDrop{0%{opacity:0;transform:translate(-50%,-160vh) rotate(16deg) scale(.8)}68%{opacity:1;transform:translate(-50%,-50%) rotate(-4deg) scale(1.08)}100%{opacity:.98;transform:translate(-50%,-50%) rotate(0) scale(1)}}
+@keyframes kv25CardZoom{0%{opacity:0;transform:translate(-50%,-50%) scale(.05);filter:blur(8px)}65%{opacity:1;transform:translate(-50%,-50%) scale(1.14);filter:blur(0)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1)}}
+@keyframes kv25CardShuffle{0%{opacity:0;transform:translate(-50%,-50%) translateX(-160px) rotate(-30deg) scale(.75)}35%{opacity:1;transform:translate(-50%,-50%) translateX(115px) rotate(20deg) scale(1.02)}70%{transform:translate(-50%,-50%) translateX(-36px) rotate(-8deg) scale(1.08)}100%{opacity:.98;transform:translate(-50%,-50%) translateX(0) rotate(0) scale(1)}}
+@keyframes kv25CardTear{0%{opacity:0;clip-path:inset(0 50% 0 50%);transform:translate(-50%,-50%) scale(.95)}60%{opacity:1;clip-path:inset(0 0 0 0);transform:translate(-50%,-50%) scale(1.08)}100%{opacity:.98;clip-path:inset(0 0 0 0);transform:translate(-50%,-50%) scale(1)}}
+@keyframes kv25CardRise{0%{opacity:0;transform:translate(-50%,35%) scale(.7);filter:blur(7px)}70%{opacity:1;transform:translate(-50%,-55%) scale(1.08);filter:blur(0)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1)}}
+@keyframes kv25CardGate{0%{opacity:0;transform:translate(-50%,-50%) scaleX(.08) scaleY(1.05)}58%{opacity:1;transform:translate(-50%,-50%) scaleX(1.16) scaleY(1.04)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1)}}
+@keyframes kv25CardCrack{0%{opacity:0;transform:translate(-50%,-50%) scale(1.35) rotate(6deg);filter:contrast(1.6) blur(5px)}65%{opacity:1;transform:translate(-50%,-50%) scale(.96) rotate(-2deg);filter:blur(0)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1) rotate(0)}}
+@keyframes kv25CardSecretSpin{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotateY(180deg) rotateZ(-18deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.16) rotateY(-12deg) rotateZ(4deg)}100%{opacity:.98;transform:translate(-50%,-50%) scale(1) rotateY(0) rotateZ(0)}}
+@keyframes kv25CardSuper{0%{opacity:0;transform:translate(-50%,-50%) scale(.12) rotate(40deg);filter:blur(10px) brightness(1.8)}48%{opacity:1;transform:translate(-50%,-50%) scale(1.28) rotate(-8deg);filter:blur(0) brightness(1.2)}78%{transform:translate(-50%,-50%) scale(.95) rotate(2deg)}100%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
+.kv25SkyLine{position:absolute;left:50%;top:12%;width:2px;height:58%;background:linear-gradient(180deg,transparent,rgba(250,204,21,.75),transparent);box-shadow:0 0 18px rgba(250,204,21,.55);animation:kv25Fade 1.8s ease forwards;z-index:32}.kv25FallingSeal{position:absolute;left:50%;top:-15%;width:150px;height:200px;border-radius:18px;background:rgba(255,247,214,.72);box-shadow:0 0 28px rgba(250,204,21,.55);animation:kv25MiniFall 1.2s ease-in forwards;z-index:45}@keyframes kv25MiniFall{to{top:52%;opacity:0;transform:translateX(-50%) rotate(18deg) scale(.55)}}
+.kv25OrbZoom{position:absolute;left:50%;top:52%;width:52px;height:52px;border-radius:50%;transform:translate(-50%,-50%) scale(.18);background:radial-gradient(circle,#fff,rgba(250,204,21,.65),transparent 72%);box-shadow:0 0 34px rgba(250,204,21,.68);animation:kv25OrbZoom 1.35s ease forwards;z-index:42}@keyframes kv25OrbZoom{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}42%{opacity:.95;transform:translate(-50%,-50%) scale(2.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.4)}}.kv25FocusRing{position:absolute;left:50%;top:52%;width:160px;height:160px;border-radius:50%;border:2px solid rgba(250,204,21,.62);transform:translate(-50%,-50%) scale(.4);animation:kv25RingOut 1.3s ease forwards;z-index:35}@keyframes kv25RingOut{to{opacity:0;transform:translate(-50%,-50%) scale(2.3)}}
+.kv25BackCard{position:absolute;left:50%;top:53%;width:120px;height:166px;border-radius:14px;background:linear-gradient(135deg,#fff7ad,#38bdf8);box-shadow:0 0 20px rgba(250,204,21,.44);opacity:0;animation:kv25BackCard 1.2s ease forwards;z-index:44}@keyframes kv25BackCard{0%{opacity:0;transform:translate(-50%,-50%) translateX(0) rotate(0) scale(.7)}35%{opacity:.85}100%{opacity:0;transform:translate(-50%,-50%) translateX(var(--x)) rotate(var(--r)) scale(.92)}}.kv25ShuffleLine{position:absolute;left:10%;right:10%;top:52%;height:3px;background:linear-gradient(90deg,transparent,rgba(250,204,21,.72),transparent);box-shadow:0 0 14px rgba(250,204,21,.6);animation:kv25Fade 1s ease forwards;z-index:50}
+.kv25PaperBag{position:absolute;left:50%;top:52%;width:190px;height:210px;transform:translate(-50%,-50%);border-radius:22px;background:linear-gradient(135deg,#fef3c7,#facc15);box-shadow:0 0 28px rgba(250,204,21,.45);animation:kv25Bag 1.7s ease forwards;z-index:44;overflow:hidden}.kv25PaperBag span{position:absolute;left:50%;top:0;width:5px;height:100%;background:rgba(120,53,15,.28);transform:translateX(-50%) skewX(-18deg)}.kv25PaperBag b{position:absolute;left:0;right:0;top:48%;height:4px;background:rgba(120,53,15,.22);transform:rotate(-8deg)}@keyframes kv25Bag{0%{opacity:0;transform:translate(-50%,-50%) scale(.7)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.04)}100%{opacity:0;clip-path:polygon(0 0,45% 0,50% 45%,55% 0,100% 0,100% 100%,56% 100%,50% 55%,44% 100%,0 100%)}}.kv25TearLine{position:absolute;left:50%;top:50%;width:5px;height:230px;background:#fff;box-shadow:0 0 18px rgba(255,255,255,.85);transform:translate(-50%,-50%) rotate(-7deg);animation:kv25Fade .65s ease forwards;z-index:55}
+.kv25MagicCircle{position:absolute;left:50%;top:56%;width:150px;height:150px;border-radius:50%;border:4px solid rgba(250,204,21,.72);box-shadow:0 0 28px rgba(250,204,21,.55),inset 0 0 20px rgba(250,204,21,.35);transform:translate(-50%,-50%) scale(.25);animation:kv25Magic 2.4s ease forwards;z-index:36}.kv25MagicCircle.big{width:210px;height:210px}@keyframes kv25Magic{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}35%{opacity:.95}100%{opacity:0;transform:translate(-50%,-50%) scale(2.5) rotate(300deg)}}.kv25RuneCircle{position:absolute;left:50%;top:55%;width:210px;height:210px;transform:translate(-50%,-50%);animation:kv25Fade 2s ease forwards;z-index:42}.kv25RuneCircle i{position:absolute;color:#fff7ad;font-style:normal;font-size:22px;text-shadow:0 0 10px #facc15}.kv25RuneCircle i:nth-child(1){left:50%;top:0}.kv25RuneCircle i:nth-child(2){right:8%;top:22%}.kv25RuneCircle i:nth-child(3){right:12%;bottom:18%}.kv25RuneCircle i:nth-child(4){left:45%;bottom:0}.kv25RuneCircle i:nth-child(5){left:8%;bottom:22%}.kv25RuneCircle i:nth-child(6){left:9%;top:20%}
+.kv25Door,.kv25RoyalGate{position:absolute;left:50%;top:53%;width:210px;height:260px;transform:translate(-50%,-50%);z-index:39}.kv25Door span,.kv25RoyalGate span{position:absolute;top:0;width:50%;height:100%;background:linear-gradient(180deg,rgba(255,247,173,.78),rgba(250,204,21,.22));box-shadow:0 0 24px rgba(250,204,21,.55);animation:kv25Door 1.65s ease forwards}.kv25Door span:first-child,.kv25RoyalGate span:first-child{left:0;border-radius:18px 0 0 18px;transform-origin:left center}.kv25Door span:last-child,.kv25RoyalGate span:last-child{right:0;border-radius:0 18px 18px 0;transform-origin:right center}.kv25RoyalGate{width:250px;height:300px}.kv25RoyalGate.super{width:288px;height:340px}@keyframes kv25Door{0%{opacity:0;transform:scaleX(.1)}30%{opacity:.9;transform:scaleX(1)}100%{opacity:0;transform:scaleX(.08)}}.kv25Door span:first-child{animation-name:kv25DoorL}.kv25Door span:last-child{animation-name:kv25DoorR}.kv25RoyalGate span:first-child{animation-name:kv25DoorL}.kv25RoyalGate span:last-child{animation-name:kv25DoorR}@keyframes kv25DoorL{0%{opacity:0;transform:scaleX(.1)}35%{opacity:.9;transform:scaleX(1)}100%{opacity:0;transform:perspective(300px) rotateY(-62deg)}}@keyframes kv25DoorR{0%{opacity:0;transform:scaleX(.1)}35%{opacity:.9;transform:scaleX(1)}100%{opacity:0;transform:perspective(300px) rotateY(62deg)}}.kv25DoorLight{position:absolute;left:50%;top:53%;width:52px;height:270px;transform:translate(-50%,-50%);background:linear-gradient(180deg,transparent,rgba(255,255,255,.72),rgba(250,204,21,.55),transparent);box-shadow:0 0 40px rgba(250,204,21,.65);animation:kv25DoorLight 1.4s ease forwards;z-index:45}.kv25DoorLight.strong{width:78px;height:330px}@keyframes kv25DoorLight{0%{opacity:0;transform:translate(-50%,-50%) scaleX(.2)}45%{opacity:.85;transform:translate(-50%,-50%) scaleX(1.5)}100%{opacity:0;transform:translate(-50%,-50%) scaleX(2.4)}}
+.kv25GlassCrack{position:absolute;inset:0;background:linear-gradient(110deg,transparent 49.5%,rgba(255,255,255,.75) 50%,transparent 50.5%),linear-gradient(45deg,transparent 49.5%,rgba(250,204,21,.55) 50%,transparent 50.5%),linear-gradient(160deg,transparent 49.6%,rgba(186,230,253,.55) 50%,transparent 50.4%);filter:drop-shadow(0 0 9px rgba(250,204,21,.55));animation:kv25Crack .95s ease forwards;z-index:53}.kv25GlassCrack.secret,.kv25GlassCrack.super{background:linear-gradient(110deg,transparent 49.5%,rgba(255,255,255,.85) 50%,transparent 50.5%),linear-gradient(35deg,transparent 49.5%,rgba(250,204,21,.65) 50%,transparent 50.5%),linear-gradient(155deg,transparent 49.6%,rgba(244,114,182,.65) 50%,transparent 50.4%),linear-gradient(75deg,transparent 49.6%,rgba(56,189,248,.60) 50%,transparent 50.4%)}@keyframes kv25Crack{0%{opacity:0;transform:scale(.75)}28%{opacity:.88}100%{opacity:0;transform:scale(1.25)}}
+.kv25Prism{position:absolute;left:50%;top:52%;width:170px;height:170px;transform:translate(-50%,-50%) rotate(45deg) scale(.2);background:conic-gradient(from 0deg,rgba(244,63,94,.55),rgba(250,204,21,.55),rgba(34,197,94,.45),rgba(56,189,248,.55),rgba(168,85,247,.55),rgba(244,63,94,.55));filter:blur(1px);opacity:0;animation:kv25Prism 2.4s ease forwards;z-index:35}@keyframes kv25Prism{30%{opacity:.8;transform:translate(-50%,-50%) rotate(180deg) scale(1.1)}100%{opacity:0;transform:translate(-50%,-50%) rotate(520deg) scale(2.6)}}.kv25RainbowWave{position:absolute;left:50%;top:52%;width:120px;height:120px;border-radius:50%;transform:translate(-50%,-50%) scale(.2);background:conic-gradient(#f43f5e,#facc15,#22c55e,#38bdf8,#a855f7,#f43f5e);opacity:0;filter:blur(5px);animation:kv25Rainbow 2.4s ease forwards;z-index:34}.kv25RainbowWave.super{width:180px;height:180px}@keyframes kv25Rainbow{30%{opacity:.62;transform:translate(-50%,-50%) scale(1.3) rotate(180deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(3.2) rotate(520deg)}}
+.kv25Lightning{position:absolute;top:4%;left:50%;width:30px;height:320px;background:rgba(254,240,138,.85);clip-path:polygon(45% 0,82% 0,58% 38%,90% 38%,34% 100%,48% 53%,18% 53%);filter:drop-shadow(0 0 16px rgba(250,204,21,.72));opacity:0;animation:kv25Lightning 1.05s ease forwards;z-index:58}.kv25Lightning.l1{left:30%}.kv25Lightning.l2{left:64%}.kv25Lightning.l3{left:50%;height:380px}@keyframes kv25Lightning{0%,18%,45%,100%{opacity:0}28%,36%,62%{opacity:.82}}
+.kv25Clock{position:absolute;left:50%;top:52%;width:210px;height:210px;border-radius:50%;border:5px solid rgba(255,247,173,.75);transform:translate(-50%,-50%) scale(.2);box-shadow:0 0 28px rgba(250,204,21,.58),inset 0 0 25px rgba(250,204,21,.26);animation:kv25Clock 2.2s ease forwards;z-index:41}.kv25Clock:before,.kv25Clock:after{content:"";position:absolute;left:50%;top:50%;width:4px;height:70px;background:#fff7ad;transform-origin:bottom center;box-shadow:0 0 10px #facc15}.kv25Clock:before{transform:translate(-50%,-100%) rotate(40deg)}.kv25Clock:after{height:50px;transform:translate(-50%,-100%) rotate(125deg)}@keyframes kv25Clock{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}50%{opacity:.95;transform:translate(-50%,-50%) scale(1.1) rotate(160deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.5) rotate(160deg)}}
+.kv25SuperCore{position:absolute;left:50%;top:52%;width:70px;height:70px;border-radius:50%;transform:translate(-50%,-50%) scale(.12);background:radial-gradient(circle,#fff,#facc15,rgba(244,63,94,.35),transparent 75%);box-shadow:0 0 50px rgba(255,255,255,.75),0 0 90px rgba(250,204,21,.70),0 0 130px rgba(56,189,248,.35);animation:kv25SuperCore 3.6s ease forwards;z-index:33}@keyframes kv25SuperCore{25%{opacity:.98;transform:translate(-50%,-50%) scale(2)}70%{opacity:.8;transform:translate(-50%,-50%) scale(4)}100%{opacity:0;transform:translate(-50%,-50%) scale(6)}}
+@keyframes kv25Fade{0%{opacity:0}30%{opacity:.9}100%{opacity:0}}
+</style>
+
+</body> </html>
